@@ -9,14 +9,10 @@ This app is designed to keep track of deadlines at school and university. Not on
 | Role | Name |
 | ---- | ---- |
 | **Product Owner** | Raphael Göttfried |
-| **Scrum Master** |  |
-| **Developer** |  |
-| **Developer** |  |
-| **Developer** |  |
-| **Developer** |  |
-| **Developer** |  |
-| **Developer** |  |
-| **Developer** |  |
-| **Developer** |  |
-| **Developer** |  |
-
+| **Scrum Master** | Stefan Di Vora |
+| **Developer** | Christina Dsubanko |
+| **Developer** | Matjaž Guštin |
+| **Developer** | Julian Raphael Jautz |
+| **Developer** | Gabriel Alexandru Muresan |
+| **Developer** | Kevin Saiger |
+| **Developer** | Florian Schnedlitz |
