@@ -24,4 +24,20 @@ class AssignmentsListInstrumentedTest {
         launchActivity<AssignmentsListActivity>()
         onView(withId(R.id.assignmentsList)).check(matches(isEnabled()))
     }
+
+    @Test
+    fun activityHasHeader() {
+        launchActivity<AssignmentsListActivity>()
+        onView(withId(R.id.AppBar)).check(matches(isEnabled()))
+    }
+
+    @Test
+    fun headerHasAllButtons() {
+        launchActivity<AssignmentsListActivity>()
+        onView(withId(R.id.MainBarButton)).check(matches(isEnabled()))
+        onView(withId(R.id.ToDoBarButton)).check(matches(isEnabled()))
+        onView(withId(R.id.KurseBarButton)).check(matches(isEnabled()))
+    }
+
+
 }
