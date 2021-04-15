@@ -3,5 +3,5 @@
     <string name="title_activity_main_tabbed">MainTabbedActivity</string>
     <string name="tab_title_main">Main</string>
     <string name="tab_title_todo">Todo</string>
-    <string name="tab_title_courses">Courses</string>
+    <string name="tab_title_assignments">Assign.</string>
 </resources>

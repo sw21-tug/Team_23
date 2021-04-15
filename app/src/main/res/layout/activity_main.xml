@@ -40,10 +40,10 @@
                 android:text="@string/tab_title_todo" />
 
             <com.google.android.material.tabs.TabItem
-                android:id="@+id/tabCourses"
+                android:id="@+id/tabAssignments"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/tab_title_courses" />
+                android:text="@string/tab_title_assignments" />
         </com.google.android.material.tabs.TabLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
