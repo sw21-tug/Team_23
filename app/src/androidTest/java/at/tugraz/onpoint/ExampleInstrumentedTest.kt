@@ -11,18 +11,17 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Test
 import org.junit.runner.RunWith
 
-import org.junit.Assert.*
 import org.junit.Rule
 
 @RunWith(AndroidJUnit4::class)
 class AssignmentsListInstrumentedTest {
     @get:Rule
-    var activityRule: ActivityScenarioRule<AssignmentsListActivity> =
+     var activityRule: ActivityScenarioRule<AssignmentsListActivity> =
         ActivityScenarioRule(AssignmentsListActivity::class.java)
 
     @Test
     fun assignmentsListExists() {
         launchActivity<AssignmentsListActivity>()
-        onView(withId(R.id.assignmentsList)).check(matches(isDisplayed()))
+        onView(withId(R.id.assignmentsList)).check(matches(isEnabled()))
     }
 }
