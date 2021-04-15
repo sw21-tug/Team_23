@@ -9,7 +9,7 @@ import at.tugraz.onpoint.R
 private val TAB_TITLES = arrayOf(
     R.string.tab_title_main,
     R.string.tab_title_todo,
-    R.string.tab_title_courses,
+    R.string.tab_title_assignments,
 )
 
 /**
@@ -18,6 +18,7 @@ private val TAB_TITLES = arrayOf(
  */
 class SectionsPagerAdapter(private val context: Context, fm: FragmentManager) :
     FragmentPagerAdapter(fm) {
+    // TODO [MG] replace the deprecated FragmentPagerAdapter with the newer thing (no idea what it is)
 
     override fun getItem(position: Int): Fragment {
         // getItem is called to instantiate the fragment for the given page.
