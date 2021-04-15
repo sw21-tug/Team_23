@@ -2,9 +2,11 @@ package at.tugraz.onpoint
 
 import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
-import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 
@@ -20,24 +22,16 @@ class AssignmentsListInstrumentedTest {
         ActivityScenarioRule(AssignmentsListActivity::class.java)
 
     @Test
-    fun assignmentsListExists() {
+    fun activityHasTabList() {
         launchActivity<AssignmentsListActivity>()
-        onView(withId(R.id.assignmentsList)).check(matches(isEnabled()))
+        onView(withId(R.id.tabs)).check(ViewAssertions.matches(ViewMatchers.isEnabled()))
     }
 
     @Test
-    fun activityHasHeader() {
+    fun tabsAreClickable() {
         launchActivity<AssignmentsListActivity>()
-        onView(withId(R.id.AppBar)).check(matches(isEnabled()))
+        onView(withText("Main")).perform(ViewActions.click())
+        onView(withText("Todo")).perform(ViewActions.click())
+        onView(withText("Assign.")).perform(ViewActions.click())
     }
-
-    @Test
-    fun headerHasAllButtons() {
-        launchActivity<AssignmentsListActivity>()
-        onView(withId(R.id.MainBarButton)).check(matches(isEnabled()))
-        onView(withId(R.id.ToDoBarButton)).check(matches(isEnabled()))
-        onView(withId(R.id.KurseBarButton)).check(matches(isEnabled()))
-    }
-
-
 }
