@@ -4,8 +4,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
 import org.junit.Rule
@@ -17,7 +16,7 @@ import org.junit.runner.RunWith
 class HomeScreenTest{
 
     @Rule
-    @JvmField var activityRule: ActivityTestRule<HomeScreenActivity> = ActivityTestRule(HomeScreenActivity::class.java)
+    @JvmField var activityRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java)
 
     @Test
     fun homescreen_exists(){
@@ -27,12 +26,17 @@ class HomeScreenTest{
 
     @Test
     fun todo_exists(){
-        onView(withId(R.id.homescreen_todo_id)).check(matches(withText(R.string.homescreen_todo_string)))
+        onView(withId(R.id.homescreen_todo_id)).check(matches(isDisplayed()))
     }
 
     @Test
     fun recent_exists(){
-        onView(withId(R.id.homescreen_recent_id)).check(matches(withText(R.string.homescreen_recent_string)))
+        onView(withId(R.id.homescreen_recent_id)).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun todo_list_exists(){
+        onView(withId(R.id.homescreen_todo_list_id).check(matches(isDisplayed())))
     }
 
 

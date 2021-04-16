@@ -6,5 +6,6 @@
     <string name="title_activity_main2">MainActivity2</string>
     <string name="homescreen_todo_string">homescreen_todo_id</string>
     <string name="homescreen_todo_heading">TODO</string>
-    <string name="homescreen_recent_string">homescreen_recent_id</string>
+    <string name="homescreen_recent_id">homescreen_recent_id</string>
+    <string name="homescreen_recent_heading">Recent</string>
 </resources>
