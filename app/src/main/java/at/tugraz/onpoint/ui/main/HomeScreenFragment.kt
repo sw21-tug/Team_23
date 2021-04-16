@@ -1,5 +1,6 @@
 package at.tugraz.onpoint.ui.main
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,10 +11,11 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import at.tugraz.onpoint.R
 
+
 /**
  * A placeholder fragment containing a simple view.
  */
-class PlaceholderFragment : Fragment() {
+class HomeScreenFragment : Fragment() {
 
     private lateinit var pageViewModel: PageViewModel
 
@@ -28,11 +30,25 @@ class PlaceholderFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        println("begin of fragment")
         val root = inflater.inflate(R.layout.fragment_home_screen, container, false)
         val textView: TextView = root.findViewById(R.id.section_label)
-        pageViewModel.text.observe(this, Observer<String> {
-            textView.text = it
-        })
+
+
+        val todoLayout = root.findViewById(R.id.todo_linear_layout) as ViewGroup
+        val recentLayout = root.findViewById(R.id.recent_linear_layout) as ViewGroup
+        val todoList = listOf<String>("todo1", "todo2")
+        val recentList = listOf<String>("recent1")
+        for(todoItem in todoList){
+            // TextView2
+            println("In todo loop")
+            val textView = TextView(activity)
+            textView.setTextSize(1, 20.0F)
+            textView.setText(todoItem)
+            textView.setTextColor(Color.MAGENTA)
+            todoLayout.addView(textView)
+        }
+
         return root
     }
 
@@ -48,8 +64,8 @@ class PlaceholderFragment : Fragment() {
          * number.
          */
         @JvmStatic
-        fun newInstance(sectionNumber: Int): PlaceholderFragment {
-            return PlaceholderFragment().apply {
+        fun newInstance(sectionNumber: Int): HomeScreenFragment {
+            return HomeScreenFragment().apply {
                 arguments = Bundle().apply {
                     putInt(ARG_SECTION_NUMBER, sectionNumber)
                 }
