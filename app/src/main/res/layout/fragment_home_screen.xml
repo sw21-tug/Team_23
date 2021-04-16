@@ -20,4 +20,37 @@
         tools:layout_constraintLeft_creator="1"
         tools:layout_constraintTop_creator="1" />
 
+    <ScrollView
+        android:id="@+id/homescreen_todo_id"
+        android:layout_width="184dp"
+        android:layout_height="668dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginEnd="212dp"
+        android:layout_marginBottom="25dp"
+        android:background="#88958C"
+        android:fadingEdge="horizontal|vertical|none"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/homescreen_todo_heading_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/homescreen_todo_heading"
+            android:textColor="@color/black"
+            android:textSize="40dp"
+            android:gravity="center"/>
+        </LinearLayout>
+    </ScrollView>
+
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

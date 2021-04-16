@@ -1,11 +1,13 @@
 package at.tugraz.onpoint
 
 import androidx.test.core.app.ActivityScenario
+import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.rule.ActivityTestRule
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -14,18 +16,23 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class HomeScreenTest{
 
+    @Rule
+    @JvmField var activityRule: ActivityTestRule<HomeScreenActivity> = ActivityTestRule(HomeScreenActivity::class.java)
 
     @Test
     fun homescreen_exists(){
         val homeScreen: ActivityScenario<HomeScreenActivity> =
             ActivityScenario.launch(HomeScreenActivity::class.java)
-
-
     }
 
     @Test
     fun todo_exists(){
-        onView(withId(R.id.homescreen_todo)).check(matches(withText(R.string.homescreen_todo)));
+        onView(withId(R.id.homescreen_todo_id)).check(matches(withText(R.string.homescreen_todo_string)))
+    }
+
+    @Test
+    fun recent_exists(){
+        onView(withId(R.id.homescreen_recent_id)).check(matches(withText(R.string.homescreen_recent_string)))
     }
 
 
