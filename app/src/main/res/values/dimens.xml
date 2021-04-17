@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="todolist_listview_margin_bottom">70dp</dimen>
+    <dimen name="todolist_addButton_margin_offset">8dp</dimen>
+    <dimen name="todolist_input_margin">16dp</dimen>
+</resources>

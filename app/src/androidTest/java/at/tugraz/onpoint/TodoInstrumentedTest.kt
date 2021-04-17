@@ -1,18 +1,16 @@
 package at.tugraz.onpoint
 
 import android.content.ActivityNotFoundException
-import android.content.Intent
+import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.intent.rule.IntentsTestRule
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
 import at.tugraz.onpoint.todolist.TodoActivity
 import org.hamcrest.CoreMatchers.not
-import org.junit.Before
 import org.junit.Rule
 
 import org.junit.Test
@@ -31,6 +29,7 @@ class TodoInstrumentedTest {
             assert(false)
         }
     }
+
 
     /**
      * Checks if the initial view setup for the ToDo-Activity is correct
