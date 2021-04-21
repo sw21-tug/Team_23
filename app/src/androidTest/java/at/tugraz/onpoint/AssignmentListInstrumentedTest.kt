@@ -41,4 +41,11 @@ class AssignmentsListInstrumentedTest {
         onView(withText("Assign.")).perform(ViewActions.click())
         onView(withId(R.id.assignmentsListTitle)).check(matches(isDisplayed()))
     }
+
+    @Test
+    fun checkForContentInAssigmentList() {
+        launchActivity<MainTabbedActivity>()
+        onView(withText("Assign.")).perform(ViewActions.click())
+        onView(withId(R.id.assignmentsList)).check(matches(isDisplayed()))
+    }
 }
