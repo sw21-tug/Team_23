@@ -16,7 +16,7 @@ class MainActivity : AppCompatActivity() {
         val fragmentManager = supportFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()
         fragmentTransaction
-            .replace(R.id.frameLayout, HomeScreenFragment()).commit()
+            .replace(R.id.mainFragment, HomeScreenFragment()).commit()
 
 
         //Commit by Chritina and Julian

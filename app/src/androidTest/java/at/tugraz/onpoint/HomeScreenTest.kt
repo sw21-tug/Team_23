@@ -20,8 +20,7 @@ class HomeScreenTest{
 
     @Test
     fun homescreen_exists(){
-        val homeScreen: ActivityScenario<HomeScreenActivity> =
-            ActivityScenario.launch(HomeScreenActivity::class.java)
+        onView(withId(R.id.mainFragment)).check((matches(isDisplayed())))
     }
 
     @Test
@@ -36,7 +35,13 @@ class HomeScreenTest{
 
     @Test
     fun todo_list_exists(){
-        onView(withId(R.id.homescreen_todo_list_id).check(matches(isDisplayed())))
+        onView(withId(R.id.homescreen_todo_list_id)).check(matches(isDisplayed()))
+    }
+
+
+    @Test
+    fun background_color(){
+        onView(withId(R.id.mainScreenLayout)).check(matches(hasBackground(R.color.light-grey)))
     }
 
 
