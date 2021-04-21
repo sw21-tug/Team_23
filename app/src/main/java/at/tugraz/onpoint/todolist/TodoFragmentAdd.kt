@@ -7,6 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
 import androidx.fragment.app.FragmentManager
 import androidx.navigation.fragment.findNavController
 import at.tugraz.onpoint.R
@@ -22,6 +24,9 @@ class TodoFragmentAdd : Fragment() {
     }
 
     fun onSaveButtonClick() {
-        findNavController().navigate(R.id.action_todoFragmentAdd_to_todoFragmentListView)
+        val textInputField: EditText? = view?.findViewById(R.id.todo_InputField)
+        val input = textInputField?.text.toString()
+        val action = TodoFragmentAddDirections.actionTodoFragmentAddToTodoFragmentListView(input)
+        findNavController().navigate(action)
     }
 }

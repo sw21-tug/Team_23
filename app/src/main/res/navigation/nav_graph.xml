@@ -10,6 +10,10 @@
         <action
             android:id="@+id/action_todoFragmentListView_to_todoFragmentAdd"
             app:destination="@id/todoFragmentAdd" />
+        <argument
+            android:name="listItemText"
+            app:argType="string"
+            android:defaultValue=" "/>
     </fragment>
     <fragment
         android:id="@+id/todoFragmentAdd"
@@ -17,6 +21,11 @@
         android:label="TodoFragmentAdd" >
         <action
             android:id="@+id/action_todoFragmentAdd_to_todoFragmentListView"
-            app:destination="@id/todoFragmentListView" />
+            app:destination="@id/todoFragmentListView">
+            <argument
+                android:name="listItemText"
+                app:argType="string"
+                android:defaultValue=" "/>
+        </action>
     </fragment>
 </navigation>
