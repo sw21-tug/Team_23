@@ -21,9 +21,15 @@ class SectionsPagerAdapter(private val context: Context, fm: FragmentManager) :
     // TODO [MG] replace the deprecated FragmentPagerAdapter with the newer thing (no idea what it is)
 
     override fun getItem(position: Int): Fragment {
-        // getItem is called to instantiate the fragment for the given page.
-        // Return a PlaceholderFragment (defined as a static inner class below).
-        return AssignmentsListFragment.newInstance(position + 1)
+        return when (position) {
+            0 -> MainTabFragment.newInstance(position)
+            1 -> TodoTabFragment.newInstance(position)
+            2 -> AssignmentsTabFragment.newInstance(position)
+            else -> {
+                // Selected non-existing tab (impossible branch).
+                MainTabFragment.newInstance(0)
+            }
+        }
     }
 
     override fun getPageTitle(position: Int): CharSequence? {

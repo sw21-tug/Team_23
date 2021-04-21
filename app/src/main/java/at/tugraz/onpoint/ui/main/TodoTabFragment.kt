@@ -10,7 +10,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import at.tugraz.onpoint.R
 
-class AssignmentsListFragment : Fragment() {
+class TodoTabFragment : Fragment() {
 
     private lateinit var pageViewModel: PageViewModel
 
@@ -25,7 +25,7 @@ class AssignmentsListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val root = inflater.inflate(R.layout.fragment_main, container, false)
+        val root = inflater.inflate(R.layout.fragment_todo, container, false)
         val textView: TextView = root.findViewById(R.id.section_label)
         pageViewModel.text.observe(this, Observer<String> {
             textView.text = it
@@ -45,8 +45,8 @@ class AssignmentsListFragment : Fragment() {
          * number.
          */
         @JvmStatic
-        fun newInstance(sectionNumber: Int): AssignmentsListFragment {
-            return AssignmentsListFragment().apply {
+        fun newInstance(sectionNumber: Int): TodoTabFragment {
+            return TodoTabFragment().apply {
                 arguments = Bundle().apply {
                     putInt(ARG_SECTION_NUMBER, sectionNumber)
                 }

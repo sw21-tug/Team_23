@@ -1,13 +1,15 @@
 package at.tugraz.onpoint
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager.widget.ViewPager
-import at.tugraz.onpoint.ui.main.AssignmentsListFragment
+import androidx.viewpager2.widget.ViewPager2
+import at.tugraz.onpoint.ui.main.AssignmentsTabFragment
 import at.tugraz.onpoint.ui.main.SectionsPagerAdapter
 import com.google.android.material.tabs.TabLayout
 
-class AssignmentsListActivity : AppCompatActivity() {
+
+class MainTabbedActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_assignments_list)
@@ -16,10 +18,5 @@ class AssignmentsListActivity : AppCompatActivity() {
         viewPager.adapter = sectionsPagerAdapter
         val tabs: TabLayout = findViewById(R.id.tabs)
         tabs.setupWithViewPager(viewPager)
-
-        val fragmentManager = supportFragmentManager
-        val fragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction
-            .replace(R.id.frameLayout, AssignmentsListFragment()).commit()
     }
 }
