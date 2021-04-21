@@ -27,7 +27,8 @@
         android:layout_height="match_parent"
         android:columnCount="2"
         android:orientation="horizontal"
-        android:rowCount="1">
+        android:rowCount="1"
+        android:background="@color/darkGray_main">
 
 
         <ScrollView
@@ -41,15 +42,17 @@
             android:layout_marginStart="15dp"
             android:layout_marginTop="25dp"
             android:layout_marginBottom="25dp"
-            android:layout_marginEnd="15dp"
+            android:layout_marginEnd="5dp"
 
 
-            android:background="#88958C"
+            android:background="@color/lightGray_main"
             android:fadingEdge="horizontal|vertical|none"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
+
+
 
             <LinearLayout
                 android:id="@+id/homescreen_todo_list_id"
@@ -61,10 +64,12 @@
                     android:id="@+id/homescreen_todo_heading_id"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
                     android:gravity="center"
                     android:text="@string/homescreen_todo_heading"
                     android:textColor="@color/black"
-                    android:textSize="50sp" />
+                    android:textSize="36sp"
+                    android:background="#EB6E6470" />
             </LinearLayout>
         </ScrollView>
 
@@ -75,12 +80,12 @@
             android:layout_weight="0.5"
             android:layout_height="match_parent"
 
-            android:layout_marginStart="15dp"
+            android:layout_marginStart="5dp"
             android:layout_marginTop="25dp"
             android:layout_marginBottom="25dp"
             android:layout_marginEnd="15dp"
 
-            android:background="#88958C"
+            android:background="@color/lightGray_main"
             android:fadingEdge="horizontal|vertical|none"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -99,10 +104,12 @@
                     android:id="@+id/homescreen_recent_heading_id"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
                     android:gravity="center"
                     android:text="@string/homescreen_recent_heading"
                     android:textColor="@color/black"
-                    android:textSize="50sp" />
+                    android:textSize="36sp"
+                    android:background="#EB6E6470" />
             </LinearLayout>
         </ScrollView>
 

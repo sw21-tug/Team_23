@@ -41,8 +41,15 @@ class HomeScreenTest{
 
     @Test
     fun background_color(){
-        onView(withId(R.id.mainScreenLayout)).check(matches(hasBackground(R.color.light-grey)))
+        onView(withId(R.id.mainScreenLayout)).check(matches(hasBackground(R.color.darkGray_main)))
     }
 
+    @Test
+    fun item_design(){
+        onView(withId(R.id.homescreen_recent_heading_id)).check(matches(hasBackground(R.color.darkishGray_main)))
+        onView(withId(R.id.homescreen_todo_heading_id)).check(matches(hasBackground(R.color.darkishGray_main)))
+
+
+    }
 
 }
