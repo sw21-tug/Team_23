@@ -22,6 +22,6 @@ class TodoFragmentAdd : Fragment() {
     }
 
     fun onSaveButtonClick() {
-        //findNavController().navigate(R.id.action_todoFragmentAdd_to_todoFragmentListView)
+        findNavController().navigate(R.id.action_todoFragmentAdd_to_todoFragmentListView)
     }
 }

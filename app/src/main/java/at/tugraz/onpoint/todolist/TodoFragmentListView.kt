@@ -22,6 +22,6 @@ class TodoFragmentListView : Fragment() {
     }
 
     fun onAddButtonClick(v: View?) {
-        //findNavController().navigate(R.id.action_todoFragmentListView_to_todoFragmentAdd)
+        findNavController().navigate(R.id.action_todoFragmentListView_to_todoFragmentAdd)
     }
 }
