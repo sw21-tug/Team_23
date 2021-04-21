@@ -6,9 +6,11 @@ import android.util.Log
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -94,5 +96,23 @@ class TodoInstrumentedTest {
         onView(withId(R.id.todo_saveButton)).check(matches(isClickable()))
         onView(withId(R.id.todo_saveButton)).perform(click())
         verify(mockNavController).navigate(R.id.action_todoFragmentAdd_to_todoFragmentListView)
+    }
+
+    /**
+     * Check if TodoFragmentListView receives input text from TodoFragmentAdd
+     */
+    @Test
+    fun receiveInput() {
+        val mockNavController = mock(NavController::class.java)
+
+        val firstScenario = launchFragmentInContainer<TodoFragmentAdd>()
+
+        firstScenario.onFragment { fragment ->
+            Navigation.setViewNavController(fragment.requireView(), mockNavController)
+        }
+
+        onView(withId(R.id.todo_InputField)).perform(typeText("This is a test text"))
+        onView(withId(R.id.todo_saveButton)).perform(click())
+        onView(withId(R.id.todo_listview)).check(matches(isDisplayed()))
     }
 }
