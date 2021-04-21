@@ -27,10 +27,6 @@ class AssignmentsTabFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_assignments, container, false)
-        val textView: TextView = root.findViewById(R.id.section_label)
-        pageViewModel.text.observe(this, Observer<String> {
-            textView.text = it
-        })
         return root
     }
 
