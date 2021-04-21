@@ -8,12 +8,13 @@
     tools:context=".MainTabbedActivity">
 
 
-
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary" >
+        android:background="?attr/colorPrimary"
+        app:tabIndicatorColor="@color/teal_200"
+        app:tabTextColor="@color/white">
 
         <com.google.android.material.tabs.TabItem
             android:id="@+id/tabMain"
