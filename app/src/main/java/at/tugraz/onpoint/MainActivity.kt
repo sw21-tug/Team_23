@@ -13,12 +13,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
 
-        val fragmentManager = supportFragmentManager
-        val fragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction
-            .replace(R.id.mainFragment, HomeScreenFragment()).commit()
-
-
         //Commit by Chritina and Julian
     }
 }
