@@ -1,14 +1,19 @@
 package at.tugraz.onpoint.ui.main
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
+import android.print.PrintAttributes
+import android.text.Layout
 import android.util.TypedValue
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.view.marginBottom
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -29,6 +34,7 @@ class HomeScreenFragment : Fragment() {
         }
     }
 
+    @SuppressLint("ResourceAsColor")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -44,35 +50,40 @@ class HomeScreenFragment : Fragment() {
         for(todoItem in todoList){
             // TextView2
             println("In todo loop")
-            val lptv = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+            val lptv = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT)
 
-            lptv.setMargins(0, 11, 7, 0)
+            lptv.setMargins(10, 50, 10, 0)
             val textView = TextView(activity)
             textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20.0F)
             textView.setLayoutParams(lptv)
             textView.setText(todoItem)
+            textView.setTextColor(R.color.text_grey)
+            textView.setPadding(30 , 40, 30, 40)
+            textView.setBackgroundColor(R.color.lightGray_main)
+            textView.gravity = Gravity.CENTER
 
-            textView.setTextColor(Color.MAGENTA)
-
+           // textView.textAlignment =
             todoLayout.addView(textView)
 
 
         }
 
-        for(todoItem in recentList){
+        for(recentItem in recentList){
             // TextView2
             println("In todo loop")
-            val lptv = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+            val lptv = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT)
 
-            lptv.setMargins(0, 11, 7, 0)
+            lptv.setMargins(10, 50, 10, 0)
             val textView = TextView(activity)
             textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20.0F)
             textView.setLayoutParams(lptv)
-            textView.setText(todoItem)
-
-            textView.setTextColor(Color.MAGENTA)
+            textView.setText(recentItem)
+            textView.setTextColor(R.color.text_grey)
+            textView.setPadding(30 , 40, 30, 40)
+            textView.setBackgroundColor(R.color.lightGray_main)
+            textView.gravity = Gravity.CENTER
 
             recentLayout.addView(textView)
 

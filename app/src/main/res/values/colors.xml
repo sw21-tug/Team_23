@@ -9,5 +9,8 @@
     <color name="white">#FFFFFFFF</color>
     <color name="darkGray_main">#3A3A3A</color>
     <color name="lightGray_main">#92D2C9DA</color>
+    <color name="text_grey">#202020</color>
+    <color name="darkishGray_main">#EB6E6470</color>
+
 
 </resources>
