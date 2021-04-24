@@ -1,5 +1,6 @@
 package at.tugraz.onpoint
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.TextView
@@ -7,12 +8,10 @@ import at.tugraz.onpoint.ui.main.HomeScreenFragment
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        //new test comment solved issue OnPoint-000A
-        println("In main activity")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-
-        //Commit by Chritina and Julian
+        val intent = Intent(this, MainTabbedActivity::class.java)
+        startActivity(intent)
     }
 }

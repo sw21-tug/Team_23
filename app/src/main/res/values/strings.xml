@@ -8,4 +8,10 @@
     <string name="homescreen_todo_heading">TODO</string>
     <string name="homescreen_recent_id">homescreen_recent_id</string>
     <string name="homescreen_recent_heading">Recent</string>
+
+    <string name="title_activity_main">MainActivity</string>
+    <string name="tab_title_main">Main</string>
+    <string name="tab_title_todo">Todo</string>
+    <string name="tab_title_assignments">Assign.</string>
+    <string name="assignments">Assignments</string>
 </resources>

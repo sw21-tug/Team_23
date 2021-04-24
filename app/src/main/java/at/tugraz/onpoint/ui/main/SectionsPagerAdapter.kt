@@ -7,8 +7,9 @@ import androidx.fragment.app.FragmentPagerAdapter
 import at.tugraz.onpoint.R
 
 private val TAB_TITLES = arrayOf(
-    R.string.tab_text_1,
-    R.string.tab_text_2
+    R.string.tab_title_main,
+    R.string.tab_title_todo,
+    R.string.tab_title_assignments,
 )
 
 /**
@@ -17,11 +18,18 @@ private val TAB_TITLES = arrayOf(
  */
 class SectionsPagerAdapter(private val context: Context, fm: FragmentManager) :
     FragmentPagerAdapter(fm) {
+    // TODO [MG] replace the deprecated FragmentPagerAdapter with the newer thing (no idea what it is)
 
     override fun getItem(position: Int): Fragment {
-        // getItem is called to instantiate the fragment for the given page.
-        // Return a PlaceholderFragment (defined as a static inner class below).
-        return HomeScreenFragment.newInstance(position + 1)
+        return when (position) {
+            0 -> MainTabFragment.newInstance(position)
+            1 -> TodoTabFragment.newInstance(position)
+            2 -> AssignmentsTabFragment.newInstance(position)
+            else -> {
+                // Selected non-existing tab (impossible branch).
+                MainTabFragment.newInstance(0)
+            }
+        }
     }
 
     override fun getPageTitle(position: Int): CharSequence? {
@@ -29,7 +37,6 @@ class SectionsPagerAdapter(private val context: Context, fm: FragmentManager) :
     }
 
     override fun getCount(): Int {
-        // Show 2 total pages.
-        return 2
+        return 3
     }
 }
