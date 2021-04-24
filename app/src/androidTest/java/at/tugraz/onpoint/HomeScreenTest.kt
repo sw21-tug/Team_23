@@ -20,7 +20,7 @@ class HomeScreenTest{
 
     @Test
     fun homescreen_exists(){
-        onView(withId(R.id.mainFragment)).check((matches(isDisplayed())))
+        onView(withId(R.id.frameLayout)).check((matches(isDisplayed())))
     }
 
     @Test
@@ -38,4 +38,16 @@ class HomeScreenTest{
         onView(withId(R.id.homescreen_todo_list_id)).check(matches(isDisplayed()))
     }
 
+    @Test
+    fun background_color(){
+        onView(withId(R.id.mainScreenLayout)).check(matches(hasBackground(R.color.darkGray_main)))
+    }
+
+    @Test
+    fun item_design(){
+        onView(withId(R.id.homescreen_recent_heading_id)).check(matches(hasTextColor(R.color.text_grey)))
+        onView(withId(R.id.homescreen_todo_heading_id)).check(matches(hasTextColor(R.color.text_grey)))
+
+
+    }
 }
