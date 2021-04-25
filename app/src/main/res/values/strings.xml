@@ -1,7 +1,10 @@
 <resources>
     <string name="app_name">OnPoint</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="tab_title_main">Main</string>
+    <string name="tab_title_todo">Todo</string>
+    <string name="tab_title_assignments">Assign.</string>
+    <string name="assignments">Assignments</string>
     <string name="todo_addButton_content_description">Add</string>
     <string name="todo_input_hint">Enter a new item here ...</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
