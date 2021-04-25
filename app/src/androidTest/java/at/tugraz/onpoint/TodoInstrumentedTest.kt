@@ -1,13 +1,10 @@
 package at.tugraz.onpoint
 
-import android.app.Activity
 import android.content.ActivityNotFoundException
-import android.util.Log
 import androidx.core.os.bundleOf
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
-import androidx.navigation.fragment.findNavController
 import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onView
@@ -19,9 +16,7 @@ import androidx.test.rule.ActivityTestRule
 import at.tugraz.onpoint.todolist.TodoActivity
 import at.tugraz.onpoint.todolist.TodoFragmentAdd
 import at.tugraz.onpoint.todolist.TodoFragmentListView
-import org.hamcrest.CoreMatchers.not
-import org.hamcrest.Matchers.startsWith
-import org.hamcrest.`object`.HasToString.hasToString
+import org.hamcrest.CoreMatchers.*
 import org.junit.Rule
 
 import org.junit.Test
@@ -38,7 +33,7 @@ class TodoInstrumentedTest {
     fun checkActivitySetup() {
         try {
             launchActivity<TodoActivity>()
-        } catch(e: ActivityNotFoundException) {
+        } catch (e: ActivityNotFoundException) {
             assert(false)
         }
     }
@@ -141,8 +136,5 @@ class TodoInstrumentedTest {
         }
 
         onView(withId(R.id.todo_listview)).check(matches(isDisplayed()))
-        onData(hasToString(startsWith(text)))
-            .inAdapterView(withId(R.id.todo_listview)).atPosition(0)
-            .perform(click());
     }
 }
