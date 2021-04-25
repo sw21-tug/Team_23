@@ -6,17 +6,15 @@ import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.test.core.app.launchActivity
-import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
-import at.tugraz.onpoint.todolist.TodoActivity
 import at.tugraz.onpoint.todolist.TodoFragmentAdd
+import at.tugraz.onpoint.todolist.TodoFragmentAddDirections
 import at.tugraz.onpoint.todolist.TodoFragmentListView
-import org.hamcrest.CoreMatchers.*
 import org.junit.Rule
 
 import org.junit.Test
@@ -27,12 +25,12 @@ import org.mockito.Mockito.verify
 @RunWith(AndroidJUnit4::class)
 class TodoInstrumentedTest {
     @Rule
-    @JvmField var activityRule: ActivityTestRule<TodoActivity> = ActivityTestRule(TodoActivity::class.java)
+    @JvmField var activityRule: ActivityTestRule<MainTabbedActivity> = ActivityTestRule(MainTabbedActivity::class.java)
 
     @Test
     fun checkActivitySetup() {
         try {
-            launchActivity<TodoActivity>()
+            launchActivity<MainTabbedActivity>()
         } catch (e: ActivityNotFoundException) {
             assert(false)
         }
@@ -46,9 +44,11 @@ class TodoInstrumentedTest {
     fun checkInitialButtonSetup() {
         //see https://developer.android.com/guide/navigation/navigation-testing
 
+        val text = "This is a test text"
+        val fragmentArgs = bundleOf(text to 0)
         val mockNavController = mock(NavController::class.java)
 
-        val firstScenario = launchFragmentInContainer<TodoFragmentListView>()
+        val firstScenario = launchFragmentInContainer<TodoFragmentListView>(fragmentArgs)
 
         firstScenario.onFragment { fragment ->
             Navigation.setViewNavController(fragment.requireView(), mockNavController)
@@ -67,7 +67,9 @@ class TodoInstrumentedTest {
 
         val mockNavController = mock(NavController::class.java)
 
-        val firstScenario = launchFragmentInContainer<TodoFragmentListView>()
+        val text = "This is a test text"
+        val fragmentArgs = bundleOf(text to 0)
+        val firstScenario = launchFragmentInContainer<TodoFragmentListView>(fragmentArgs)
 
         firstScenario.onFragment { fragment ->
             Navigation.setViewNavController(fragment.requireView(), mockNavController)
@@ -85,7 +87,9 @@ class TodoInstrumentedTest {
     fun clickSaveButton() {
         val mockNavController = mock(NavController::class.java)
 
-        val firstScenario = launchFragmentInContainer<TodoFragmentAdd>()
+        val text = "This is a test text"
+        val fragmentArgs = bundleOf(text to 0)
+        val firstScenario = launchFragmentInContainer<TodoFragmentAdd>(fragmentArgs)
 
         firstScenario.onFragment { fragment ->
             Navigation.setViewNavController(fragment.requireView(), mockNavController)
@@ -93,7 +97,8 @@ class TodoInstrumentedTest {
 
         onView(withId(R.id.todo_saveButton)).check(matches(isClickable()))
         onView(withId(R.id.todo_saveButton)).perform(click())
-        verify(mockNavController).navigate(R.id.action_todoFragmentAdd_to_todoFragmentListView)
+        val action = TodoFragmentAddDirections.actionTodoFragmentAddToTodoFragmentListView("")
+        verify(mockNavController).navigate(action)
     }
 
     /**
@@ -103,17 +108,17 @@ class TodoInstrumentedTest {
     fun receiveInput() {
         val mockNavController = mock(NavController::class.java)
 
+        val text = "This is a test text"
+        val fragmentArgs = bundleOf(text to 0)
         val firstScenario = launchFragmentInContainer<TodoFragmentAdd>()
 
         firstScenario.onFragment { fragment ->
             Navigation.setViewNavController(fragment.requireView(), mockNavController)
         }
 
-        val text = "This is a test text"
         onView(withId(R.id.todo_InputField)).perform(typeText(text), closeSoftKeyboard())
         onView(withId(R.id.todo_saveButton)).perform(click())
 
-        val fragmentArgs = bundleOf(text to 0)
         val secondScenario = launchFragmentInContainer<TodoFragmentListView>(fragmentArgs)
         secondScenario.onFragment { fragment ->
             Navigation.setViewNavController(fragment.requireView(), mockNavController)
