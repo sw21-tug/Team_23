@@ -1,5 +1,14 @@
 <resources>
     <string name="app_name">OnPoint</string>
+    <string name="title_activity_home_screen">HomeScreenActivity</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
+    <string name="title_activity_main2">MainActivity2</string>
+    <string name="homescreen_todo_string">homescreen_todo_id</string>
+    <string name="homescreen_todo_heading">TODO</string>
+    <string name="homescreen_recent_id">homescreen_recent_id</string>
+    <string name="homescreen_recent_heading">Recent</string>
+
     <string name="title_activity_main">MainActivity</string>
     <string name="tab_title_main">Main</string>
     <string name="tab_title_todo">Todo</string>
