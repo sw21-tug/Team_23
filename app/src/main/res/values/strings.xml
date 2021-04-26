@@ -14,4 +14,6 @@
     <string name="tab_title_todo">Todo</string>
     <string name="tab_title_assignments">Assign.</string>
     <string name="assignments">Assignments</string>
+    <string name="todo_addButton_content_description">Add</string>
+    <string name="todo_input_hint">Enter a new item here ...</string>
 </resources>
