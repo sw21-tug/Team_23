@@ -22,5 +22,5 @@ This app is designed to keep track of deadlines at school and university. Not on
 | Issue | Name | Done | Get Developed |
 | ----- | ---- | ---- | ------------- |
 | OnPoint-004 | Overview | X | |
-| OnPoint-009A | Home Screen/Interface | | X | 
-| OnPoint-010A | Todo list/Interface | | X | 
+| OnPoint-009A | Home Screen/Interface | X | | 
+| OnPoint-010A | Todo list/Interface | X |  | 
