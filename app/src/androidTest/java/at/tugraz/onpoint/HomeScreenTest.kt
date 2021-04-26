@@ -74,10 +74,6 @@ class HomeScreenTest{
     @Rule
     @JvmField var activityRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java)
 
-    @Test
-    fun homescreen_exists(){
-        onView(withId(R.id.frameLayout)).check((matches(isDisplayed())))
-    }
 
     @Test
     fun todo_exists(){
