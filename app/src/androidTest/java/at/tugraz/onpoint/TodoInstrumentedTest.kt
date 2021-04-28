@@ -44,13 +44,14 @@ class TodoInstrumentedTest {
     @Before
     fun createDb() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        db = Room.databaseBuilder(context, OnPointAppDatabase::class.java, "OnPointDB").build()
+        db = Room.inMemoryDatabaseBuilder(context, OnPointAppDatabase::class.java).build()
         todoDao = db.getTodoDao()
     }
 
     @After
     @Throws(IOException::class)
     fun closeDb() {
+        db.clearAllTables()
         db.close()
     }
 
@@ -174,21 +175,21 @@ class TodoInstrumentedTest {
     fun storeNewTodoAndRetrieveItFromDb() {
         val todo = Todo(100, "Buy some carrots", 123, 1230000, false)
         todoDao.insertOne(todo)
-        val listOfTodos = todoDao.loadAll()
+        val listOfTodos = todoDao.selectAll()
         assertThat(listOfTodos.size, equalTo(1))
         assertThat(listOfTodos[0], equalTo(todo))
     }
 
     @Test
     fun storeTodoWithDefaultValues(){
-        val todo = Todo("Buy some carrots")
         val timestamp = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
-        todoDao.insertOne(todo)
-        val listOfTodos = todoDao.loadAll()
+        todoDao.insertNew("Buy some carrots")
+        val listOfTodos = todoDao.selectAll()
         assertThat(listOfTodos.size, equalTo(1))
         assert(listOfTodos[0].uid == 1)
         assertThat(listOfTodos[0].title, equalTo("Buy some carrots"))
-        assert(listOfTodos[0].creationUnixTime > timestamp && listOfTodos[0].creationUnixTime < timestamp + 10)
+        assert(listOfTodos[0].creationUnixTime > timestamp - 10
+            && listOfTodos[0].creationUnixTime < timestamp + 10)
         assert(listOfTodos[0].expirationUnixTime == null)
         assert(listOfTodos[0].isCompleted == false)
     }
