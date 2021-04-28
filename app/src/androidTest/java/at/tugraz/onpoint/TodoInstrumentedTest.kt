@@ -31,6 +31,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 class TodoInstrumentedTest {
@@ -176,5 +177,19 @@ class TodoInstrumentedTest {
         val listOfTodos = todoDao.loadAll()
         assertThat(listOfTodos.size, equalTo(1))
         assertThat(listOfTodos[0], equalTo(todo))
+    }
+
+    @Test
+    fun storeTodoWithDefaultValues(){
+        val todo = Todo("Buy some carrots")
+        val timestamp = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
+        todoDao.insertOne(todo)
+        val listOfTodos = todoDao.loadAll()
+        assertThat(listOfTodos.size, equalTo(1))
+        assert(listOfTodos[0].uid == 1)
+        assertThat(listOfTodos[0].title, equalTo("Buy some carrots"))
+        assert(listOfTodos[0].creationUnixTime > timestamp && listOfTodos[0].creationUnixTime < timestamp + 10)
+        assert(listOfTodos[0].expirationUnixTime == null)
+        assert(listOfTodos[0].isCompleted == false)
     }
 }
