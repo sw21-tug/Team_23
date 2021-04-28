@@ -32,6 +32,8 @@ import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import java.io.IOException
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 import java.util.ArrayList
 import java.util.concurrent.TimeUnit
 
@@ -219,5 +221,16 @@ class TodoInstrumentedTest {
             assert(listOfTodos[i].expirationUnixTime == null)
             assert(!listOfTodos[0].isCompleted)
         }
+    }
+
+    @Test
+    fun todoObjectConvertsUnixTimeToJavaObject() {
+        val timestamp = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS)
+        val uid = todoDao.insertNew("Buy some carrots")
+        var todo = todoDao.selectOne(uid)
+        assertThat(todo.creationLocalDateTime(), equalTo(timestamp))
+        assertThat(todo.expirationLocalDateTime(), equalTo(null)) // When null
+        todo.expirationUnixTime = todo.creationUnixTime + 10
+        assertThat(todo.expirationLocalDateTime(), equalTo(timestamp.plusSeconds(10))) // When not-null
     }
 }
