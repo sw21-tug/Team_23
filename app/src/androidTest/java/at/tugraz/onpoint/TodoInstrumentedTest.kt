@@ -123,7 +123,7 @@ class TodoInstrumentedTest {
         secondScenario.onFragment { fragment ->
             Navigation.setViewNavController(fragment.requireView(), mockNavController)
         }
-        onView(withId(R.id.todo_listview)).check(matches(isDisplayed()))
+        onView(withId(R.id.todo_listview_active)).check(matches(isDisplayed()))
     }
 
     /**
@@ -140,7 +140,7 @@ class TodoInstrumentedTest {
             Navigation.setViewNavController(fragment.requireView(), mockNavController)
         }
 
-        onView(withId(R.id.todo_listview)).check(matches(isDisplayed()))
+        onView(withId(R.id.todo_listview_active)).check(matches(isDisplayed()))
     }
 
     /**
@@ -159,5 +159,19 @@ class TodoInstrumentedTest {
 
         onView(withId(R.id.todo_listview_active)).check(matches(isDisplayed()))
         onView(withId(R.id.todo_listview_done)).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun checkButtonDone() {
+        val mockNavController = mock(NavController::class.java)
+
+        val text = "This is a test text"
+        val fragmentArgs = bundleOf(text to 0)
+        val secondScenario = launchFragmentInContainer<TodoFragmentListView>(fragmentArgs)
+        secondScenario.onFragment { fragment ->
+            Navigation.setViewNavController(fragment.requireView(), mockNavController)
+        }
+
+        onView(withId(R.id.todo_check_button)).check(matches(isDisplayed()))
     }
 }

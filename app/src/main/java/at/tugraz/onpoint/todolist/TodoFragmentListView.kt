@@ -34,7 +34,7 @@ class TodoFragmentListView : Fragment(R.layout.activity_todo_listview) {
             android.R.layout.simple_dropdown_item_1line, todoList
         )
 
-        var listView: ListView = rootView.findViewById(R.id.todo_listview)
+        var listView: ListView = rootView.findViewById(R.id.todo_listview_active)
 
         listView?.adapter = adapter
 

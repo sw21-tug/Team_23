@@ -20,14 +20,24 @@
         app:srcCompat="@android:drawable/ic_input_add" />
 
     <ListView
-        android:id="@+id/todo_listview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="@dimen/todolist_listview_margin_bottom"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:id="@+id/todo_listview_active"
+        android:layout_width="411dp"
+        android:layout_height="315dp"
+        android:layout_marginTop="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
+
+    </ListView>
+
+    <ListView
+        android:id="@+id/todo_listview_done"
+        android:layout_width="411dp"
+        android:layout_height="315dp"
+        android:layout_marginBottom="70dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
     </ListView>
 
