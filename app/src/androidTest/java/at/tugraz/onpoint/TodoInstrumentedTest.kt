@@ -22,6 +22,7 @@ import at.tugraz.onpoint.todolist.TodoFragmentAdd
 import at.tugraz.onpoint.todolist.TodoFragmentAddDirections
 import at.tugraz.onpoint.todolist.TodoFragmentListView
 import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.CoreMatchers.startsWith
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -31,12 +32,15 @@ import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import java.io.IOException
+import java.util.ArrayList
 import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 class TodoInstrumentedTest {
     @Rule
-    @JvmField var activityRule: ActivityTestRule<MainTabbedActivity> = ActivityTestRule(MainTabbedActivity::class.java)
+    @JvmField
+    var activityRule: ActivityTestRule<MainTabbedActivity> =
+        ActivityTestRule(MainTabbedActivity::class.java)
 
     private lateinit var todoDao: TodoDao
     private lateinit var db: OnPointAppDatabase
@@ -181,16 +185,39 @@ class TodoInstrumentedTest {
     }
 
     @Test
-    fun storeTodoWithDefaultValues(){
+    fun storeTodoWithDefaultValues() {
         val timestamp = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
         todoDao.insertNew("Buy some carrots")
         val listOfTodos = todoDao.selectAll()
         assertThat(listOfTodos.size, equalTo(1))
         assert(listOfTodos[0].uid == 1)
         assertThat(listOfTodos[0].title, equalTo("Buy some carrots"))
-        assert(listOfTodos[0].creationUnixTime > timestamp - 10
-            && listOfTodos[0].creationUnixTime < timestamp + 10)
+        assert(
+            listOfTodos[0].creationUnixTime > timestamp - 10
+                && listOfTodos[0].creationUnixTime < timestamp + 10
+        )
         assert(listOfTodos[0].expirationUnixTime == null)
-        assert(listOfTodos[0].isCompleted == false)
+        assert(!listOfTodos[0].isCompleted)
+    }
+
+    @Test
+    fun storingNewTodosProvidesTheirUids() {
+        val timestamp = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
+        val uids = ArrayList<Long>()
+        for (i in 0..9) {
+            uids.add(todoDao.insertNew("Buy $i carrots"))
+        }
+        val listOfTodos = todoDao.selectAll()
+        assertThat(listOfTodos.size, equalTo(10))
+        for (i in 0..9) {
+            assert(listOfTodos[i].uid.toLong() == uids[i])
+            assertThat(listOfTodos[i].title, equalTo("Buy $i carrots"))
+            assert(
+                listOfTodos[i].creationUnixTime > timestamp - 10
+                    && listOfTodos[i].creationUnixTime < timestamp + 10
+            )
+            assert(listOfTodos[i].expirationUnixTime == null)
+            assert(!listOfTodos[0].isCompleted)
+        }
     }
 }
