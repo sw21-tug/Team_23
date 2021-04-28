@@ -142,4 +142,22 @@ class TodoInstrumentedTest {
 
         onView(withId(R.id.todo_listview)).check(matches(isDisplayed()))
     }
+
+    /**
+     * Check if TodoFragmentListView displays its elements
+     */
+    @Test
+    fun displayTodoElement() {
+        val mockNavController = mock(NavController::class.java)
+
+        val text = "This is a test text"
+        val fragmentArgs = bundleOf(text to 0)
+        val secondScenario = launchFragmentInContainer<TodoFragmentListView>(fragmentArgs)
+        secondScenario.onFragment { fragment ->
+            Navigation.setViewNavController(fragment.requireView(), mockNavController)
+        }
+
+        onView(withId(R.id.todo_listview_active)).check(matches(isDisplayed()))
+        onView(withId(R.id.todo_listview_done)).check(matches(isDisplayed()))
+    }
 }
