@@ -1,10 +1,13 @@
 package at.tugraz.onpoint
 
 import android.content.ActivityNotFoundException
+import android.content.Context
 import androidx.core.os.bundleOf
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import androidx.room.Room
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.*
@@ -12,20 +15,43 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
+import at.tugraz.onpoint.database.OnPointAppDatabase
+import at.tugraz.onpoint.database.Todo
+import at.tugraz.onpoint.database.TodoDao
 import at.tugraz.onpoint.todolist.TodoFragmentAdd
 import at.tugraz.onpoint.todolist.TodoFragmentAddDirections
 import at.tugraz.onpoint.todolist.TodoFragmentListView
+import org.hamcrest.CoreMatchers.equalTo
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
+import java.io.IOException
 
 @RunWith(AndroidJUnit4::class)
 class TodoInstrumentedTest {
     @Rule
     @JvmField var activityRule: ActivityTestRule<MainTabbedActivity> = ActivityTestRule(MainTabbedActivity::class.java)
+
+    private lateinit var todoDao: TodoDao
+    private lateinit var db: OnPointAppDatabase
+
+    @Before
+    fun createDb() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        db = Room.databaseBuilder(context, OnPointAppDatabase::class.java, "OnPointDB").build()
+        todoDao = db.getTodoDao()
+    }
+
+    @After
+    @Throws(IOException::class)
+    fun closeDb() {
+        db.close()
+    }
 
     @Test
     fun checkActivitySetup() {
@@ -141,5 +167,14 @@ class TodoInstrumentedTest {
         }
 
         onView(withId(R.id.todo_listview)).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun storeNewTodoAndRetrieveItFromDb() {
+        val todo = Todo(100, "Buy some carrots", 123, 1230000, false)
+        todoDao.insertOne(todo)
+        val listOfTodos = todoDao.loadAll()
+        assertThat(listOfTodos.size, equalTo(1))
+        assertThat(listOfTodos[0], equalTo(todo))
     }
 }
