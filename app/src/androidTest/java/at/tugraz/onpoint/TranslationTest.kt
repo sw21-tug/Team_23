@@ -35,8 +35,17 @@ class TranslationTest{
     }
 
     @Test
-    fun flag_sitched(){
+    fun flag_switched(){
         onView(withId(R.id.switch_language)).perform(click()).check(matches(withText("English")))
         onView(withId(R.id.switch_language)).perform(click()).check(matches(withText("Chinese")))
+    }
+
+    @Test
+    fun tab_language() {
+        onView(withId(R.id.switch_language)).perform(click())
+        onView(withId(R.id.tabMain)).check(matches(withText("")))
+        onView(withId(R.id.tabAssignments)).check(matches(withText("")))
+        onView(withId(R.id.tabTodoList)).check(matches(withText("")))
+        onView(withId(R.id.switch_language)).perform(click())
     }
 }
