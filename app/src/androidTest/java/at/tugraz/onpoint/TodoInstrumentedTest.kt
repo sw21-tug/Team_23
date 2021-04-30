@@ -12,6 +12,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
@@ -23,8 +24,7 @@ import at.tugraz.onpoint.database.TodoDao
 import at.tugraz.onpoint.todolist.TodoFragmentAdd
 import at.tugraz.onpoint.todolist.TodoFragmentAddDirections
 import at.tugraz.onpoint.todolist.TodoFragmentListView
-import org.hamcrest.CoreMatchers.anything
-import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.CoreMatchers.*
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -236,32 +236,40 @@ class TodoInstrumentedTest {
     }
 
     @Test
-    fun insertObjectsAndCheckPersistency(){
+    fun insertObjectsAndCheckPersistency() {
         val mockNavController = mock(NavController::class.java)
 
+        onView(withText("Todo")).perform(ViewActions.click()) // Select To-do tab
+        // Assumption for the test: the list is empty before the first input
         val text = "This is a test text"
-        val fragmentArgs = bundleOf(text to 0)
-        val firstScenario = launchFragmentInContainer<TodoFragmentAdd>()
-        val secondScenario = launchFragmentInContainer<TodoFragmentListView>(fragmentArgs)
-
-        firstScenario.onFragment { fragment ->
-            Navigation.setViewNavController(fragment.requireView(), mockNavController)
-        }
-
-        onView(withId(R.id.todo_InputField)).perform(typeText(text), closeSoftKeyboard())
-        onView(withId(R.id.todo_saveButton)).perform(click())
-
-        pressBackUnconditionally()
-        activityRule.finishActivity()
-        activityRule.launchActivity(Intent())
-        secondScenario.onFragment { fragment ->
-            Navigation.setViewNavController(fragment.requireView(), mockNavController)
-        }
-        onView(withId(R.id.todo_listview)).check(matches(isDisplayed()))
-
         onData(anything())
             .inAdapterView(withId(R.id.todo_listview))
             .atPosition(0)
+            .onChildView(withId(android.R.id.text1))
+            .check(matches(not(withText(text))))
+        // Add some text to the list of to-dos
+        onView(withId(R.id.todo_addButton)).check(matches(isClickable()))
+        onView(withId(R.id.todo_addButton)).perform(click())
+        onView(withId(R.id.todo_InputField)).perform(typeText(text), closeSoftKeyboard())
+        onView(withId(R.id.todo_saveButton)).perform(click())
+        // Check if the to-do entry is there
+        onView(withId(R.id.todo_listview)).check(matches(isDisplayed()))
+        onData(anything())
+            .inAdapterView(withId(R.id.todo_listview))
+            .atPosition(0)
+            .onChildView(withId(android.R.id.text1))
+            .check(matches(withText(text)))
+        // Close the app completely and reopen it
+        pressBackUnconditionally()
+        activityRule.finishActivity()
+        activityRule.launchActivity(Intent()) // Restarts at the main activity
+        onView(withText("Todo")).perform(ViewActions.click()) // Select To-do tab
+        // Check if the to-do entry is still there, thus persistency is working
+        onView(withId(R.id.todo_listview)).check(matches(isDisplayed()))
+        onData(anything())
+            .inAdapterView(withId(R.id.todo_listview))
+            .atPosition(0)
+            .onChildView(withId(android.R.id.text1))
             .check(matches(withText(text)))
     }
 }
