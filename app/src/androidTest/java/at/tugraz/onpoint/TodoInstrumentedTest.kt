@@ -22,7 +22,6 @@ import at.tugraz.onpoint.todolist.TodoFragmentAdd
 import at.tugraz.onpoint.todolist.TodoFragmentAddDirections
 import at.tugraz.onpoint.todolist.TodoFragmentListView
 import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.CoreMatchers.startsWith
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -32,9 +31,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import java.io.IOException
-import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
-import java.util.ArrayList
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
@@ -225,12 +222,13 @@ class TodoInstrumentedTest {
 
     @Test
     fun todoObjectConvertsUnixTimeToJavaObject() {
-        val timestamp = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS)
+        val timestamp = Date();
         val uid = todoDao.insertNew("Buy some carrots")
         var todo = todoDao.selectOne(uid)
-        assertThat(todo.creationLocalDateTime(), equalTo(timestamp))
-        assertThat(todo.expirationLocalDateTime(), equalTo(null)) // When null
+        assert(todo.creationDateTime().before(Date(timestamp.getTime() + 10000)))
+        assert(todo.creationDateTime().after(Date(timestamp.getTime() - 10000)))
+        assertThat(todo.expirationDateTime(), equalTo(null)) // When null
         todo.expirationUnixTime = todo.creationUnixTime + 10
-        assertThat(todo.expirationLocalDateTime(), equalTo(timestamp.plusSeconds(10))) // When not-null
+        assert(timestamp.before(todo.expirationDateTime())) // When not-null
     }
 }
