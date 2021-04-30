@@ -1,19 +1,21 @@
 <resources>
-    <string name="app_name">OnPoint</string>
-    <string name="title_activity_home_screen">HomeScreenActivity</string>
-    <string name="tab_text_1">Tab 1</string>
-    <string name="tab_text_2">Tab 2</string>
-    <string name="title_activity_main2">MainActivity2</string>
-    <string name="homescreen_todo_string">homescreen_todo_id</string>
+    <string name="app_name" translatable="false">OnPoint</string>
+    <string name="title_activity_home_screen" translatable="false">HomeScreenActivity</string>
+    <string name="tab_text_1" translatable="false">Tab 1</string>
+    <string name="tab_text_2" translatable="false">Tab 2</string>
+    <string name="title_activity_main2" translatable="false">MainActivity2</string>
+    <string name="homescreen_todo_string" translatable="false">homescreen_todo_id</string>
     <string name="homescreen_todo_heading">TODO</string>
-    <string name="homescreen_recent_id">homescreen_recent_id</string>
+    <string name="homescreen_recent_id" translatable="false">homescreen_recent_id</string>
     <string name="homescreen_recent_heading">Recent</string>
 
-    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_main" translatable="false">MainActivity</string>
     <string name="tab_title_main">Main</string>
     <string name="tab_title_todo">Todo</string>
     <string name="tab_title_assignments">Assign.</string>
     <string name="assignments">Assignments</string>
     <string name="todo_addButton_content_description">Add</string>
     <string name="todo_input_hint">Enter a new item here ...</string>
+
+    <string name="switch_language_button">Chinese</string>
 </resources>

@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.View
 import android.widget.EditText
 import androidx.core.content.res.ResourcesCompat
+import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -43,9 +44,8 @@ class TranslationTest{
     @Test
     fun tab_language() {
         onView(withId(R.id.switch_language)).perform(click())
-        onView(withId(R.id.tabMain)).check(matches(withText("")))
-        onView(withId(R.id.tabAssignments)).check(matches(withText("")))
-        onView(withId(R.id.tabTodoList)).check(matches(withText("")))
+        onView(withId(R.id.homescreen_recent_heading_id)).check(matches(withText("最近的")))
+        onView(withId(R.id.homescreen_todo_heading_id)).check(matches(withText("去做")))
         onView(withId(R.id.switch_language)).perform(click())
     }
 }
