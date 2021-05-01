@@ -166,6 +166,7 @@ class TodoInstrumentedTest {
         onView(withId(R.id.todo_listview_done)).check(matches(isDisplayed()))
     }
 
+
     @Test
     fun checkButtonDone() {
         val text = "This is a test text"
