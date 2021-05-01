@@ -6,11 +6,10 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.TextView
-import androidx.fragment.app.Fragment
 import at.tugraz.onpoint.R
 
 
-class TodoListAdapter(private val fragment: Fragment, context: Context, private val resource: Int, objects: ArrayList<String>) : ArrayAdapter<String>(context, resource, objects) {
+class TodoListAdapter(private val fragment: TodoFragmentListView, context: Context, private val resource: Int, objects: ArrayList<String>) : ArrayAdapter<String>(context, resource, objects) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val inflater = fragment.layoutInflater
@@ -29,6 +28,11 @@ class TodoListAdapter(private val fragment: Fragment, context: Context, private 
     }
 
     private fun checkItem(v: View?) {
+
+        val view = v!!.parent as View
+        val tv = view.findViewById<View>(R.id.todo_list_active_textview) as TextView
+        val s = tv.text.toString()
+        fragment.moveElementToDone(s)
 
     }
 }

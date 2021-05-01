@@ -6,11 +6,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.RecyclerView
 import at.tugraz.onpoint.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import org.w3c.dom.Text
 
 
 class TodoFragmentListView : Fragment(R.layout.activity_todo_listview) {
@@ -19,6 +22,7 @@ class TodoFragmentListView : Fragment(R.layout.activity_todo_listview) {
     var todoList = arrayListOf<String>()
     var todoListDone = arrayListOf<String>()
     var adapter: ArrayAdapter<String>? = null
+    var adapterDone: ArrayAdapter<String>? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,10 +39,20 @@ class TodoFragmentListView : Fragment(R.layout.activity_todo_listview) {
             requireContext(),
             R.layout.todo_list_active_element, todoList
         )
+        adapterDone = TodoListDoneAdapter (
+            this,
+            requireContext(),
+            R.layout.todo_list_inactive_element,
+            todoListDone
+        )
 
         var listView: ListView = rootView.findViewById(R.id.todo_listview_active)
 
         listView?.adapter = adapter
+
+        var listViewDone: ListView = rootView.findViewById(R.id.todo_listview_done)
+        listViewDone?.adapter = adapterDone
+
 
         return rootView
     }
@@ -62,7 +76,13 @@ class TodoFragmentListView : Fragment(R.layout.activity_todo_listview) {
         adapter?.notifyDataSetChanged()
     }
 
-    fun moveElementToDone(text: String) {
+    fun moveElementToDone(text : String) {
+        todoList.remove(text)
+        adapter?.notifyDataSetChanged()
+        todoListDone.add(text)
+        adapterDone?.notifyDataSetChanged()
+
+
 
     }
 
