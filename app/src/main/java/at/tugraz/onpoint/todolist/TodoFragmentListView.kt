@@ -4,16 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.ListView
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import at.tugraz.onpoint.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import org.w3c.dom.Text
 
 
 class TodoFragmentListView : Fragment(R.layout.activity_todo_listview) {
@@ -21,8 +19,8 @@ class TodoFragmentListView : Fragment(R.layout.activity_todo_listview) {
     val args: TodoFragmentListViewArgs by navArgs()
     var todoList = arrayListOf<String>()
     var todoListDone = arrayListOf<String>()
-    var adapter: ArrayAdapter<String>? = null
-    var adapterDone: ArrayAdapter<String>? = null
+    var adapter: TodoListAdapter? = null
+    var adapterDone: TodoListDoneAdapter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,25 +32,28 @@ class TodoFragmentListView : Fragment(R.layout.activity_todo_listview) {
             view
         ) }
 
+        val todosView: RecyclerView = rootView.findViewById(R.id.todo_listview_active)
+        todosView.layoutManager = LinearLayoutManager(this.context)
+
         adapter = TodoListAdapter(
             this,
-            requireContext(),
-            R.layout.todo_list_active_element, todoList
+            todoList
         )
+        todosView.adapter = adapter
+
+        adapter?.notifyDataSetChanged()
+
+
+        val todosDoneView: RecyclerView = rootView.findViewById(R.id.todo_listview_done)
+        todosDoneView.layoutManager = LinearLayoutManager(this.context)
+
         adapterDone = TodoListDoneAdapter (
-            this,
-            requireContext(),
-            R.layout.todo_list_inactive_element,
             todoListDone
         )
 
-        var listView: ListView = rootView.findViewById(R.id.todo_listview_active)
+        todosDoneView.adapter = adapterDone
 
-        listView?.adapter = adapter
-
-        var listViewDone: ListView = rootView.findViewById(R.id.todo_listview_done)
-        listViewDone?.adapter = adapterDone
-
+        adapterDone?.notifyDataSetChanged()
 
         return rootView
     }

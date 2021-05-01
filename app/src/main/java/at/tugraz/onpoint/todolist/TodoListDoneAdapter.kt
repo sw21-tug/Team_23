@@ -1,28 +1,53 @@
 package at.tugraz.onpoint.todolist
 
-import android.content.Context
 import android.graphics.Paint
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.Button
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 import at.tugraz.onpoint.R
 
 
-class TodoListDoneAdapter(private val fragment: TodoFragmentListView, context: Context, private val resource: Int, objects: ArrayList<String>) : ArrayAdapter<String>(context, resource, objects) {
+class TodoListDoneAdapter(private val dataSet: ArrayList<String>) :
+    RecyclerView.Adapter<TodoListDoneAdapter.ViewHolder>() {
 
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val inflater = fragment.layoutInflater
-        val rowView = inflater.inflate(resource, null, true)
+    /**
+     * Provide a reference to the type of views that you are using
+     * (custom ViewHolder).
+     */
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val textView: TextView
 
-        val textView = rowView.findViewById(R.id.todo_list_inactive_textview) as TextView
-        textView.paintFlags = textView.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+        init {
+            // Define click listener for the ViewHolder's View.
+            textView = view.findViewById(R.id.todo_list_inactive_textview)
+            textView.paintFlags = textView.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
 
-        textView.text = getItem(position)
-
-        return rowView
+        }
     }
 
 
+    // Create new views (invoked by the layout manager)
+    override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
+        // Create a new view, which defines the UI of the list item
+        val view = LayoutInflater.from(viewGroup.context)
+            .inflate(R.layout.todo_list_inactive_element, viewGroup, false)
+
+        return ViewHolder(view)
+    }
+
+    // Replace the contents of a view (invoked by the layout manager)
+    override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
+
+        // Get element from your dataset at this position and replace the
+        // contents of the view with that element
+        viewHolder.textView.text = dataSet[position]
+    }
+
+    // Return the size of your dataset (invoked by the layout manager)
+    override fun getItemCount() = dataSet.size
+
 }
+
+
