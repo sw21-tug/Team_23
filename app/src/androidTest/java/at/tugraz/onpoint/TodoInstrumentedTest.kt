@@ -5,7 +5,9 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.navArgs
 import androidx.test.core.app.launchActivity
+import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -15,12 +17,15 @@ import androidx.test.rule.ActivityTestRule
 import at.tugraz.onpoint.todolist.TodoFragmentAdd
 import at.tugraz.onpoint.todolist.TodoFragmentAddDirections
 import at.tugraz.onpoint.todolist.TodoFragmentListView
+import at.tugraz.onpoint.todolist.TodoFragmentListViewArgs
+import org.hamcrest.CoreMatchers
+import org.hamcrest.Matchers.allOf
+import org.hamcrest.Matchers.anything
 import org.junit.Rule
 
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
+import org.mockito.Mockito.*
 
 @RunWith(AndroidJUnit4::class)
 class TodoInstrumentedTest {
@@ -163,15 +168,23 @@ class TodoInstrumentedTest {
 
     @Test
     fun checkButtonDone() {
-        val mockNavController = mock(NavController::class.java)
-
         val text = "This is a test text"
-        val fragmentArgs = bundleOf(text to 0)
-        val secondScenario = launchFragmentInContainer<TodoFragmentListView>(fragmentArgs)
-        secondScenario.onFragment { fragment ->
-            Navigation.setViewNavController(fragment.requireView(), mockNavController)
-        }
 
-        onView(withId(R.id.todo_check_button)).check(matches(isDisplayed()))
+        val fragment = TodoFragmentListView()
+        fragment.addItemToTodoList(text)
+
+        assert(fragment.todoList.isNotEmpty())
+    }
+
+    @Test
+    fun checkMoveElementToDone() {
+        val text = "This is a test text"
+
+        val fragment = TodoFragmentListView()
+        fragment.addItemToTodoList(text)
+        fragment.moveElementToDone(text)
+
+        assert(fragment.todoList.isEmpty())
+        assert(fragment.todoListDone.isNotEmpty())
     }
 }

@@ -17,6 +17,7 @@ class TodoFragmentListView : Fragment(R.layout.activity_todo_listview) {
     val EMPTY_STRING : String = " "
     val args: TodoFragmentListViewArgs by navArgs()
     var todoList = arrayListOf<String>()
+    var todoListDone = arrayListOf<String>()
     var adapter: ArrayAdapter<String>? = null
 
     override fun onCreateView(
@@ -29,9 +30,10 @@ class TodoFragmentListView : Fragment(R.layout.activity_todo_listview) {
             view
         ) }
 
-        adapter = ArrayAdapter(
+        adapter = TodoListAdapter(
+            this,
             requireContext(),
-            android.R.layout.simple_dropdown_item_1line, todoList
+            R.layout.todo_list_active_element, todoList
         )
 
         var listView: ListView = rootView.findViewById(R.id.todo_listview_active)
@@ -55,14 +57,22 @@ class TodoFragmentListView : Fragment(R.layout.activity_todo_listview) {
         findNavController().navigate(R.id.action_todoFragmentListView_to_todoFragmentAdd)
     }
 
+    fun addItemToTodoList(text : String) {
+        todoList.add(text)
+        adapter?.notifyDataSetChanged()
+    }
+
+    fun moveElementToDone(text: String) {
+
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val text = args.listItemText
         if(text.equals(EMPTY_STRING)) {
             return
         }
-        todoList.add(text)
-        adapter?.notifyDataSetChanged()
+        addItemToTodoList(text)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
