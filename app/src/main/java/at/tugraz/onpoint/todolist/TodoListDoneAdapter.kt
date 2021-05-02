@@ -19,7 +19,7 @@ class TodoListDoneAdapter(private val dataSet: ArrayList<Todo>) :
      */
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val textView: TextView
-        var todo: Todo? = null
+        lateinit var todo: Todo
 
         init {
             // Define click listener for the ViewHolder's View.

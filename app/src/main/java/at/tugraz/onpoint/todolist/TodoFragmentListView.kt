@@ -24,8 +24,8 @@ class TodoFragmentListView : Fragment(R.layout.activity_todo_listview) {
     var todoListDone = arrayListOf<Todo>()
     var adapter: TodoListAdapter? = null
     var adapterDone: TodoListDoneAdapter? = null
-    var db: OnPointAppDatabase? = null
-    var todoDao: TodoDao? = null
+    lateinit var db: OnPointAppDatabase
+    lateinit var todoDao: TodoDao
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -73,9 +73,9 @@ class TodoFragmentListView : Fragment(R.layout.activity_todo_listview) {
         // and async queries is a pain for what we need to achieve.
         builder.allowMainThreadQueries()
         db = builder.build()
-        todoDao = db!!.getTodoDao()
-        todoList.addAll(todoDao!!.selectAllNotCompleted())
-        todoListDone.addAll(todoDao!!.selectAllCompleted())
+        todoDao = db.getTodoDao()
+        todoList.addAll(todoDao.selectAllNotCompleted())
+        todoListDone.addAll(todoDao.selectAllCompleted())
     }
 
     fun onAddButtonClick(v: View?) {
@@ -86,8 +86,8 @@ class TodoFragmentListView : Fragment(R.layout.activity_todo_listview) {
         // Insert a new entry to the DB, which automatically generates a UID and a timestamp
         // for the entry. Then retrieve the whole entry with its default fields and add it to
         // the in-memory arraylist of To-do objects. Returns the newly generated Todo object.
-        val uid = todoDao!!.insertNew(text)
-        val newTodo = todoDao!!.selectOne(uid)
+        val uid = todoDao.insertNew(text)
+        val newTodo = todoDao.selectOne(uid)
         todoList.add(newTodo)
         adapter?.notifyDataSetChanged()
         return newTodo
@@ -99,7 +99,7 @@ class TodoFragmentListView : Fragment(R.layout.activity_todo_listview) {
         todoList.remove(todo)
         adapter?.notifyDataSetChanged()
         todo.isCompleted = true
-        todoDao!!.updateOne(todo)
+        todoDao.updateOne(todo)
         todoListDone.add(todo)
         adapterDone?.notifyDataSetChanged()
     }

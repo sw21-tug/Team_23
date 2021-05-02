@@ -24,7 +24,7 @@ class TodoListAdapter(
         RecyclerView.ViewHolder(view) {
         val textView: TextView
         val button: Button
-        var todo: Todo? = null
+        lateinit var todo: Todo
 
         init {
             // Define click listener for the ViewHolder's View.
@@ -41,7 +41,7 @@ class TodoListAdapter(
             // At this point this.to-do should never be null, as is is set by onBindViewHolder().
             // Otherwise it would not make much sense: how can we check (tick, mark) a view
             // which was never displayed?
-            this.todo?.let { fragment.moveElementToDone(it) }
+            fragment.moveElementToDone(this.todo)
         }
     }
 
