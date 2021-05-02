@@ -1,9 +1,8 @@
 package at.tugraz.onpoint.database
 
 import androidx.room.*
-import androidx.room.Database
-import java.time.LocalDateTime
 import java.util.*
+
 
 @Database(entities = [Todo::class], version = 1)
 abstract class OnPointAppDatabase : RoomDatabase() {
@@ -11,7 +10,7 @@ abstract class OnPointAppDatabase : RoomDatabase() {
 }
 
 @Entity
-data class Todo (
+data class Todo(
     @PrimaryKey(autoGenerate = true)
     val uid: Int = -1,
 
@@ -27,13 +26,13 @@ data class Todo (
     @ColumnInfo(name = "is_completed", defaultValue = "0")
     var isCompleted: Boolean = false,
 ) {
-    fun creationDateTime(): Date{
-        return Date(creationUnixTime.toLong()*1000);
+    fun creationDateTime(): Date {
+        return Date(creationUnixTime.toLong() * 1000);
     }
 
-    fun expirationDateTime(): Date?{
-        if(expirationUnixTime != null){
-            return Date(expirationUnixTime!!.toLong()*1000);
+    fun expirationDateTime(): Date? {
+        if (expirationUnixTime != null) {
+            return Date(expirationUnixTime!!.toLong() * 1000);
         }
         return null;
     }
