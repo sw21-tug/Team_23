@@ -25,17 +25,16 @@ import at.tugraz.onpoint.todolist.TodoFragmentAdd
 import at.tugraz.onpoint.todolist.TodoFragmentAddDirections
 import at.tugraz.onpoint.todolist.TodoFragmentListView
 import org.hamcrest.CoreMatchers.*
+import org.hamcrest.Matchers.anything
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
+import org.mockito.Mockito.*
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.TimeUnit
-
 
 @RunWith(AndroidJUnit4::class)
 class TodoInstrumentedTest {
@@ -157,7 +156,7 @@ class TodoInstrumentedTest {
         secondScenario.onFragment { fragment ->
             Navigation.setViewNavController(fragment.requireView(), mockNavController)
         }
-        onView(withId(R.id.todo_listview)).check(matches(isDisplayed()))
+        onView(withId(R.id.todo_listview_active)).check(matches(isDisplayed()))
     }
 
     /**
@@ -174,7 +173,48 @@ class TodoInstrumentedTest {
             Navigation.setViewNavController(fragment.requireView(), mockNavController)
         }
 
-        onView(withId(R.id.todo_listview)).check(matches(isDisplayed()))
+        onView(withId(R.id.todo_listview_active)).check(matches(isDisplayed()))
+    }
+
+    /**
+     * Check if TodoFragmentListView displays its elements
+     */
+    @Test
+    fun displayTodoElement() {
+        val mockNavController = mock(NavController::class.java)
+
+        val text = "This is a test text"
+        val fragmentArgs = bundleOf(text to 0)
+        val secondScenario = launchFragmentInContainer<TodoFragmentListView>(fragmentArgs)
+        secondScenario.onFragment { fragment ->
+            Navigation.setViewNavController(fragment.requireView(), mockNavController)
+        }
+
+        onView(withId(R.id.todo_listview_active)).check(matches(isDisplayed()))
+        onView(withId(R.id.todo_listview_done)).check(matches(isDisplayed()))
+    }
+
+
+    @Test
+    fun checkButtonDone() {
+        val text = "This is a test text"
+
+        val fragment = TodoFragmentListView()
+        fragment.addItemToTodoList(text)
+
+        assert(fragment.todoList.isNotEmpty())
+    }
+
+    @Test
+    fun checkMoveElementToDone() {
+        val text = "This is a test text"
+
+        val fragment = TodoFragmentListView()
+        fragment.addItemToTodoList(text)
+        fragment.moveElementToDone(text)
+
+        assert(fragment.todoList.isEmpty())
+        assert(fragment.todoListDone.isNotEmpty())
     }
 
     @Test
@@ -243,9 +283,9 @@ class TodoInstrumentedTest {
         // Assumption for the test: the list is empty before the first input
         val text = "This is a test text"
         onData(anything())
-            .inAdapterView(withId(R.id.todo_listview))
+            .inAdapterView(withId(R.id.todo_listview_active))
             .atPosition(0)
-            .onChildView(withId(android.R.id.text1))
+            .onChildView(withId(R.id.todo_list_active_element))
             .check(matches(not(withText(text))))
         // Add some text to the list of to-dos
         onView(withId(R.id.todo_addButton)).check(matches(isClickable()))
@@ -253,11 +293,11 @@ class TodoInstrumentedTest {
         onView(withId(R.id.todo_InputField)).perform(typeText(text), closeSoftKeyboard())
         onView(withId(R.id.todo_saveButton)).perform(click())
         // Check if the to-do entry is there
-        onView(withId(R.id.todo_listview)).check(matches(isDisplayed()))
+        onView(withId(R.id.todo_listview_active)).check(matches(isDisplayed()))
         onData(anything())
-            .inAdapterView(withId(R.id.todo_listview))
+            .inAdapterView(withId(R.id.todo_listview_active))
             .atPosition(0)
-            .onChildView(withId(android.R.id.text1))
+            .onChildView(withId(R.id.todo_list_active_element))
             .check(matches(withText(text)))
         // Close the app completely and reopen it
         pressBackUnconditionally()
@@ -265,11 +305,11 @@ class TodoInstrumentedTest {
         activityRule.launchActivity(Intent()) // Restarts at the main activity
         onView(withText("Todo")).perform(ViewActions.click()) // Select To-do tab
         // Check if the to-do entry is still there, thus persistency is working
-        onView(withId(R.id.todo_listview)).check(matches(isDisplayed()))
+        onView(withId(R.id.todo_listview_active)).check(matches(isDisplayed()))
         onData(anything())
-            .inAdapterView(withId(R.id.todo_listview))
+            .inAdapterView(withId(R.id.todo_listview_active))
             .atPosition(0)
-            .onChildView(withId(android.R.id.text1))
+            .onChildView(withId(R.id.todo_list_active_element))
             .check(matches(withText(text)))
     }
 }

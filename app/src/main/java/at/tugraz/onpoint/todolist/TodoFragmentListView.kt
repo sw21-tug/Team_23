@@ -4,11 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.ListView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import at.tugraz.onpoint.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
@@ -17,7 +17,9 @@ class TodoFragmentListView : Fragment(R.layout.activity_todo_listview) {
     val EMPTY_STRING : String = " "
     val args: TodoFragmentListViewArgs by navArgs()
     var todoList = arrayListOf<String>()
-    var adapter: ArrayAdapter<String>? = null
+    var todoListDone = arrayListOf<String>()
+    var adapter: TodoListAdapter? = null
+    var adapterDone: TodoListDoneAdapter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -29,14 +31,28 @@ class TodoFragmentListView : Fragment(R.layout.activity_todo_listview) {
             view
         ) }
 
-        adapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_dropdown_item_1line, todoList
+        val todosView: RecyclerView = rootView.findViewById(R.id.todo_listview_active)
+        todosView.layoutManager = LinearLayoutManager(this.context)
+
+        adapter = TodoListAdapter(
+            this,
+            todoList
+        )
+        todosView.adapter = adapter
+
+        adapter?.notifyDataSetChanged()
+
+
+        val todosDoneView: RecyclerView = rootView.findViewById(R.id.todo_listview_done)
+        todosDoneView.layoutManager = LinearLayoutManager(this.context)
+
+        adapterDone = TodoListDoneAdapter (
+            todoListDone
         )
 
-        var listView: ListView = rootView.findViewById(R.id.todo_listview)
+        todosDoneView.adapter = adapterDone
 
-        listView?.adapter = adapter
+        adapterDone?.notifyDataSetChanged()
 
         return rootView
     }
@@ -55,14 +71,28 @@ class TodoFragmentListView : Fragment(R.layout.activity_todo_listview) {
         findNavController().navigate(R.id.action_todoFragmentListView_to_todoFragmentAdd)
     }
 
+    fun addItemToTodoList(text : String) {
+        todoList.add(text)
+        adapter?.notifyDataSetChanged()
+    }
+
+    fun moveElementToDone(text : String) {
+        todoList.remove(text)
+        adapter?.notifyDataSetChanged()
+        todoListDone.add(text)
+        adapterDone?.notifyDataSetChanged()
+
+
+
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val text = args.listItemText
         if(text.equals(EMPTY_STRING)) {
             return
         }
-        todoList.add(text)
-        adapter?.notifyDataSetChanged()
+        addItemToTodoList(text)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
