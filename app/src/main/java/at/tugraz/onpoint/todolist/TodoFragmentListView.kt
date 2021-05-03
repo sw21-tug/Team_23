@@ -14,6 +14,7 @@ import at.tugraz.onpoint.R
 import at.tugraz.onpoint.database.OnPointAppDatabase
 import at.tugraz.onpoint.database.Todo
 import at.tugraz.onpoint.database.TodoDao
+import at.tugraz.onpoint.database.getDbInstance
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 
@@ -24,8 +25,8 @@ class TodoFragmentListView : Fragment(R.layout.activity_todo_listview) {
     var todoListDone = arrayListOf<Todo>()
     var adapter: TodoListAdapter? = null
     var adapterDone: TodoListDoneAdapter? = null
-    lateinit var db: OnPointAppDatabase
-    lateinit var todoDao: TodoDao
+    val db: OnPointAppDatabase = getDbInstance(null)
+    val todoDao: TodoDao = db.getTodoDao()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -61,19 +62,6 @@ class TodoFragmentListView : Fragment(R.layout.activity_todo_listview) {
         super.onCreate(savedInstanceState)
         // Fill the to-do lists of ongoing and completed tasks with the data retrieved from
         // the persistent database
-        val builder = Room.databaseBuilder(
-            requireContext(),
-            OnPointAppDatabase::class.java,
-            "OnPointDb_v1"
-        )
-        // DB queries in the main thread need to be allowed explicitly to avoid a compilation error.
-        // By default IO operations should be delegated to a background thread to avoid the UI
-        // getting stuck on long IO operations.
-        // We have very fast IO operations (small updates) and introducing background threads
-        // and async queries is a pain for what we need to achieve.
-        builder.allowMainThreadQueries()
-        db = builder.build()
-        todoDao = db.getTodoDao()
         todoList.addAll(todoDao.selectAllNotCompleted())
         todoListDone.addAll(todoDao.selectAllCompleted())
     }

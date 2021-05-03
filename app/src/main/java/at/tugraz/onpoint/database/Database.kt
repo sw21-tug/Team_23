@@ -1,5 +1,6 @@
 package at.tugraz.onpoint.database
 
+import android.content.Context
 import androidx.room.*
 import java.util.*
 
@@ -72,6 +73,26 @@ interface TodoDao {
 
     @Query("DELETE FROM todo")
     fun deleteAll()
+}
+
+var INSTANCE: OnPointAppDatabase? = null
+
+fun getDbInstance(context: Context?): OnPointAppDatabase {
+    if (INSTANCE == null) {
+        val builder = Room.databaseBuilder(
+            context!!,
+            OnPointAppDatabase::class.java,
+            "OnPointDb_v1"
+        )
+        // DB queries in the main thread need to be allowed explicitly to avoid a compilation error.
+        // By default IO operations should be delegated to a background thread to avoid the UI
+        // getting stuck on long IO operations.
+        // We have very fast IO operations (small updates) and introducing background threads
+        // and async queries is a pain for what we need to achieve.
+        builder.allowMainThreadQueries()
+        INSTANCE = builder.build()
+    }
+    return INSTANCE as OnPointAppDatabase
 }
 
 // TODO ideas:

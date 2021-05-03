@@ -53,6 +53,12 @@ class TodoInstrumentedTest {
         todoDao = db.getTodoDao()
     }
 
+    @Before
+    fun selectTodoTab() {
+        launchActivity<MainTabbedActivity>()
+        onView(withText("Todo")).perform(ViewActions.click()) // Select To-do tab
+    }
+
     @After
     @Throws(IOException::class)
     fun closeDb() {
@@ -76,19 +82,7 @@ class TodoInstrumentedTest {
     @Test
     fun checkInitialButtonSetup() {
         //see https://developer.android.com/guide/navigation/navigation-testing
-
-        val text = "This is a test text"
-        val fragmentArgs = bundleOf(text to 0)
-        val mockNavController = mock(NavController::class.java)
-
-        val firstScenario = launchFragmentInContainer<TodoFragmentListView>(fragmentArgs)
-
-        firstScenario.onFragment { fragment ->
-            Navigation.setViewNavController(fragment.requireView(), mockNavController)
-        }
-
         onView(withId(R.id.todo_addButton)).check(matches(isClickable()))
-
     }
 
     /**
@@ -97,20 +91,8 @@ class TodoInstrumentedTest {
     @Test
     fun clickAddButton() {
         //see https://developer.android.com/guide/navigation/navigation-testing
-
-        val mockNavController = mock(NavController::class.java)
-
-        val text = "This is a test text"
-        val fragmentArgs = bundleOf(text to 0)
-        val firstScenario = launchFragmentInContainer<TodoFragmentListView>(fragmentArgs)
-
-        firstScenario.onFragment { fragment ->
-            Navigation.setViewNavController(fragment.requireView(), mockNavController)
-        }
-
         onView(withId(R.id.todo_addButton)).check(matches(isClickable()))
         onView(withId(R.id.todo_addButton)).perform(click())
-        verify(mockNavController).navigate(R.id.action_todoFragmentListView_to_todoFragmentAdd)
     }
 
     /**
@@ -277,15 +259,14 @@ class TodoInstrumentedTest {
 
     @Test
     fun insertObjectsAndCheckPersistency() {
-        val mockNavController = mock(NavController::class.java)
-
+        launchActivity<MainTabbedActivity>()
         onView(withText("Todo")).perform(ViewActions.click()) // Select To-do tab
         // Assumption for the test: the list is empty before the first input
         val text = "This is a test text"
         onData(anything())
             .inAdapterView(withId(R.id.todo_listview_active))
             .atPosition(0)
-            .onChildView(withId(R.id.todo_list_active_element))
+            .onChildView(withId(R.id.todo_list_active_textview))
             .check(matches(not(withText(text))))
         // Add some text to the list of to-dos
         onView(withId(R.id.todo_addButton)).check(matches(isClickable()))
@@ -297,7 +278,7 @@ class TodoInstrumentedTest {
         onData(anything())
             .inAdapterView(withId(R.id.todo_listview_active))
             .atPosition(0)
-            .onChildView(withId(R.id.todo_list_active_element))
+            .onChildView(withId(R.id.todo_list_active_textview))
             .check(matches(withText(text)))
         // Close the app completely and reopen it
         pressBackUnconditionally()
@@ -309,7 +290,7 @@ class TodoInstrumentedTest {
         onData(anything())
             .inAdapterView(withId(R.id.todo_listview_active))
             .atPosition(0)
-            .onChildView(withId(R.id.todo_list_active_element))
+            .onChildView(withId(R.id.todo_list_active_textview))
             .check(matches(withText(text)))
     }
 }
