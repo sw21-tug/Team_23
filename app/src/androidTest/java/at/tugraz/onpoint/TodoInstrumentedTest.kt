@@ -21,6 +21,7 @@ import androidx.test.rule.ActivityTestRule
 import at.tugraz.onpoint.database.OnPointAppDatabase
 import at.tugraz.onpoint.database.Todo
 import at.tugraz.onpoint.database.TodoDao
+import at.tugraz.onpoint.database.getDbInstance
 import at.tugraz.onpoint.todolist.TodoFragmentAdd
 import at.tugraz.onpoint.todolist.TodoFragmentAddDirections
 import at.tugraz.onpoint.todolist.TodoFragmentListView
@@ -56,6 +57,8 @@ class TodoInstrumentedTest {
     @Before
     fun selectTodoTab() {
         launchActivity<MainTabbedActivity>()
+        val persistentDb = getDbInstance(null) // Already created singleton in line above
+        persistentDb.clearAllTables()
         onView(withText("Todo")).perform(ViewActions.click()) // Select To-do tab
     }
 
@@ -64,6 +67,13 @@ class TodoInstrumentedTest {
     fun closeDb() {
         db.clearAllTables()
         db.close()
+    }
+
+    @After
+    @Throws(IOException::class)
+    fun emptyPersistentDb() {
+        val persistentDb = getDbInstance(null) // Already created singleton in @Before
+        persistentDb.clearAllTables()
     }
 
     @Test
@@ -249,7 +259,7 @@ class TodoInstrumentedTest {
     fun todoObjectConvertsUnixTimeToJavaObject() {
         val timestamp = Date();
         val uid = todoDao.insertNew("Buy some carrots")
-        var todo = todoDao.selectOne(uid)
+        val todo = todoDao.selectOne(uid)
         assert(todo.creationDateTime().before(Date(timestamp.getTime() + 10000)))
         assert(todo.creationDateTime().after(Date(timestamp.getTime() - 10000)))
         assertThat(todo.expirationDateTime(), equalTo(null)) // When null
@@ -259,38 +269,33 @@ class TodoInstrumentedTest {
 
     @Test
     fun insertObjectsAndCheckPersistency() {
-        launchActivity<MainTabbedActivity>()
-        onView(withText("Todo")).perform(ViewActions.click()) // Select To-do tab
-        // Assumption for the test: the list is empty before the first input
         val text = "This is a test text"
-        onData(anything())
-            .inAdapterView(withId(R.id.todo_listview_active))
-            .atPosition(0)
-            .onChildView(withId(R.id.todo_list_active_textview))
-            .check(matches(not(withText(text))))
-        // Add some text to the list of to-dos
-        onView(withId(R.id.todo_addButton)).check(matches(isClickable()))
-        onView(withId(R.id.todo_addButton)).perform(click())
-        onView(withId(R.id.todo_InputField)).perform(typeText(text), closeSoftKeyboard())
-        onView(withId(R.id.todo_saveButton)).perform(click())
-        // Check if the to-do entry is there
-        onView(withId(R.id.todo_listview_active)).check(matches(isDisplayed()))
-        onData(anything())
-            .inAdapterView(withId(R.id.todo_listview_active))
-            .atPosition(0)
-            .onChildView(withId(R.id.todo_list_active_textview))
-            .check(matches(withText(text)))
+        val fragment = TodoFragmentListView()
+        // Assumption for the test: the new task is not there yet
+        assert(fragment.todoList.isEmpty())
+        assert(fragment.todoListDone.isEmpty())
+        val todo = fragment.addItemToTodoList(text)
+        assert(fragment.todoList.isNotEmpty())
+        assert(fragment.todoListDone.isEmpty())
         // Close the app completely and reopen it
         pressBackUnconditionally()
         activityRule.finishActivity()
         activityRule.launchActivity(Intent()) // Restarts at the main activity
         onView(withText("Todo")).perform(ViewActions.click()) // Select To-do tab
-        // Check if the to-do entry is still there, thus persistency is working
-        onView(withId(R.id.todo_listview_active)).check(matches(isDisplayed()))
-        onData(anything())
-            .inAdapterView(withId(R.id.todo_listview_active))
-            .atPosition(0)
-            .onChildView(withId(R.id.todo_list_active_textview))
-            .check(matches(withText(text)))
+        // The to-do is still in the list
+        assert(fragment.todoList.isNotEmpty())
+        assert(fragment.todoListDone.isEmpty())
+        // Mark it as completed
+        fragment.moveElementToDone(todo)
+        assert(fragment.todoList.isEmpty())
+        assert(fragment.todoListDone.isNotEmpty())
+        // Close the app completely and reopen it
+        pressBackUnconditionally()
+        activityRule.finishActivity()
+        activityRule.launchActivity(Intent()) // Restarts at the main activity
+        onView(withText("Todo")).perform(ViewActions.click()) // Select To-do tab
+        // The to-do is still in the completed list
+        assert(fragment.todoList.isEmpty())
+        assert(fragment.todoListDone.isNotEmpty())
     }
 }
