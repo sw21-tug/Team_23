@@ -1,17 +1,13 @@
 package at.tugraz.onpoint
 
+import android.content.Context
 import android.os.Bundle
-import android.os.LocaleList
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager.widget.ViewPager
-import androidx.viewpager2.widget.ViewPager2
 import at.tugraz.onpoint.database.getDbInstance
-import at.tugraz.onpoint.ui.main.AssignmentsTabFragment
 import at.tugraz.onpoint.ui.main.SectionsPagerAdapter
 import com.google.android.material.tabs.TabLayout
-import java.util.*
-
 
 class MainTabbedActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

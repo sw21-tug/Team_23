@@ -10,7 +10,6 @@ import androidx.navigation.Navigation
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.core.app.launchActivity
-import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.*
@@ -25,14 +24,14 @@ import at.tugraz.onpoint.database.getDbInstance
 import at.tugraz.onpoint.todolist.TodoFragmentAdd
 import at.tugraz.onpoint.todolist.TodoFragmentAddDirections
 import at.tugraz.onpoint.todolist.TodoFragmentListView
-import org.hamcrest.CoreMatchers.*
-import org.hamcrest.Matchers.anything
+import org.hamcrest.CoreMatchers.equalTo
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.*
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.TimeUnit
