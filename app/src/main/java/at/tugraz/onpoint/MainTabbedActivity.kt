@@ -1,25 +1,20 @@
 package at.tugraz.onpoint
 
 import android.content.Context
-import android.content.ContextWrapper
-import android.content.res.Configuration
-import android.content.res.Resources
-import android.os.Build
 import android.os.Bundle
-import android.os.LocaleList
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager.widget.ViewPager
-import androidx.viewpager2.widget.ViewPager2
-import at.tugraz.onpoint.ui.main.AssignmentsTabFragment
+import at.tugraz.onpoint.database.getDbInstance
 import at.tugraz.onpoint.ui.main.SectionsPagerAdapter
 import com.google.android.material.tabs.TabLayout
-import java.util.*
-
 
 class MainTabbedActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Instantiation of the singleton DB once globally so it can be
+        // available in all other tabs
+        getDbInstance(this)
         val languagehandler = LanguageHandler()
         languagehandler.loadLocale(baseContext)
         setContentView(R.layout.activity_maintabbed)
