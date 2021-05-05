@@ -23,7 +23,14 @@ class SidebarTest {
      */
     @Test
     fun checkSidebarDisplayed() {
-        onView(ViewMatchers.withId(R.id.sidebar)).perform(ViewActions.click())
-        onView(ViewMatchers.withId(R.id.sidebar)).check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+        onView(ViewMatchers.withId(R.id.drawer)).check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+    }
+
+    /**
+     * Checks if sidebar element is clickable
+     */
+    @Test
+    fun checkSidebarClickable() {
+        onView(ViewMatchers.withId(R.id.toggle)).perform(ViewActions.click())
     }
 }
