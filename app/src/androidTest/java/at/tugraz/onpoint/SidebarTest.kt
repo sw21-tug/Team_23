@@ -2,6 +2,7 @@ package at.tugraz.onpoint
 
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.ViewAssertion
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
@@ -23,7 +24,7 @@ class SidebarTest {
      */
     @Test
     fun checkSidebarDisplayed() {
-        onView(ViewMatchers.withId(R.id.drawer)).check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+        onView(ViewMatchers.withId(R.id.sidebar)).check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
 
     /**
@@ -31,6 +32,15 @@ class SidebarTest {
      */
     @Test
     fun checkSidebarClickable() {
-        onView(ViewMatchers.withId(R.id.toggle)).perform(ViewActions.click())
+        onView(ViewMatchers.withId(R.id.sidebar)).perform(ViewActions.click())
+        onView(ViewMatchers.withText(R.string.settings_drawable_txt)).check(ViewAssertions.matches(ViewMatchers.isEnabled()));
+    }
+
+    /**
+     * Checks if icon is displayed
+     */
+    @Test
+    fun displayIcon() {
+        onView(ViewMatchers.withId(R.drawable.cog)).check(ViewAssertions.matches(ViewMatchers.isDisplayed()));
     }
 }
