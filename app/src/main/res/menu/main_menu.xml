@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+        <item
+            android:id="@+id/settings_drawable_bar"
+            android:icon="@drawable/ic_baseline_settings_24"
+            android:title="@string/settings_drawable_txt" />
+        <item
+            android:id="@+id/add_university_drawable_bar"
+            android:icon="@drawable/ic_baseline_uni_24"
+            android:title="@string/add_university_drawable_txt" />
+    <item
+        android:id="@+id/language_toggle"
+        android:icon="@drawable/ic_baseline_g_translate_24"
+        android:title="@string/switch_language" />
+</menu>

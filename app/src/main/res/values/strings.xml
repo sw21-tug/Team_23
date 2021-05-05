@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name" translatable="false">OnPoint</string>
+    <string name="title_activity_home_screen" translatable="false">HomeScreenActivity</string>
+    <string name="tab_text_1" translatable="false">Tab 1</string>
+    <string name="tab_text_2" translatable="false">Tab 2</string>
+    <string name="title_activity_main2" translatable="false">MainActivity2</string>
+    <string name="homescreen_todo_string" translatable="false">homescreen_todo_id</string>
+    <string name="homescreen_todo_heading">TODO</string>
+    <string name="homescreen_recent_id" translatable="false">homescreen_recent_id</string>
+    <string name="homescreen_recent_heading">Recent</string>
+
+    <string name="title_activity_main" translatable="false">MainActivity</string>
+    <string name="tab_title_main">Main</string>
+    <string name="tab_title_todo">Todo</string>
+    <string name="tab_title_assignments">Assign.</string>
+    <string name="assignments">Assignments</string>
+    <string name="todo_addButton_content_description">Add</string>
+    <string name="todo_input_hint">Enter a new item here ...</string>
+    <string name="string_todo_active_header" translatable="false">Active</string>
+    <string name="string_todo_done_header" translatable="false">Done</string>
+
+    <string name="switch_language_button">Chinese</string>
+    <string name="settings_drawable_txt">Settings</string>
+    <string name="add_university_drawable_txt">Add University</string>
+    <string name="open" translatable="false">O</string>
+    <string name="close" translatable="false">C</string>
+    <string name="switch_language">Switch Language : ZH</string>
+    <string name="todolist_heading_done">Done</string>
+    <string name="todolist_heading">Active</string>
+    <string name="assignment_dialog_deadline">Deadline: </string>
+    <string name="assignment_dialog_close_button">Close</string>
+</resources>
