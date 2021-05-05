@@ -92,6 +92,11 @@ class TodoFragmentListView : Fragment(R.layout.activity_todo_listview) {
         adapterDone?.notifyDataSetChanged()
     }
 
+
+    fun deleteTodo(todo : Todo ){
+
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val text = args.listItemText
