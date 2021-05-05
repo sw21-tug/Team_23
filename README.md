@@ -25,8 +25,8 @@ This app is designed to keep track of deadlines at school and university. Not on
 | OnPoint-009A | Home Screen/Interface | X | | 
 | OnPoint-010A | Todo list/Interface | X |  | 
 | OnPoint-010B | ToDoList/Data |  | X | 
-| OnPoint-010C | saved Data |  | X | 
-| OnPoint-018 | Translate to Chinese |  | X | 
+| OnPoint-010C | saved Data | X |  | 
+| OnPoint-018 | Translate to Chinese | X | | 
 | OnPoint-003 | Sidebar |  | X | 
 | OnPoint-005 | Details of the Assignment |  | X | 
 
