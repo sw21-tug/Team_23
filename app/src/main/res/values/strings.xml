@@ -20,6 +20,11 @@
     <string name="string_todo_done_header" translatable="false">Done</string>
 
     <string name="switch_language_button">Chinese</string>
+    <string name="settings_drawable_txt">Settings</string>
+    <string name="add_university_drawable_txt">Add University</string>
+    <string name="open" translatable="false">O</string>
+    <string name="close" translatable="false">C</string>
+    <string name="switch_language">Switch Language : ZH</string>
     <string name="todolist_heading_done">Done</string>
     <string name="todolist_heading">Active</string>
 </resources>
