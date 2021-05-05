@@ -12,9 +12,11 @@ import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import at.tugraz.onpoint.todolist.TodoFragmentAddDirections
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito
 
 @RunWith(AndroidJUnit4::class)
 class AssignmentsListInstrumentedTest {
@@ -58,7 +60,11 @@ class AssignmentsListInstrumentedTest {
         // Click item at position 3
         onView(withId(R.id.assignmentsList))
             .perform(RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(3, click()))
-        // TODO inspect content of the details displayed for a list element at position X
+
+        onView(withId(R.id.assignmentsDialog))
+            .check(matches(isDisplayed()))
+
+        onView(withText("Dummy Description 3")).check(matches(isDisplayed()))
         assert(false)
     }
 }
