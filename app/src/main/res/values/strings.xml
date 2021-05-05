@@ -27,4 +27,6 @@
     <string name="switch_language">Switch Language : ZH</string>
     <string name="todolist_heading_done">Done</string>
     <string name="todolist_heading">Active</string>
+    <string name="assignment_dialog_deadline">Deadline: </string>
+    <string name="assignment_dialog_close_button">Close</string>
 </resources>
