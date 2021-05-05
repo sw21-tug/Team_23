@@ -125,7 +125,8 @@ private class ViewHolder(view: View, val context: Context) : RecyclerView.ViewHo
         val description: StringBuilder = StringBuilder()
         description.append(assignment.description)
         description.append('\n')
-        description.append("Deadline: ")
+        description.append(R.string.assignment_dialog_deadline)
+        description.append(": ")
         description.append(assignment.deadline)
         description.append('\n')
         assignment.links.forEach {
@@ -134,7 +135,7 @@ private class ViewHolder(view: View, val context: Context) : RecyclerView.ViewHo
         }
         builder.setMessage(description.toString())
         builder.setNeutralButton(
-            "Close"
+            description.append(R.string.assignment_dialog_close_button)
         ) { _, _ ->
             // User cancelled the dialog.
             // This callback does nothing.

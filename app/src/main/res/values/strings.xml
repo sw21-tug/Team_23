@@ -18,6 +18,8 @@
     <string name="todo_input_hint">Enter a new item here ...</string>
     <string name="string_todo_active_header">Active</string>
     <string name="string_todo_done_header">Done</string>
+    <string name="assignment_dialog_deadline">Deadline</string>
+    <string name="assignment_dialog_close_button">Close</string>
 
     <string name="switch_language_button">Chinese</string>
 </resources>
