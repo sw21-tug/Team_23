@@ -12,4 +12,6 @@
     <string name="settings_drawable_txt">" 设定"</string>
     <string name="add_university_drawable_txt">"增加大学 "</string>
     <string name="switch_language">切換語言 : EN</string>
+    <string name="todolist_heading" translatable="false">活跃</string>
+    <string name="todolist_heading_done" translatable="false">完毕</string>
 </resources>

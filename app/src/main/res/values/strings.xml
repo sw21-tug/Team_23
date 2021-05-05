@@ -25,4 +25,6 @@
     <string name="open" translatable="false">O</string>
     <string name="close" translatable="false">C</string>
     <string name="switch_language">Switch Language : ZH</string>
+    <string name="todolist_heading_done">Done</string>
+    <string name="todolist_heading">Active</string>
 </resources>
