@@ -7,7 +7,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -52,7 +54,7 @@ class AssignmentsTabFragment : Fragment() {
         // items to it and provide and adapter constructing each element of the list as a TextView
         val assignmentsRecView: RecyclerView = root.findViewById(R.id.assignmentsList)
         assignmentsRecView.layoutManager = LinearLayoutManager(this.context)
-        assignmentsRecView.adapter = this.context?.let { AssignmentsAdapter(assignmentsList, it) }
+        assignmentsRecView.adapter = this.context?.let { AssignmentsAdapter(assignmentsList, it, parentFragmentManager) }
         return root
     }
 
@@ -78,14 +80,23 @@ class AssignmentsTabFragment : Fragment() {
     }
 }
 
-private data class Assignment(
+data class Assignment(
     val title: String,
     val description: String,
     val deadline: Date,
     val links: ArrayList<URL>
-)
+) {
+    fun linksToMultiLineString(): String {
+        val text: StringBuilder = StringBuilder()
+        links.forEach {
+            text.append(it)
+            text.append('\n')
+        }
+        return text.toString()
+    }
+}
 
-private class AssignmentsAdapter(val items: ArrayList<Assignment>, val context: Context) :
+private class AssignmentsAdapter(val items: ArrayList<Assignment>, val context: Context, val fragmentManager: FragmentManager) :
     RecyclerView.Adapter<ViewHolder>() {
     override fun getItemCount(): Int {
         return items.size
@@ -95,7 +106,7 @@ private class AssignmentsAdapter(val items: ArrayList<Assignment>, val context: 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
             LayoutInflater.from(context).inflate(R.layout.assignment_list_entry, parent, false),
-            context
+            fragmentManager
         )
     }
 
@@ -106,7 +117,7 @@ private class AssignmentsAdapter(val items: ArrayList<Assignment>, val context: 
     }
 }
 
-private class ViewHolder(view: View, val context: Context) : RecyclerView.ViewHolder(view) {
+private class ViewHolder(view: View, val fragmentManager: FragmentManager) : RecyclerView.ViewHolder(view) {
     lateinit var assignment: Assignment
     val assignmentListEntryTextView: TextView = view.findViewById(R.id.assignmentsListEntry)
 
@@ -120,28 +131,7 @@ private class ViewHolder(view: View, val context: Context) : RecyclerView.ViewHo
         // At this point this.assignment should be initialised, as is is set by onBindViewHolder().
         // Otherwise it would not make much sense: how can we click (tick, mark) a view
         // which was never displayed?
-        val builder = AlertDialog.Builder(context)
-        builder.setTitle(assignment.title)
-        val description: StringBuilder = StringBuilder()
-        description.append(assignment.description)
-        description.append('\n')
-        description.append(R.string.assignment_dialog_deadline)
-        description.append(": ")
-        description.append(assignment.deadline)
-        description.append('\n')
-        assignment.links.forEach {
-            description.append(it)
-            description.append('\n')
-        }
-        builder.setMessage(description.toString())
-        builder.setNeutralButton(
-            description.append(R.string.assignment_dialog_close_button)
-        ) { _, _ ->
-            // User cancelled the dialog.
-            // This callback does nothing.
-        }
-        // Create the AlertDialog object and return it
-        val dialog = builder.create()
-        dialog.show()
+        val fragment = AssignmentDetailsFragment(assignment)
+        fragment.show(fragmentManager,null)
     }
 }

@@ -8,15 +8,16 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
+import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import at.tugraz.onpoint.todolist.TodoFragmentAddDirections
+import org.hamcrest.CoreMatchers.startsWith
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito
+
 
 @RunWith(AndroidJUnit4::class)
 class AssignmentsListInstrumentedTest {
@@ -60,11 +61,17 @@ class AssignmentsListInstrumentedTest {
         // Click item at position 3
         onView(withId(R.id.assignmentsList))
             .perform(RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(3, click()))
-
-        onView(withId(R.id.assignmentsDialog))
+        onView(withId(R.id.fragment_assignment_details_linearlayout))
+            .inRoot(isDialog())
             .check(matches(isDisplayed()))
-
-        onView(withText("Dummy Description 3")).check(matches(isDisplayed()))
-        assert(false)
+        onView(withId(R.id.assignmentsListDetailsDescription))
+            .check(matches(withText("Dummy Description 3")))
+            .check(matches(isDisplayed()))
+        onView(withId(R.id.assignmentsListDetailsDeadline))
+            .check(matches(withText(startsWith("Deadline"))))
+            .check(matches(isDisplayed()))
+        onView(withId(R.id.assignmentsListDetailsLinks))
+            .check(matches(withText(startsWith("http"))))
+            .check(matches(isDisplayed()))
     }
 }
