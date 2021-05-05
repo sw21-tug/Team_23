@@ -11,7 +11,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import at.tugraz.onpoint.R
-import java.util.ArrayList
+import java.net.URL
+import java.time.LocalDate
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class AssignmentsTabFragment : Fragment() {
@@ -31,9 +34,15 @@ class AssignmentsTabFragment : Fragment() {
     ): View? {
         val root = inflater.inflate(R.layout.fragment_assignments, container, false)
         // List of things we want to put into the recyclerview
-        val assignmentsList = ArrayList<String>()
+        val assignmentsList = ArrayList<Assignment>()
         for (i in 0..50) {
-            assignmentsList.add("Dummy Assignment $i")
+            assignmentsList.add(
+                Assignment(
+                "Dummy Assignment $i",
+                "Dummy Description $i",
+                Date(2042, 12, 24),
+                arrayListOf<URL>()
+                ))
         }
         // Create the the Recyclerview, make it a linear list (not a grid), assign the list of
         // items to it and provide and adapter constructing each element of the list as a TextView
@@ -65,7 +74,12 @@ class AssignmentsTabFragment : Fragment() {
     }
 }
 
-private class AssignmentsAdapter(val items: ArrayList<String>, val context: Context) :
+private data class Assignment(val title: String,
+                              val description: String,
+                              val deadline: Date,
+                              val files: ArrayList<URL>)
+
+private class AssignmentsAdapter(val items: ArrayList<Assignment>, val context: Context) :
     RecyclerView.Adapter<ViewHolder>() {
     override fun getItemCount(): Int {
         return items.size
@@ -80,10 +94,12 @@ private class AssignmentsAdapter(val items: ArrayList<String>, val context: Cont
 
     // Filler of the content of each TextView in the RecyclerView
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.assignmentListEntryTextView.text = items[position]
+        holder.assignmentListEntryTextView.text = items[position].title
+        holder.assignment = items[position]
     }
 }
 
 private class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    lateinit var assignment: Assignment
     val assignmentListEntryTextView: TextView = view.findViewById(R.id.assignmentsListEntry)
 }
