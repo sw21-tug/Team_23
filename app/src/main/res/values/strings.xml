@@ -16,12 +16,17 @@
     <string name="assignments">Assignments</string>
     <string name="todo_addButton_content_description">Add</string>
     <string name="todo_input_hint">Enter a new item here ...</string>
-    <string name="string_todo_active_header">Active</string>
-    <string name="string_todo_done_header">Done</string>
-    <string name="assignment_dialog_deadline">Deadline: </string>
-    <string name="assignment_dialog_close_button">Close</string>
+    <string name="string_todo_active_header" translatable="false">Active</string>
+    <string name="string_todo_done_header" translatable="false">Done</string>
 
     <string name="switch_language_button">Chinese</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="settings_drawable_txt">Settings</string>
+    <string name="add_university_drawable_txt">Add University</string>
+    <string name="open" translatable="false">O</string>
+    <string name="close" translatable="false">C</string>
+    <string name="switch_language">Switch Language : ZH</string>
+    <string name="todolist_heading_done">Done</string>
+    <string name="todolist_heading">Active</string>
+    <string name="assignment_dialog_deadline">Deadline: </string>
+    <string name="assignment_dialog_close_button">Close</string>
 </resources>

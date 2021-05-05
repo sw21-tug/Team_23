@@ -297,4 +297,26 @@ class TodoInstrumentedTest {
         assert(fragment.todoList.isEmpty())
         assert(fragment.todoListDone.isNotEmpty())
     }
+
+    @Test
+    fun deleteElementTodo(){
+        val text = "This is a test text"
+        val fragment = TodoFragmentListView()
+        assert(fragment.todoList.isEmpty())
+        assert(fragment.todoListDone.isEmpty())
+        val todo = fragment.addItemToTodoList(text)
+        assert(fragment.todoList.isNotEmpty())
+        assert(fragment.todoListDone.isEmpty())
+        fragment.moveElementToDone(todo)
+        assert(fragment.todoList.isEmpty())
+        assert(fragment.todoListDone.isNotEmpty())
+        fragment.deleteTodo(todo)
+        assert(fragment.todoList.isEmpty())
+        assert(fragment.todoListDone.isEmpty())
+
+
+
+    }
+
+
 }
