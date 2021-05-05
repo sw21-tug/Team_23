@@ -51,6 +51,7 @@ class TodoFragmentListView : Fragment(R.layout.activity_todo_listview) {
         val todosDoneView: RecyclerView = rootView.findViewById(R.id.todo_listview_done)
         todosDoneView.layoutManager = LinearLayoutManager(this.context)
         adapterDone = TodoListDoneAdapter(
+            this,
             todoListDone
         )
         todosDoneView.adapter = adapterDone
@@ -94,7 +95,9 @@ class TodoFragmentListView : Fragment(R.layout.activity_todo_listview) {
 
 
     fun deleteTodo(todo : Todo ){
-
+        todoListDone.remove(todo)
+        adapterDone?.notifyDataSetChanged()
+        todoDao.deleteOne(todo)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

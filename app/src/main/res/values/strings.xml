@@ -16,8 +16,10 @@
     <string name="assignments">Assignments</string>
     <string name="todo_addButton_content_description">Add</string>
     <string name="todo_input_hint">Enter a new item here ...</string>
-    <string name="string_todo_active_header">Active</string>
-    <string name="string_todo_done_header">Done</string>
+    <string name="string_todo_active_header" translatable="false">Active</string>
+    <string name="string_todo_done_header" translatable="false">Done</string>
 
     <string name="switch_language_button">Chinese</string>
+    <string name="todolist_heading_done">Done</string>
+    <string name="todolist_heading">Active</string>
 </resources>

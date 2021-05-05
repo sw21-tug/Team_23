@@ -303,7 +303,7 @@ class TodoInstrumentedTest {
         val text = "This is a test text"
         val fragment = TodoFragmentListView()
         assert(fragment.todoList.isEmpty())
-        assert(fragment.todoListDone.isNotEmpty())
+        assert(fragment.todoListDone.isEmpty())
         val todo = fragment.addItemToTodoList(text)
         assert(fragment.todoList.isNotEmpty())
         assert(fragment.todoListDone.isEmpty())

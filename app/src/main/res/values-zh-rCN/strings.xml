@@ -9,4 +9,6 @@
     <string name="todo_addButton_content_description">添加</string>
     <string name="todo_input_hint">輸入新項目 ...</string>
     <string name="switch_language_button">English</string>
+    <string name="todolist_heading" translatable="false">活跃</string>
+    <string name="todolist_heading_done" translatable="false">完毕</string>
 </resources>
