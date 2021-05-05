@@ -29,5 +29,5 @@ This app is designed to keep track of deadlines at school and university. Not on
 | OnPoint-018 | Translate to Chinese | X | | 
 | OnPoint-003 | Sidebar | X |  | 
 | OnPoint-005 | Details of the Assignment | X |  | 
-| OnPoint-019 | Support DarkMode  |  | X | 
+| OnPoint-019 | Support DarkMode  | X  |  | 
 
