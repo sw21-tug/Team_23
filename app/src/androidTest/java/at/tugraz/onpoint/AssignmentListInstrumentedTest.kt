@@ -1,10 +1,13 @@
 package at.tugraz.onpoint
 
+import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -34,9 +37,28 @@ class AssignmentsListInstrumentedTest {
     }
 
     @Test
-    fun checkForContentInAssigmentList() {
+    fun checkForAssignmentListExistence() {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(ViewActions.click())
         onView(withId(R.id.assignmentsList)).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun checkForContentInAssignmentList() {
+        launchActivity<MainTabbedActivity>()
+        onView(withText("Assign.")).perform(ViewActions.click())
+        onView(withId(R.id.assignmentsList))
+            .check(matches(hasDescendant(withText("Dummy Assignment 5"))));
+    }
+
+    @Test
+    fun checkForDetailsInAssignmentListEntry() {
+        launchActivity<MainTabbedActivity>()
+        onView(withText("Assign.")).perform(ViewActions.click())
+        // Click item at position 3
+        onView(withId(R.id.assignmentsList))
+            .perform(RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(3, click()))
+        // TODO inspect content of the details displayed for a list element at position X
+        assert(false)
     }
 }
