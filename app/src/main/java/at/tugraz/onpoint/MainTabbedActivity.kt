@@ -31,7 +31,6 @@ class MainTabbedActivity : AppCompatActivity() {
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         /// source: https://proandroiddev.com/easy-approach-to-navigation-drawer-7fe87d8fd7e7
-        setSupportActionBar(findViewById(R.id.toolbar))
         val sidebar = findViewById<DrawerLayout>(R.id.sidebar)
         val sidebarToggle = ActionBarDrawerToggle(this, sidebar, R.string.open, R.string.close)
         sidebar.addDrawerListener(sidebarToggle)
