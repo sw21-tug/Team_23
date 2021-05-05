@@ -29,7 +29,8 @@ class MainTabbedActivity : AppCompatActivity() {
         tabs.setupWithViewPager(viewPager)
         findViewById<Button>(R.id.switch_language).setOnClickListener { onLanguageSwitch() }
 
-        ////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        /// source: https://proandroiddev.com/easy-approach-to-navigation-drawer-7fe87d8fd7e7
         setSupportActionBar(findViewById(R.id.toolbar))
         val sidebar = findViewById<DrawerLayout>(R.id.sidebar)
         val sidebarToggle = ActionBarDrawerToggle(this, sidebar, R.string.open, R.string.close)
@@ -37,7 +38,6 @@ class MainTabbedActivity : AppCompatActivity() {
         sidebarToggle.syncState()
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        ///////////////////////////////////////////////////
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -50,6 +50,19 @@ class MainTabbedActivity : AppCompatActivity() {
             else -> super.onOptionsItemSelected(item)
         }
     }
+
+    override fun onBackPressed() {
+        val sidebar = findViewById<DrawerLayout>(R.id.sidebar)
+        if (sidebar.isDrawerOpen(GravityCompat.START)) {
+            sidebar.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+    /// source: https://proandroiddev.com/easy-approach-to-navigation-drawer-7fe87d8fd7e7
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
 
     fun onLanguageSwitch() {
         val sharedPref = getSharedPreferences("Settings", Context.MODE_PRIVATE)

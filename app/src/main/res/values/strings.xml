@@ -24,4 +24,5 @@
     <string name="add_university_drawable_txt">Add University</string>
     <string name="open" translatable="false">O</string>
     <string name="close" translatable="false">C</string>
+    <string name="switch_language">Switch Language : ZH</string>
 </resources>

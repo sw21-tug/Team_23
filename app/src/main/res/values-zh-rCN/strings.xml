@@ -11,4 +11,5 @@
     <string name="switch_language_button">English</string>
     <string name="settings_drawable_txt">" 设定"</string>
     <string name="add_university_drawable_txt">"增加大学 "</string>
+    <string name="switch_language">切換語言 : EN</string>
 </resources>
