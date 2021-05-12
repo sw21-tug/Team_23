@@ -29,4 +29,5 @@
     <string name="todolist_heading">Active</string>
     <string name="assignment_dialog_deadline">Deadline: </string>
     <string name="assignment_dialog_close_button">Close</string>
+    <string name="add_to_calendar">Add to calendar</string>
 </resources>
