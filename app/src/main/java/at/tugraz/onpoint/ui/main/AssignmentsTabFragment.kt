@@ -1,21 +1,21 @@
 package at.tugraz.onpoint.ui.main
 
-import android.app.AlertDialog
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
-import android.provider.Settings.Global.getString
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import at.tugraz.onpoint.MainActivity
 import at.tugraz.onpoint.R
 import java.net.URL
 import java.util.*
@@ -43,6 +43,7 @@ class AssignmentsTabFragment : Fragment() {
         for (i in 0..50) {
             assignmentsList.add(
                 Assignment(
+                    i,
                     "Dummy Assignment $i",
                     "Dummy Description $i",
                     Date(),
@@ -53,8 +54,9 @@ class AssignmentsTabFragment : Fragment() {
                 )
             )
         }
-
-        assignmentsList[0].buildAndFireNotification(this.requireContext(), 0)
+        // Firing two dummy notifications on app start, just to try
+        assignmentsList[0].buildAndFireNotification(this.requireContext())
+        assignmentsList[1].buildAndFireNotification(this.requireContext())
 
         // Create the the Recyclerview, make it a linear list (not a grid), assign the list of
         // items to it and provide and adapter constructing each element of the list as a TextView
@@ -87,10 +89,11 @@ class AssignmentsTabFragment : Fragment() {
 }
 
 data class Assignment(
+    val id: Int,
     val title: String,
     val description: String,
     val deadline: Date,
-    val links: ArrayList<URL>
+    val links: ArrayList<URL>,
 ) {
     fun linksToMultiLineString(): String {
         val text: StringBuilder = StringBuilder()
@@ -101,13 +104,13 @@ data class Assignment(
         return text.toString()
     }
 
-    fun buildAndFireNotification(context : Context, id : Int) {
+    fun buildAndFireNotification(context : Context) {
         val builder = NotificationCompat.Builder(context, context.getString(R.string.CHANNEL_ID))
             .setSmallIcon(R.drawable.ic_baseline_uni_24)
-            .setContentTitle((context.getString(R.string.assignment_notification_title)))
-            .setContentText(this.title + "\n" + this.deadline.toString())
+            .setContentTitle(context.getString(R.string.assignment_notification_title))
+            .setContentText(this.title + ": " + this.deadline.toString())
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-
+            .setAutoCancel(true)
         //launch notification
         with(NotificationManagerCompat.from(context)) {
             // notificationId is a unique int for each notification that you must define
