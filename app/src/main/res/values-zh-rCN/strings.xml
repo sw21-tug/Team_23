@@ -18,4 +18,5 @@
     <string name="assignment_dialog_close_button">关闭</string>
     <string name="channel_description">作业截止通知</string>
     <string name="channel_name">OnPoint渠道</string>
+    <string name="assignment_notification_title" >OnPoint 作业到期 </string>
 </resources>
