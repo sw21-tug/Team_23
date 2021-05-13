@@ -23,8 +23,11 @@ import kotlin.collections.ArrayList
 
 
 class AssignmentsTabFragment : Fragment() {
-
     private lateinit var pageViewModel: PageViewModel
+    private val assignmentsList = arrayListOf<Assignment>()
+    private var adapter: AssignmentsAdapter? = null
+    private var latestAssignmentId: Int = 1 // Unique ID for assignment
+    // TODO latestAssignmentId replaced with one obtained from the DB (auto-incrementing integer). See how the TodoList does it.
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,12 +41,11 @@ class AssignmentsTabFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_assignments, container, false)
-        // List of things we want to put into the recyclerview
-        val assignmentsList = ArrayList<Assignment>()
+        // List of dummy assigments
+        // TODO replace with selection of assignments from the DB on startup. See how the TodoList does it.
         for (i in 0..50) {
-            assignmentsList.add(
+            addAssignmentToAssignmentList(
                 Assignment(
-                    i,
                     "Dummy Assignment $i",
                     "Dummy Description $i",
                     Date(),
@@ -51,19 +53,35 @@ class AssignmentsTabFragment : Fragment() {
                         URL("https://www.tugraz.at"),
                         URL("https://tc.tugraz.at"),
                     )
-                )
+                ),
+                doLaunchNotification = i < 2, // Avoid launching 50 dummy notifications
             )
         }
-        // Firing two dummy notifications on app start, just to try
-        assignmentsList[0].buildAndFireNotification(this.requireContext())
-        assignmentsList[1].buildAndFireNotification(this.requireContext())
 
         // Create the the Recyclerview, make it a linear list (not a grid), assign the list of
         // items to it and provide and adapter constructing each element of the list as a TextView
         val assignmentsRecView: RecyclerView = root.findViewById(R.id.assignmentsList)
         assignmentsRecView.layoutManager = LinearLayoutManager(this.context)
-        assignmentsRecView.adapter = this.context?.let { AssignmentsAdapter(assignmentsList, it, parentFragmentManager) }
+        adapter =
+            this.context?.let { AssignmentsAdapter(assignmentsList, it, parentFragmentManager) }
+        assignmentsRecView.adapter = this.adapter
         return root
+    }
+
+    /**
+     * Appends an assignment, refreshing the recycler view and the notifications for the deadlines.
+     */
+    fun addAssignmentToAssignmentList(
+        assignment: Assignment,
+        doLaunchNotification: Boolean = true
+    ) {
+        latestAssignmentId += 1
+        assignment.id = latestAssignmentId
+        assignmentsList.add(assignment)
+        adapter?.notifyDataSetChanged()
+        if (doLaunchNotification) {
+            assignment.buildAndFireNotification(this.requireContext())
+        }
     }
 
     companion object {
@@ -89,11 +107,11 @@ class AssignmentsTabFragment : Fragment() {
 }
 
 data class Assignment(
-    val id: Int,
     val title: String,
     val description: String,
     val deadline: Date,
     val links: ArrayList<URL>,
+    var id: Int? = null,
 ) {
     fun linksToMultiLineString(): String {
         val text: StringBuilder = StringBuilder()
@@ -104,14 +122,16 @@ data class Assignment(
         return text.toString()
     }
 
-    fun buildAndFireNotification(context : Context) {
+    // Call this function ONLY after the ID is set.
+    fun buildAndFireNotification(context: Context) {
         val intentToOpenTheApp = Intent(context, MainTabbedActivity::class.java)
         intentToOpenTheApp.putExtra("tabToOpen", TAB_INDEX_ASSIGNMENT)
         val pendingIntentToOpenApp = PendingIntent.getActivity(
             context,
-            id,
+            id!!,
             intentToOpenTheApp,
-            PendingIntent.FLAG_UPDATE_CURRENT)
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
         val builder = NotificationCompat.Builder(context, context.getString(R.string.CHANNEL_ID))
             .setSmallIcon(R.drawable.ic_baseline_uni_24)
             .setContentTitle(context.getString(R.string.assignment_notification_title))
@@ -123,12 +143,16 @@ data class Assignment(
         with(NotificationManagerCompat.from(context)) {
             // Using the Assignment ID also as notification ID, so each Assignment object
             // can reference their own notifications, if required.
-            notify(id, builder.build())
+            notify(id!!, builder.build())
         }
     }
 }
 
-private class AssignmentsAdapter(val items: ArrayList<Assignment>, val context: Context, val fragmentManager: FragmentManager) :
+private class AssignmentsAdapter(
+    val items: ArrayList<Assignment>,
+    val context: Context,
+    val fragmentManager: FragmentManager
+) :
     RecyclerView.Adapter<ViewHolder>() {
     override fun getItemCount(): Int {
         return items.size
@@ -149,7 +173,8 @@ private class AssignmentsAdapter(val items: ArrayList<Assignment>, val context: 
     }
 }
 
-private class ViewHolder(view: View, val fragmentManager: FragmentManager) : RecyclerView.ViewHolder(view) {
+private class ViewHolder(view: View, val fragmentManager: FragmentManager) :
+    RecyclerView.ViewHolder(view) {
     lateinit var assignment: Assignment
     val assignmentListEntryTextView: TextView = view.findViewById(R.id.assignmentsListEntry)
 
@@ -164,6 +189,6 @@ private class ViewHolder(view: View, val fragmentManager: FragmentManager) : Rec
         // Otherwise it would not make much sense: how can we click (tick, mark) a view
         // which was never displayed?
         val fragment = AssignmentDetailsFragment(assignment)
-        fragment.show(fragmentManager,null)
+        fragment.show(fragmentManager, null)
     }
 }
