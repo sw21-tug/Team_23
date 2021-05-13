@@ -105,10 +105,18 @@ data class Assignment(
     }
 
     fun buildAndFireNotification(context : Context) {
+        val intentToOpenTheApp = Intent(context, MainTabbedActivity::class.java)
+        val pendingIntentToOpenApp = PendingIntent.getActivity(
+            context,
+            id,
+            intentToOpenTheApp,
+            PendingIntent.FLAG_UPDATE_CURRENT)
+
         val builder = NotificationCompat.Builder(context, context.getString(R.string.CHANNEL_ID))
             .setSmallIcon(R.drawable.ic_baseline_uni_24)
             .setContentTitle(context.getString(R.string.assignment_notification_title))
             .setContentText(this.title + ": " + this.deadline.toString())
+            .setContentIntent(pendingIntentToOpenApp)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true)
         //launch notification
