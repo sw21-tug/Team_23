@@ -15,7 +15,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import at.tugraz.onpoint.MainActivity
+import at.tugraz.onpoint.MainTabbedActivity
 import at.tugraz.onpoint.R
 import java.net.URL
 import java.util.*
@@ -113,7 +113,8 @@ data class Assignment(
             .setAutoCancel(true)
         //launch notification
         with(NotificationManagerCompat.from(context)) {
-            // notificationId is a unique int for each notification that you must define
+            // Using the Assignment ID also as notification ID, so each Assignment object
+            // can reference their own notifications, if required.
             notify(id, builder.build())
         }
     }

@@ -16,17 +16,18 @@ import at.tugraz.onpoint.database.getDbInstance
 import at.tugraz.onpoint.ui.main.SectionsPagerAdapter
 import com.google.android.material.tabs.TabLayout
 
-
-
-
 class MainTabbedActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Instantiation of the singleton DB once globally so it can be
         // available in all other tabs
         getDbInstance(this)
+        // Preparation of the notification channels used throughout the app
+        createNotificationChannel()
+        // Languages
         val languagehandler = LanguageHandler()
         languagehandler.loadLocale(baseContext)
+        // Display activity and tabs
         setContentView(R.layout.activity_maintabbed)
         val sectionsPagerAdapter = SectionsPagerAdapter(this, supportFragmentManager)
         val viewPager: ViewPager = findViewById(R.id.view_pager)
@@ -34,9 +35,6 @@ class MainTabbedActivity : AppCompatActivity() {
         val tabs: TabLayout = findViewById(R.id.tabs)
         tabs.setupWithViewPager(viewPager)
         findViewById<Button>(R.id.switch_language).setOnClickListener { onLanguageSwitch() }
-
-        createNotificationChannel()
-
         ////////////////////////////////////////////////////////////////////////////////////////////
         /// source: https://proandroiddev.com/easy-approach-to-navigation-drawer-7fe87d8fd7e7
         setSupportActionBar(findViewById(R.id.toolbar))
