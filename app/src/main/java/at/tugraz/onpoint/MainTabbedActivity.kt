@@ -14,6 +14,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.viewpager.widget.ViewPager
 import at.tugraz.onpoint.database.getDbInstance
 import at.tugraz.onpoint.ui.main.SectionsPagerAdapter
+import at.tugraz.onpoint.ui.main.TAB_INDEX_MAIN
 import com.google.android.material.tabs.TabLayout
 
 class MainTabbedActivity : AppCompatActivity() {
@@ -43,6 +44,9 @@ class MainTabbedActivity : AppCompatActivity() {
         sidebar.addDrawerListener(sidebarToggle)
         sidebarToggle.syncState()
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        // Switch to proper tab, if an intent requested it. Otherwise open the default tab.
+        val tabToOpen = intent.getIntExtra("tabToOpen", TAB_INDEX_MAIN)
+        viewPager.currentItem = tabToOpen
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

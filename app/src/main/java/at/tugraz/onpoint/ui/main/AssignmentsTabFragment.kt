@@ -106,12 +106,12 @@ data class Assignment(
 
     fun buildAndFireNotification(context : Context) {
         val intentToOpenTheApp = Intent(context, MainTabbedActivity::class.java)
+        intentToOpenTheApp.putExtra("tabToOpen", TAB_INDEX_ASSIGNMENT)
         val pendingIntentToOpenApp = PendingIntent.getActivity(
             context,
             id,
             intentToOpenTheApp,
             PendingIntent.FLAG_UPDATE_CURRENT)
-
         val builder = NotificationCompat.Builder(context, context.getString(R.string.CHANNEL_ID))
             .setSmallIcon(R.drawable.ic_baseline_uni_24)
             .setContentTitle(context.getString(R.string.assignment_notification_title))
