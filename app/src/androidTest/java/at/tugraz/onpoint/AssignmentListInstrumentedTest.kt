@@ -102,4 +102,24 @@ class AssignmentsListInstrumentedTest {
         onView(withText("Todo")).check(matches(isDisplayed()))
         onView(withText("Assign.")).check(matches(isDisplayed()))
     }
+
+    @Test
+    fun mockNotificationTappingOpensAppInAssignemntTab() {
+        // Mock intent that is fired when tapping on the notification
+        // Does exactly the same stuff as the one implemented inside the app.
+        // Testing the notification behaviour is out of scope: we assume Android works properly.
+        // Espresso additionally does not allow interactions with the notifications, as they
+        // are not within the current View that Espresso can interact with.
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val intent = Intent(targetContext, MainTabbedActivity::class.java)
+        //Value 2 for assignmentTab
+        intent.putExtra("tabToOpen", 2);
+        activityTestRule.launchActivity(intent)
+        onView(withText("Main")).check(matches(isDisplayed()))
+        onView(withText("Todo")).check(matches(isDisplayed()))
+        onView(withText("Assign.")).check(matches(isDisplayed()))
+        onView(withId(R.id.assignmentsList)).check(matches(isDisplayed()))
+    }
+
+
 }
