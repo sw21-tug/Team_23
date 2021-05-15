@@ -99,9 +99,14 @@ class AssignmentDetailsFragment(val assignment: Assignment) : DialogFragment(R.l
         }
 
         val cal = Calendar.getInstance()
+        cal.time = assignment.deadline
+        val end = cal.timeInMillis
+        cal.timeInMillis = cal.timeInMillis - (1000 * 3600)
+        val start = cal.timeInMillis
+
         val values = ContentValues().apply {
-            put(CalendarContract.Events.DTSTART, cal.timeInMillis)
-            put(CalendarContract.Events.DTEND, cal.timeInMillis)
+            put(CalendarContract.Events.DTSTART, start)
+            put(CalendarContract.Events.DTEND, end)
             put(CalendarContract.Events.TITLE, assignment.title)
             put(CalendarContract.Events.DESCRIPTION, assignment.description)
             put(CalendarContract.Events.CALENDAR_ID, id)
