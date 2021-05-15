@@ -23,10 +23,8 @@ class AssignmentSetDateDialog(val assignment: Assignment) : DialogFragment(),
     }
 
     override fun onDateSet(view: DatePicker, year: Int, month: Int, day: Int) {
-        var c = Calendar.getInstance(TimeZone.getTimeZone("GMT+01"))
-
+        val c = Calendar.getInstance(TimeZone.getTimeZone("GMT+01"))
         c.set(year, month, day)
-
         assignment.buildAndScheduleNotification(this.requireContext(), c)
     }
 }

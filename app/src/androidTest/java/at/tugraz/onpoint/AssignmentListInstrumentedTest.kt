@@ -141,8 +141,8 @@ class AssignmentsListInstrumentedTest {
         onView(withText("SET REMINDER"))
             .check(matches(isDisplayed()))
             .perform(click())
-        onView(withText("OK"))
+        onView(withId(android.R.id.button1)) // OK button, with default Android ID
             .check(matches(isDisplayed()))
-            .perform(click())
+            .perform(click());
     }
 }
