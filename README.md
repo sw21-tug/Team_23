@@ -30,4 +30,7 @@ This app is designed to keep track of deadlines at school and university. Not on
 | OnPoint-003 | Sidebar | X |  | 
 | OnPoint-005 | Details of the Assignment | X |  | 
 | OnPoint-019 | Support DarkMode  | X  |  | 
+| OnPoint-002 | LogIn to TeachCenter/Moodle  |   | X | 
+| OnPoint-012 | Reminder  |   | X | 
+| OnPoint-006 |  Interface between extern calender  |   | X | 
 
