@@ -121,5 +121,38 @@ class AssignmentsListInstrumentedTest {
         onView(withId(R.id.assignmentsList)).check(matches(isDisplayed()))
     }
 
-
+    @Test
+    fun checkDeadlinePickerAppearsWhenClickingOnSetReminder() {
+        launchActivity<MainTabbedActivity>()
+        onView(withText("Assign.")).perform(ViewActions.click())
+        // Click item at position 3
+        onView(withId(R.id.assignmentsList))
+            .perform(
+                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
+                    3,
+                    click()
+                )
+            )
+        // The details view of the assignment dialog appears
+        onView(withId(R.id.fragment_assignment_details_linearlayout))
+            .inRoot(isDialog())
+            .check(matches(isDisplayed()))
+        // There is a button to select the datetime of the reminder
+        onView(withText("Set reminder"))
+            .check(matches(isDisplayed()))
+            .perform(click())
+        // The date picking dialog appears
+        onView(withText("Set date"))
+            .inRoot(isDialog())
+            .check(matches(isDisplayed()))
+        onView(withText("Set"))
+            .check(matches(isDisplayed()))
+            .perform(click())
+        onView(withText("Cancel"))
+            .check(matches(isDisplayed()))
+            .perform(click())
+        // TODO set dialogBuilder.setPositiveButton("Set reminder")
+        // TODO launch a DatePickerDialog
+        // TODO in the DatePickerDialog.onDateSetListener() call buildAndScheduleNotification() and pass the Date to it
+    }
 }
