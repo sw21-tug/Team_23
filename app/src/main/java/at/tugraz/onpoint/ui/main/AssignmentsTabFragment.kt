@@ -1,5 +1,6 @@
 package at.tugraz.onpoint.ui.main
 
+import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -8,18 +9,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import at.tugraz.onpoint.MainTabbedActivity
 import at.tugraz.onpoint.R
 import java.net.URL
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 class AssignmentsTabFragment : Fragment() {
@@ -48,13 +45,18 @@ class AssignmentsTabFragment : Fragment() {
                 Assignment(
                     "Dummy Assignment $i",
                     "Dummy Description $i",
-                    Date(),
+                    // Dummy deadline:
+                    // - for i==0 the notification is scheduled for now+1m, which makes it appear
+                    //   immediately because we are closer than 24 h to the deadline
+                    // - for i==1 it's scheduled for now+24h+1m, so it should appear in 1m
+                    //   from the creation of this view
+                    Date(Date().time + (24L * 3600 * 1000 * i) + 60000L),
                     arrayListOf<URL>(
                         URL("https://www.tugraz.at"),
                         URL("https://tc.tugraz.at"),
                     )
                 ),
-                doLaunchNotification = i < 2, // Avoid launching 50 dummy notifications
+                doScheduleNotification = i < 2, // Avoid launching 50 dummy notifications
             )
         }
 
@@ -73,14 +75,14 @@ class AssignmentsTabFragment : Fragment() {
      */
     fun addAssignmentToAssignmentList(
         assignment: Assignment,
-        doLaunchNotification: Boolean = true
+        doScheduleNotification: Boolean = true
     ) {
         latestAssignmentId += 1
         assignment.id = latestAssignmentId
         assignmentsList.add(assignment)
         adapter?.notifyDataSetChanged()
-        if (doLaunchNotification) {
-            assignment.buildAndFireNotification(this.requireContext())
+        if (doScheduleNotification) {
+            assignment.buildAndScheduleNotification(this.requireContext())
         }
     }
 
@@ -123,28 +125,25 @@ data class Assignment(
     }
 
     // Call this function ONLY after the ID is set.
-    fun buildAndFireNotification(context: Context) {
-        val intentToOpenTheApp = Intent(context, MainTabbedActivity::class.java)
-        intentToOpenTheApp.putExtra("tabToOpen", TAB_INDEX_ASSIGNMENT)
-        val pendingIntentToOpenApp = PendingIntent.getActivity(
+    fun buildAndScheduleNotification(context: Context) {
+        val intentToLaunchNotification = Intent(context, ScheduledNotificationReceiver::class.java)
+        intentToLaunchNotification.putExtra(
+            "title",
+            context.getString(R.string.assignment_notification_title)
+        )
+        intentToLaunchNotification.putExtra("text", this.title + ": " + this.deadline.toString())
+        intentToLaunchNotification.putExtra("notificationId", id)
+        // Schedule notification
+        val pending = PendingIntent.getBroadcast(
             context,
             id!!,
-            intentToOpenTheApp,
+            intentToLaunchNotification,
             PendingIntent.FLAG_UPDATE_CURRENT
         )
-        val builder = NotificationCompat.Builder(context, context.getString(R.string.CHANNEL_ID))
-            .setSmallIcon(R.drawable.ic_baseline_uni_24)
-            .setContentTitle(context.getString(R.string.assignment_notification_title))
-            .setContentText(this.title + ": " + this.deadline.toString())
-            .setContentIntent(pendingIntentToOpenApp)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setAutoCancel(true)
-        //launch notification
-        with(NotificationManagerCompat.from(context)) {
-            // Using the Assignment ID also as notification ID, so each Assignment object
-            // can reference their own notifications, if required.
-            notify(id!!, builder.build())
-        }
+        val manager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        // Notification scheduled for 1 day before the deadline
+        val notificationAppearanceInstant = deadline.time - (24 * 3600 * 1000L)
+        manager.set(AlarmManager.RTC_WAKEUP, notificationAppearanceInstant, pending)
     }
 }
 
