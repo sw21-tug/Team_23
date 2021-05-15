@@ -103,10 +103,6 @@ class AssignmentsListInstrumentedTest {
             .check(matches(isDisplayed()))
         onView(withId(R.id.addMeToCalendar))
             .perform(click())
-
-        onView(withText("Added to calendar")).check(matches(isDisplayed()))
-        assert(false)
-
     }
 
 }
