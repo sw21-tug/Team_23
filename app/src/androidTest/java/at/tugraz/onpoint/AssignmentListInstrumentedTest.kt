@@ -138,21 +138,11 @@ class AssignmentsListInstrumentedTest {
             .inRoot(isDialog())
             .check(matches(isDisplayed()))
         // There is a button to select the datetime of the reminder
-        onView(withText("Set reminder"))
+        onView(withText("SET REMINDER"))
             .check(matches(isDisplayed()))
             .perform(click())
-        // The date picking dialog appears
-        onView(withText("Set date"))
-            .inRoot(isDialog())
-            .check(matches(isDisplayed()))
-        onView(withText("Set"))
+        onView(withText("OK"))
             .check(matches(isDisplayed()))
             .perform(click())
-        onView(withText("Cancel"))
-            .check(matches(isDisplayed()))
-            .perform(click())
-        // TODO set dialogBuilder.setPositiveButton("Set reminder")
-        // TODO launch a DatePickerDialog
-        // TODO in the DatePickerDialog.onDateSetListener() call buildAndScheduleNotification() and pass the Date to it
     }
 }

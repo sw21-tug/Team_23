@@ -46,17 +46,13 @@ class AssignmentsTabFragment : Fragment() {
                     "Dummy Assignment $i",
                     "Dummy Description $i",
                     // Dummy deadline:
-                    // - for i==0 the notification is scheduled for now+1m, which makes it appear
-                    //   immediately because we are closer than 24 h to the deadline
-                    // - for i==1 it's scheduled for now+24h+1m, so it should appear in 1m
-                    //   from the creation of this view
+
                     Date(Date().time + (24L * 3600 * 1000 * i) + 60000L),
                     arrayListOf<URL>(
                         URL("https://www.tugraz.at"),
                         URL("https://tc.tugraz.at"),
                     )
                 ),
-                doScheduleNotification = i < 2, // Avoid launching 50 dummy notifications
             )
         }
 
@@ -75,15 +71,12 @@ class AssignmentsTabFragment : Fragment() {
      */
     fun addAssignmentToAssignmentList(
         assignment: Assignment,
-        doScheduleNotification: Boolean = true
     ) {
         latestAssignmentId += 1
         assignment.id = latestAssignmentId
         assignmentsList.add(assignment)
         adapter?.notifyDataSetChanged()
-        if (doScheduleNotification) {
-            assignment.buildAndScheduleNotification(this.requireContext())
-        }
+
     }
 
     companion object {
@@ -125,7 +118,7 @@ data class Assignment(
     }
 
     // Call this function ONLY after the ID is set.
-    fun buildAndScheduleNotification(context: Context) {
+    fun buildAndScheduleNotification(context: Context, reminder_date : Calendar) {
         val intentToLaunchNotification = Intent(context, ScheduledNotificationReceiver::class.java)
         intentToLaunchNotification.putExtra(
             "title",
@@ -141,9 +134,7 @@ data class Assignment(
             PendingIntent.FLAG_UPDATE_CURRENT
         )
         val manager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        // Notification scheduled for 1 day before the deadline
-        val notificationAppearanceInstant = deadline.time - (24 * 3600 * 1000L)
-        manager.set(AlarmManager.RTC_WAKEUP, notificationAppearanceInstant, pending)
+        manager.set(AlarmManager.RTC_WAKEUP, reminder_date.timeInMillis, pending)
     }
 }
 

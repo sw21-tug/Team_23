@@ -38,12 +38,22 @@ class AssignmentDetailsFragment(val assignment: Assignment) : DialogFragment(R.l
                 assignment.linksToMultiLineString()
             dialogBuilder.setView(view)
             dialogBuilder.setTitle(assignment.title)
-            dialogBuilder.setNeutralButton(
+            dialogBuilder.setNegativeButton(
                 R.string.assignment_dialog_close_button
             ) { _, _ ->
                 // User cancelled the dialog.
                 // This callback does nothing.
             }
+            dialogBuilder.setPositiveButton(
+                R.string.set_reminder
+            ) { _, _ ->
+                //display the dialog to set time for notification
+                val fragment = AssignmentSetDateDialog(assignment)
+                fragment.show(parentFragmentManager, null)
+
+            }
+
+
             // Create the AlertDialog object and return it
             dialogBuilder.create()
         } ?: throw IllegalStateException("Activity cannot be null")
