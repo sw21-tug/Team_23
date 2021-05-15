@@ -1,10 +1,13 @@
 package at.tugraz.onpoint.ui.main
 
+import android.Manifest
+import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
@@ -15,6 +18,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import at.tugraz.onpoint.R
 import java.util.*
@@ -74,19 +79,33 @@ class AssignmentDetailsFragment(val assignment: Assignment) : DialogFragment(R.l
 
     fun addDeadlineToCalendar(assignment : Assignment)
     {
+        if (context?.let { ContextCompat.checkSelfPermission(it, Manifest.permission.READ_CALENDAR) } != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(context as Activity, arrayOf(Manifest.permission.WRITE_CALENDAR, Manifest.permission.READ_CALENDAR), 1)
+        }
+
         val cont_res : ContentResolver = context?.contentResolver!!
-        //val deadlineToAdd : Calendar = Calendar.getInstance()
 
         val projection = arrayOf(CalendarContract.Calendars._ID, CalendarContract.Calendars.CALENDAR_DISPLAY_NAME)
-        val calCursor : Cursor? = cont_res.query(CalendarContract.Calendars.CONTENT_URI, projection, CalendarContract.Calendars.VISIBLE + " = 1 AND "  + CalendarContract.Calendars.IS_PRIMARY + "=1", null, CalendarContract.Calendars._ID + " ASC");
+        val calCursor : Cursor? = cont_res.query(CalendarContract.Calendars.CONTENT_URI, projection, CalendarContract.Calendars.VISIBLE + " = 1 AND "  + CalendarContract.Calendars.IS_PRIMARY + " = 1", null, CalendarContract.Calendars._ID + " ASC");
+        var id = 0L
+        var name = ""
+        if(calCursor != null) {
+            calCursor.moveToFirst()
+            val calNameCol = calCursor.getColumnIndex(projection[1])
+            val calIdCol = calCursor.getColumnIndex(projection[0])
 
+            name = calCursor.getString(calNameCol)
+            id = calCursor.getLong(calIdCol)
+        }
+
+        val cal = Calendar.getInstance()
         val values = ContentValues().apply {
-            put(CalendarContract.Events.DTSTART, assignment.deadline.toString())
-            put(CalendarContract.Events.DTEND, assignment.deadline.toString())
+            put(CalendarContract.Events.DTSTART, cal.timeInMillis)
+            put(CalendarContract.Events.DTEND, cal.timeInMillis)
             put(CalendarContract.Events.TITLE, assignment.title)
             put(CalendarContract.Events.DESCRIPTION, assignment.description)
-            put(CalendarContract.Events.CALENDAR_ID, 0) /// Temporary hotfix TODO: find default ID
-            put(CalendarContract.Events.EVENT_TIMEZONE, "America/Los_Angeles")
+            put(CalendarContract.Events.CALENDAR_ID, id)
+            put(CalendarContract.Events.EVENT_TIMEZONE, TimeZone.getDefault().id)
         }
         val uri: Uri? =cont_res.insert(CalendarContract.Events.CONTENT_URI, values)
         val intent = Intent(Intent.ACTION_VIEW)
