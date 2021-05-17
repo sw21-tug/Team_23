@@ -5,19 +5,27 @@ import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
+import android.widget.Adapter
 import android.widget.Button
+import android.widget.FrameLayout
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.navigation.fragment.findNavController
 import androidx.viewpager.widget.ViewPager
 import at.tugraz.onpoint.database.getDbInstance
 import at.tugraz.onpoint.moodle.API
 import at.tugraz.onpoint.moodle.LoginErrorData
 import at.tugraz.onpoint.moodle.LoginSuccessData
+import at.tugraz.onpoint.ui.main.AssignmentDetailsFragment
 import at.tugraz.onpoint.ui.main.SectionsPagerAdapter
 import at.tugraz.onpoint.ui.main.TAB_INDEX_MAIN
+import at.tugraz.onpoint.ui.main.UniversityLoginFragment
+import com.google.android.material.internal.NavigationMenuItemView
+import com.google.android.material.navigation.NavigationView
 import com.google.android.material.tabs.TabLayout
 
 class MainTabbedActivity : AppCompatActivity() {
@@ -51,6 +59,25 @@ class MainTabbedActivity : AppCompatActivity() {
         // Switch to proper tab, if an intent requested it. Otherwise open the default tab.
         val tabToOpen = intent.getIntExtra("tabToOpen", TAB_INDEX_MAIN)
         viewPager.currentItem = tabToOpen
+        // Adding event listeners to the sidebar
+
+        val navigationView: NavigationView = findViewById(R.id.navigation_view)
+        navigationView.setNavigationItemSelectedListener{
+            menuItem: MenuItem ->
+            return@setNavigationItemSelectedListener onSidebarItemClick(menuItem)
+        }
+    }
+
+    fun onSidebarItemClick(menuItem: MenuItem): Boolean {
+        if(menuItem.itemId == R.id.add_university_drawable_bar) {
+            println("Add University Button was clicked")
+            val fragment = UniversityLoginFragment()
+            fragment.show(supportFragmentManager, null)
+        }
+        if(menuItem.itemId == R.id.language_toggle) {
+            println("Language toggle button was clicked")
+        }
+        return true
     }
 
     fun moodleTest() {

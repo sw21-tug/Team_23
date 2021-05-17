@@ -99,8 +99,11 @@ interface MoodleDao {
     @Query("SELECT * FROM moodle")
     fun selectAll(): List<Moodle>
 
-    @Insert
-    fun insertOne(moodle: Moodle)
+    @Query("SELECT * FROM moodle WHERE uid = (:uid)")
+    fun selectOne(uid: Long): Moodle
+
+    @Query("INSERT INTO moodle (universityName, userName, password, apiLink) VALUES (:universityName, :userName, :password, :apiLink)")
+    fun insertOne(universityName: String, userName: String, password: String, apiLink: String): Long
 }
 
 var INSTANCE: OnPointAppDatabase? = null
@@ -110,7 +113,7 @@ fun getDbInstance(context: Context?): OnPointAppDatabase {
         val builder = Room.databaseBuilder(
             context!!,
             OnPointAppDatabase::class.java,
-            "OnPointDb_v1"
+            "OnPointDb_v2"
         )
         // DB queries in the main thread need to be allowed explicitly to avoid a compilation error.
         // By default IO operations should be delegated to a background thread to avoid the UI
