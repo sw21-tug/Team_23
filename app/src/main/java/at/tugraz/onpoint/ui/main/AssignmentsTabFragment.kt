@@ -1,13 +1,14 @@
 package at.tugraz.onpoint.ui.main
 
-import android.app.AlertDialog
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
@@ -16,12 +17,14 @@ import androidx.recyclerview.widget.RecyclerView
 import at.tugraz.onpoint.R
 import java.net.URL
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 class AssignmentsTabFragment : Fragment() {
-
     private lateinit var pageViewModel: PageViewModel
+    private val assignmentsList = arrayListOf<Assignment>()
+    private var adapter: AssignmentsAdapter? = null
+    private var latestAssignmentId: Int = 1 // Unique ID for assignment
+    // TODO latestAssignmentId replaced with one obtained from the DB (auto-incrementing integer). See how the TodoList does it.
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,27 +38,45 @@ class AssignmentsTabFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_assignments, container, false)
-        // List of things we want to put into the recyclerview
-        val assignmentsList = ArrayList<Assignment>()
+        // List of dummy assigments
+        // TODO replace with selection of assignments from the DB on startup. See how the TodoList does it.
         for (i in 0..50) {
-            assignmentsList.add(
+            addAssignmentToAssignmentList(
                 Assignment(
                     "Dummy Assignment $i",
                     "Dummy Description $i",
-                    Date(),
+                    // Dummy deadline:
+
+                    Date(Date().time + (24L * 3600 * 1000 * i) + 60000L),
                     arrayListOf<URL>(
                         URL("https://www.tugraz.at"),
                         URL("https://tc.tugraz.at"),
                     )
-                )
+                ),
             )
         }
+
         // Create the the Recyclerview, make it a linear list (not a grid), assign the list of
         // items to it and provide and adapter constructing each element of the list as a TextView
         val assignmentsRecView: RecyclerView = root.findViewById(R.id.assignmentsList)
         assignmentsRecView.layoutManager = LinearLayoutManager(this.context)
-        assignmentsRecView.adapter = this.context?.let { AssignmentsAdapter(assignmentsList, it, parentFragmentManager) }
+        adapter =
+            this.context?.let { AssignmentsAdapter(assignmentsList, it, parentFragmentManager) }
+        assignmentsRecView.adapter = this.adapter
         return root
+    }
+
+    /**
+     * Appends an assignment, refreshing the recycler view and the notifications for the deadlines.
+     */
+    fun addAssignmentToAssignmentList(
+        assignment: Assignment,
+    ) {
+        latestAssignmentId += 1
+        assignment.id = latestAssignmentId
+        assignmentsList.add(assignment)
+        adapter?.notifyDataSetChanged()
+
     }
 
     companion object {
@@ -84,7 +105,8 @@ data class Assignment(
     val title: String,
     val description: String,
     val deadline: Date,
-    val links: ArrayList<URL>
+    val links: ArrayList<URL>,
+    var id: Int? = null,
 ) {
     fun linksToMultiLineString(): String {
         val text: StringBuilder = StringBuilder()
@@ -94,9 +116,33 @@ data class Assignment(
         }
         return text.toString()
     }
+
+    // Call this function ONLY after the ID is set.
+    fun buildAndScheduleNotification(context: Context, reminder_date : Calendar) {
+        val intentToLaunchNotification = Intent(context, ScheduledNotificationReceiver::class.java)
+        intentToLaunchNotification.putExtra(
+            "title",
+            context.getString(R.string.assignment_notification_title)
+        )
+        intentToLaunchNotification.putExtra("text", this.title + ": " + this.deadline.toString())
+        intentToLaunchNotification.putExtra("notificationId", id)
+        // Schedule notification
+        val pending = PendingIntent.getBroadcast(
+            context,
+            id!!,
+            intentToLaunchNotification,
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
+        val manager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        manager.set(AlarmManager.RTC_WAKEUP, reminder_date.timeInMillis, pending)
+    }
 }
 
-private class AssignmentsAdapter(val items: ArrayList<Assignment>, val context: Context, val fragmentManager: FragmentManager) :
+private class AssignmentsAdapter(
+    val items: ArrayList<Assignment>,
+    val context: Context,
+    val fragmentManager: FragmentManager
+) :
     RecyclerView.Adapter<ViewHolder>() {
     override fun getItemCount(): Int {
         return items.size
@@ -117,7 +163,8 @@ private class AssignmentsAdapter(val items: ArrayList<Assignment>, val context: 
     }
 }
 
-private class ViewHolder(view: View, val fragmentManager: FragmentManager) : RecyclerView.ViewHolder(view) {
+private class ViewHolder(view: View, val fragmentManager: FragmentManager) :
+    RecyclerView.ViewHolder(view) {
     lateinit var assignment: Assignment
     val assignmentListEntryTextView: TextView = view.findViewById(R.id.assignmentsListEntry)
 
@@ -132,6 +179,6 @@ private class ViewHolder(view: View, val fragmentManager: FragmentManager) : Rec
         // Otherwise it would not make much sense: how can we click (tick, mark) a view
         // which was never displayed?
         val fragment = AssignmentDetailsFragment(assignment)
-        fragment.show(fragmentManager,null)
+        fragment.show(fragmentManager, null)
     }
 }
