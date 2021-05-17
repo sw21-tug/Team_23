@@ -11,7 +11,7 @@ import com.google.gson.JsonObject
 import java.util.*
 
 data class LoginErrorData(val error: String, val errorcode: String);
-data class LoginSuccessData(val token: String);
+data class LoginSuccessData(val token: String, val privatetoken: String);
 
 open class API {
     private val scheme = "https"
@@ -21,7 +21,14 @@ open class API {
         val service: String = "moodle_mobile_app"
         val parameters = mapOf("service" to service, "username" to username, "password" to password)
         request("login/token.php", parameters, { data: String ->
-            onResponse({} as T)
+            val jsonObject = Gson().fromJson<JsonObject>(data, JsonObject::class.java)
+            if (jsonObject.has("errorcode")) {
+                val callbackObject = Gson().fromJson(data, LoginErrorData::class.java) as T
+                onResponse(callbackObject);
+            } else {
+                val callbackObject = Gson().fromJson(data, LoginSuccessData::class.java) as T
+                onResponse(callbackObject);
+            }
         })
     }
 
