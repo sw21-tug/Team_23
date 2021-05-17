@@ -57,18 +57,6 @@
             android:text="@string/tab_title_assignments" />
     </com.google.android.material.tabs.TabLayout>
 
-    <Button
-        android:id="@+id/switch_language"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/switch_language_button" />
-
-    <Button
-        android:id="@+id/test_moodle_request"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Button" />
-
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
