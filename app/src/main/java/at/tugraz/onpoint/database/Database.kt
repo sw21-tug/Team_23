@@ -5,9 +5,10 @@ import androidx.room.*
 import java.util.*
 
 
-@Database(entities = [Todo::class], version = 1)
+@Database(entities = [Todo::class, Moodle::class], version = 1)
 abstract class OnPointAppDatabase : RoomDatabase() {
     abstract fun getTodoDao(): TodoDao
+    abstract fun getMoodleDao(): MoodleDao
 }
 
 @Entity
@@ -73,6 +74,33 @@ interface TodoDao {
 
     @Query("DELETE FROM todo")
     fun deleteAll()
+}
+
+@Entity
+data class Moodle(
+    @PrimaryKey(autoGenerate = true)
+    val uid: Int = -1,
+
+    @ColumnInfo(name = "universityName")
+    var universityName: String,
+
+    @ColumnInfo(name = "userName")
+    var userName: String,
+
+    @ColumnInfo(name = "password")
+    var password: String,
+
+    @ColumnInfo(name = "apiLink")
+    var apiLink: String,
+) {}
+
+@Dao
+interface MoodleDao {
+    @Query("SELECT * FROM moodle")
+    fun selectAll(): List<Moodle>
+
+    @Insert
+    fun insertOne(moodle: Moodle)
 }
 
 var INSTANCE: OnPointAppDatabase? = null
