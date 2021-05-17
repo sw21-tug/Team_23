@@ -12,6 +12,10 @@ private val TAB_TITLES = arrayOf(
     R.string.tab_title_assignments,
 )
 
+const val TAB_INDEX_MAIN = 0
+const val TAB_INDEX_TODO = 1
+const val TAB_INDEX_ASSIGNMENT = 2
+
 /**
  * A [FragmentPagerAdapter] that returns a fragment corresponding to
  * one of the sections/tabs/pages.

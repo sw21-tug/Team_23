@@ -25,10 +25,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-
         setContentView(R.layout.activity_main)
-
+        // Redirect to the tabbed activity
         val intent = Intent(this, MainTabbedActivity::class.java)
         startActivity(intent)
     }
