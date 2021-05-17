@@ -10,6 +10,9 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.viewpager.widget.ViewPager
 import at.tugraz.onpoint.database.getDbInstance
+import at.tugraz.onpoint.moodle.API
+import at.tugraz.onpoint.moodle.LoginErrorData
+import at.tugraz.onpoint.moodle.LoginSuccessData
 import at.tugraz.onpoint.ui.main.SectionsPagerAdapter
 import com.google.android.material.tabs.TabLayout
 
@@ -28,7 +31,7 @@ class MainTabbedActivity : AppCompatActivity() {
         val tabs: TabLayout = findViewById(R.id.tabs)
         tabs.setupWithViewPager(viewPager)
         findViewById<Button>(R.id.switch_language).setOnClickListener { onLanguageSwitch() }
-
+        findViewById<Button>(R.id.test_moodle_request).setOnClickListener { moodleTest() }
         ////////////////////////////////////////////////////////////////////////////////////////////
         /// source: https://proandroiddev.com/easy-approach-to-navigation-drawer-7fe87d8fd7e7
         setSupportActionBar(findViewById(R.id.toolbar))
@@ -38,6 +41,20 @@ class MainTabbedActivity : AppCompatActivity() {
         sidebarToggle.syncState()
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+
+    fun moodleTest() {
+        val moodle_api = API()
+        moodle_api.login("kevin", "123") {
+            data: Any -> when(data) {
+                is LoginSuccessData -> {
+                    println("Login was successful")
+                }
+                is LoginErrorData -> {
+                    println("Login failed")
+                }
+            }
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
