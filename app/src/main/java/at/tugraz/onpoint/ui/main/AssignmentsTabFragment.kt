@@ -16,6 +16,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import at.tugraz.onpoint.R
+import at.tugraz.onpoint.database.MoodleDao
+import at.tugraz.onpoint.database.OnPointAppDatabase
+import at.tugraz.onpoint.database.TodoDao
+import at.tugraz.onpoint.database.getDbInstance
 import at.tugraz.onpoint.moodle.*
 import java.net.URL
 import java.util.*
@@ -26,6 +30,8 @@ class AssignmentsTabFragment : Fragment() {
     private val assignmentsList = arrayListOf<Assignment>()
     private var adapter: AssignmentsAdapter? = null
     private var latestAssignmentId: Int = 1 // Unique ID for assignment
+    val db: OnPointAppDatabase = getDbInstance(null)
+    val moodleDao: MoodleDao = db.getMoodleDao()
     // TODO latestAssignmentId replaced with one obtained from the DB (auto-incrementing integer). See how the TodoList does it.
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,6 +49,7 @@ class AssignmentsTabFragment : Fragment() {
         root.findViewById<Button>(R.id.assignment_sync_assignments).setOnClickListener { syncAssignments() }
         // List of dummy assigments
         // TODO replace with selection of assignments from the DB on startup. See how the TodoList does it.
+       /*
         for (i in 0..50) {
             addAssignmentToAssignmentList(
                 Assignment(
@@ -57,7 +64,7 @@ class AssignmentsTabFragment : Fragment() {
                     )
                 ),
             )
-        }
+        }*/
 
         // Create the the Recyclerview, make it a linear list (not a grid), assign the list of
         // items to it and provide and adapter constructing each element of the list as a TextView
@@ -71,23 +78,43 @@ class AssignmentsTabFragment : Fragment() {
 
     fun syncAssignments() {
         val moodle_api = API()
-        moodle_api.login("test", "CGR9*bcLuUtQye*2ZmMx5rv@CTitG6") { response: Any -> run {
-            if (response is LoginSuccessData) {
-                moodle_api.getAssignments{ response: Any -> run {
-                    if(response is AssignmentError) {
-                        println(response.message)
-                    }
-                    if(response is AssignmentResponse) {
-                        println(response)
-                    }
-                } }
-            }
-            if (response is LoginErrorData) {
-                println(response.error)
+
+        for(account in moodleDao.selectAll()) {
+            moodle_api.setAuthority(account.apiLink)
+            moodle_api.login(account.userName, account.password) { response: Any -> run {
+                if (response is LoginSuccessData) {
+                    moodle_api.getAssignments{ response: Any -> run {
+                        if(response is AssignmentError) {
+                            println(response.message)
+                        }
+                        if(response is AssignmentResponse) {
+                            addAssignmentsFromMoodle(response.courses)
+                        }
+                    } }
+                }
+                if (response is LoginErrorData) {
+                    println(response.error)
+                }
             }
             }
         }
+
     }
+
+    fun addAssignmentsFromMoodle(courses : List<Course>) {
+        for(course in courses) {
+            for(moodle_ass in course.assignments){
+                var assignment : Assignment
+                val link : String = "https://moodle.divora.at/mod/assign/view.php?id=" + moodle_ass.cmid.toString()
+                var link_list : List<URL>
+
+                assignment = Assignment(moodle_ass.name, moodle_ass.intro, Date(moodle_ass.duedate), arrayListOf<URL>(URL(link)), moodle_ass.id)
+                addAssignmentToAssignmentList(assignment)
+            }
+        }
+    }
+
+
 
     /**
      * Appends an assignment, refreshing the recycler view and the notifications for the deadlines.
@@ -125,7 +152,7 @@ class AssignmentsTabFragment : Fragment() {
 }
 
 data class Assignment(
-    val title: String,
+    var title: String,
     val description: String,
     val deadline: Date,
     val links: ArrayList<URL>,

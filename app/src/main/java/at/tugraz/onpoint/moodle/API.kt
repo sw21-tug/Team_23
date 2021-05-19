@@ -14,13 +14,13 @@ data class LoginErrorData(val error: String, val errorcode: String);
 data class LoginSuccessData(val token: String, val privatetoken: String);
 
 data class AssignmentError(val exception: String, val errorcode: String, val message: String)
-data class Assignment(val id: Int, val name: String, val intro: String, val duedate: Int, val cmid: Int)
+data class Assignment(val id: Int, val name: String, val intro: String, val duedate: Long, val cmid: Int)
 data class Course(val assignments: List<Assignment>)
 data class AssignmentResponse(val courses: List<Course>)
 
 open class API {
     private val scheme = "https"
-    private val authority = "moodle.divora.at"
+    private var authority = ""
     var token = ""
 
     // https://moodle.divora.at/webservice/rest/server.php?wstoken=9bdd89912814d67a6b429c183505119f&wsfunction=mod_assign_get_assignments%20&moodlewsrestformat=json
@@ -74,4 +74,13 @@ open class API {
             }
         }
     }
+
+    fun getAuthority() : String{
+        return authority
+    }
+
+    fun setAuthority(auth : String) {
+        this.authority = auth
+    }
+
 }
