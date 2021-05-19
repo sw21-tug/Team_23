@@ -88,7 +88,7 @@ class AssignmentsTabFragment : Fragment() {
                             println(response.message)
                         }
                         if(response is AssignmentResponse) {
-                            addAssignmentsFromMoodle(response.courses)
+                            addAssignmentsFromMoodle(response.courses, moodle_api.getAuthority())
                         }
                     } }
                 }
@@ -101,11 +101,12 @@ class AssignmentsTabFragment : Fragment() {
 
     }
 
-    fun addAssignmentsFromMoodle(courses : List<Course>) {
+    fun addAssignmentsFromMoodle(courses : List<Course>, apiLink : String) {
         for(course in courses) {
             for(moodle_ass in course.assignments){
                 var assignment : Assignment
-                val link : String = "https://moodle.divora.at/mod/assign/view.php?id=" + moodle_ass.cmid.toString()
+
+                val link : String = "https://" + apiLink + "/mod/assign/view.php?id=" + moodle_ass.cmid.toString()
                 var link_list : List<URL>
 
                 assignment = Assignment(moodle_ass.name, moodle_ass.intro, Date(moodle_ass.duedate), arrayListOf<URL>(URL(link)), moodle_ass.id)
