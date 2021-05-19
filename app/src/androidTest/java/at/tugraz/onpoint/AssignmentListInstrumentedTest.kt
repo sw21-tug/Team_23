@@ -19,6 +19,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
+import at.tugraz.onpoint.database.AssignmentDao
 import at.tugraz.onpoint.database.OnPointAppDatabase
 import at.tugraz.onpoint.database.getDbInstance
 import at.tugraz.onpoint.ui.main.Assignment
@@ -184,11 +185,13 @@ class AssignmentsListInstrumentedTest {
         val moodleId = 1234
         val uid = assignmentDao.insertOneFromMoodle("my title", "my description", deadline, links, moodleId)
         val assignment:Assignment = assignmentDao.selectOne(uid)
-        assert(assignment.uid == uid)
+        assert(assignment.uid!!.toLong() ==  uid)
         assert(assignment.title == "my title")
         assert(assignment.description == "my description")
-        assert(assignment.deadline == deadline)
-        assert(assignment.links == links)
+        assert(assignment.getDeadlineDate().before(Date(deadline.time + 10000)))
+        assert(assignment.getDeadlineDate().after(Date(deadline.time - 10000)))
+        assert(assignment.getLinksAsUrls()[0] == links[0])
+        assert(assignment.getLinksAsUrls()[1] == links[1])
         assert(assignment.moodleId == moodleId)
     }
 }

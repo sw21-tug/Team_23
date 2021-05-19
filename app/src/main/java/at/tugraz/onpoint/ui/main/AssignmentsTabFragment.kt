@@ -14,6 +14,9 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import at.tugraz.onpoint.R
 import java.net.URL
 import java.util.*
@@ -47,11 +50,8 @@ class AssignmentsTabFragment : Fragment() {
                     "Dummy Description $i",
                     // Dummy deadline:
 
-                    Date(Date().time + (24L * 3600 * 1000 * i) + 60000L),
-                    arrayListOf<URL>(
-                        URL("https://www.tugraz.at"),
-                        URL("https://tc.tugraz.at"),
-                    )
+                    Assignment.convertDeadlineDate(Date(Date().time + (24L * 3600 * 1000 * i) + 60000L)),
+                    "https://www.tugraz.at"
                 ),
             )
         }
@@ -101,14 +101,53 @@ class AssignmentsTabFragment : Fragment() {
     }
 }
 
+@Entity
 data class Assignment(
+    @ColumnInfo(name = "title")
     val title: String,
+
+    @ColumnInfo(name = "description")
     val description: String,
-    val deadline: Date,
-    val links: ArrayList<URL>,
+
+    @ColumnInfo(name = "deadline")
+    var deadlineUnixTime: Long,
+
+    @ColumnInfo(name = "links")
+    var links: String = "",
+
+    @PrimaryKey(autoGenerate = true)
     var uid: Int? = null,
+
+    @ColumnInfo(name = "moodle_id")
     var moodleId : Int? = null
 ) {
+
+    companion object {
+        fun convertDeadlineDate(deadline : Date) : Long {
+            return deadline.time / 1000
+        }
+
+        fun encodeLinks(linksList : List<URL>) : String {
+            var encoded : String = ""
+            linksList.forEach {
+                encoded += "$it;"
+            }
+            return encoded.trimEnd(';')
+        }
+    }
+
+    fun getDeadlineDate(): Date {
+        return Date(deadlineUnixTime.toLong() * 1000);
+    }
+
+    fun getLinksAsUrls(): List<URL> {
+        return links.split(";").map {
+            URL(it)
+        }
+    }
+
+
+
     fun linksToMultiLineString(): String {
         val text: StringBuilder = StringBuilder()
         links.forEach {
@@ -125,7 +164,7 @@ data class Assignment(
             "title",
             context.getString(R.string.assignment_notification_title)
         )
-        intentToLaunchNotification.putExtra("text", this.title + ": " + this.deadline.toString())
+        intentToLaunchNotification.putExtra("text", this.title + ": " + this.deadlineUnixTime.toString())
         intentToLaunchNotification.putExtra("notificationId", uid)
         // Schedule notification
         val pending = PendingIntent.getBroadcast(

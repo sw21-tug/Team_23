@@ -33,7 +33,7 @@ class AssignmentDetailsFragment(val assignment: Assignment) : DialogFragment(R.l
             view.findViewById<TextView>(R.id.assignmentsListDetailsDescription).text =
                 assignment.description
             view.findViewById<TextView>(R.id.assignmentsListDetailsDeadline).text =
-                getString(R.string.assignment_dialog_deadline).plus(assignment.deadline.toString())
+                getString(R.string.assignment_dialog_deadline).plus(assignment.deadlineUnixTime.toString())
             view.findViewById<TextView>(R.id.assignmentsListDetailsLinks).text =
                 assignment.linksToMultiLineString()
             dialogBuilder.setView(view)
