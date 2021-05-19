@@ -18,6 +18,10 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import at.tugraz.onpoint.R
+import at.tugraz.onpoint.database.AssignmentDao
+import at.tugraz.onpoint.database.OnPointAppDatabase
+import at.tugraz.onpoint.database.TodoDao
+import at.tugraz.onpoint.database.getDbInstance
 import java.net.URL
 import java.util.*
 
@@ -26,14 +30,16 @@ class AssignmentsTabFragment : Fragment() {
     private lateinit var pageViewModel: PageViewModel
     private val assignmentsList = arrayListOf<Assignment>()
     private var adapter: AssignmentsAdapter? = null
-    private var latestAssignmentId: Int = 1 // Unique ID for assignment
-    // TODO latestAssignmentId replaced with one obtained from the DB (auto-incrementing integer). See how the TodoList does it.
+    val db: OnPointAppDatabase = getDbInstance(null)
+    val assignmentDao: AssignmentDao = db.getAssignmentDao()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         pageViewModel = ViewModelProvider(this).get(PageViewModel::class.java).apply {
             setIndex(arguments?.getInt(ARG_SECTION_NUMBER) ?: 1)
         }
+        // Fill the assignment list retrieved from the persistent database
+        assignmentsList.addAll(assignmentDao.selectAll())
     }
 
     override fun onCreateView(
@@ -41,19 +47,17 @@ class AssignmentsTabFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_assignments, container, false)
-        // List of dummy assigments
-        // TODO replace with selection of assignments from the DB on startup. See how the TodoList does it.
-        for (i in 0..50) {
-            addAssignmentToAssignmentList(
-                Assignment(
+        // TODO replace with assignments obtained from the Moodle API on startup
+        // List of dummy assignments, inserted only the first time
+        if (assignmentsList.isEmpty()) {
+            for (i in 0..50) {
+                addAssignmentCustomToAssignmentList(
                     "Dummy Assignment $i",
                     "Dummy Description $i",
-                    // Dummy deadline:
-
-                    Assignment.convertDeadlineDate(Date(Date().time + (24L * 3600 * 1000 * i) + 60000L)),
-                    "https://www.tugraz.at"
-                ),
-            )
+                    Date(Date().time + (24L * 3600 * 1000 * i) + 60000L),
+                    arrayListOf(URL("https://www.tugraz.at"), URL("https://tc.tugraz.at"))
+                )
+            }
         }
 
         // Create the the Recyclerview, make it a linear list (not a grid), assign the list of
@@ -63,20 +67,35 @@ class AssignmentsTabFragment : Fragment() {
         adapter =
             this.context?.let { AssignmentsAdapter(assignmentsList, it, parentFragmentManager) }
         assignmentsRecView.adapter = this.adapter
+        adapter?.notifyDataSetChanged()
         return root
     }
 
     /**
-     * Appends an assignment, refreshing the recycler view and the notifications for the deadlines.
+     * Appends an assignment as received from Moodle, refreshing the recycler view and the
+     * notifications for the deadlines.
      */
-    fun addAssignmentToAssignmentList(
-        assignment: Assignment,
+    private fun addAssignmentFromMoodleToAssignmentList(
+        title: String, description: String, deadline: Date, links: List<URL>? = null, moodleId: Int
     ) {
-        latestAssignmentId += 1
-        assignment.uid = latestAssignmentId
+        val uid: Long =
+            assignmentDao.insertOneFromMoodle(title, description, deadline, links, moodleId)
+        val assignment = assignmentDao.selectOne(uid)
         assignmentsList.add(assignment)
         adapter?.notifyDataSetChanged()
+    }
 
+    /**
+     * Appends an assignment written by the user, refreshing the recycler view and the notifications
+     * for the deadlines.
+     */
+    private fun addAssignmentCustomToAssignmentList(
+        title: String, description: String, deadline: Date, links: List<URL>? = null
+    ) {
+        val uid: Long = assignmentDao.insertOneCustom(title, description, deadline, links)
+        val assignment = assignmentDao.selectOne(uid)
+        assignmentsList.add(assignment)
+        adapter?.notifyDataSetChanged()
     }
 
     companion object {
@@ -119,16 +138,16 @@ data class Assignment(
     var uid: Int? = null,
 
     @ColumnInfo(name = "moodle_id")
-    var moodleId : Int? = null
+    var moodleId: Int? = null
 ) {
 
     companion object {
-        fun convertDeadlineDate(deadline : Date) : Long {
+        fun convertDeadlineDate(deadline: Date): Long {
             return deadline.time / 1000
         }
 
-        fun encodeLinks(linksList : List<URL>) : String {
-            var encoded : String = ""
+        fun encodeLinks(linksList: List<URL>): String {
+            var encoded: String = ""
             linksList.forEach {
                 encoded += "$it;"
             }
@@ -146,11 +165,9 @@ data class Assignment(
         }
     }
 
-
-
     fun linksToMultiLineString(): String {
         val text: StringBuilder = StringBuilder()
-        links.forEach {
+        getLinksAsUrls().forEach {
             text.append(it)
             text.append('\n')
         }
@@ -158,13 +175,16 @@ data class Assignment(
     }
 
     // Call this function ONLY after the ID is set.
-    fun buildAndScheduleNotification(context: Context, reminder_date : Calendar) {
+    fun buildAndScheduleNotification(context: Context, reminder_date: Calendar) {
         val intentToLaunchNotification = Intent(context, ScheduledNotificationReceiver::class.java)
         intentToLaunchNotification.putExtra(
             "title",
             context.getString(R.string.assignment_notification_title)
         )
-        intentToLaunchNotification.putExtra("text", this.title + ": " + this.deadlineUnixTime.toString())
+        intentToLaunchNotification.putExtra(
+            "text",
+            this.title + ": " + this.deadlineUnixTime.toString()
+        )
         intentToLaunchNotification.putExtra("notificationId", uid)
         // Schedule notification
         val pending = PendingIntent.getBroadcast(

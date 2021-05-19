@@ -88,15 +88,22 @@ interface TodoDao {
 
 @Dao
 interface AssignmentDao {
+    @Query("SELECT * FROM assignment ORDER BY deadline ASC")
+    fun selectAll(): List<Assignment>
 
     @Query("SELECT * FROM assignment WHERE uid = (:uid)")
     fun selectOne(uid: Long): Assignment
 
     @Query("INSERT INTO assignment (title, description, deadline, links, moodle_id) VALUES (:title, :description, :deadline, :links, :moodleId)")
-    fun insertOneFromMoodleRaw(title: String, description: String, deadline : Long, links : String, moodleId : Int): Long
+    fun insertOneRaw(title: String, description: String, deadline : Long, links : String, moodleId : Int?): Long
 
-    fun insertOneFromMoodle(title: String, description: String, deadline : Date, links : List<URL>, moodleId : Int) : Long {
-        return insertOneFromMoodleRaw(title, description, Assignment.convertDeadlineDate(deadline), Assignment.encodeLinks(links), moodleId)
+    fun insertOneFromMoodle(title: String, description: String, deadline : Date, links : List<URL>? = null, moodleId : Int) : Long {
+        // TODO consider stripping the HTML from the description here, to get unformatted text
+        return insertOneRaw(title, description, Assignment.convertDeadlineDate(deadline), Assignment.encodeLinks(links?: arrayListOf<URL>()), moodleId)
+    }
+
+    fun insertOneCustom(title: String, description: String, deadline : Date, links : List<URL>? = null) : Long {
+        return insertOneRaw(title, description, Assignment.convertDeadlineDate(deadline), Assignment.encodeLinks(links ?: arrayListOf<URL>()), null)
     }
 
     @Query("DELETE FROM assignment")
@@ -123,8 +130,3 @@ fun getDbInstance(context: Context?): OnPointAppDatabase {
     }
     return INSTANCE as OnPointAppDatabase
 }
-
-// TODO ideas:
-// - isExpired() method to the Todo class
-// - pre-populate the DB with 2 dummy tasks
-// - select the tasks sorted by creation date (ORDER BY deadlineTs, creationTs)
