@@ -194,4 +194,46 @@ class AssignmentsListInstrumentedTest {
         assert(assignment.getLinksAsUrls()[1] == links[1])
         assert(assignment.moodleId == moodleId)
     }
+
+    @Test
+    fun storeNewAssignmentCustomAndRetrieveItFromDb() {
+        val links = arrayListOf(URL("https://tc.tugraz.at"), URL("https://www.tugraz.at"))
+        val deadline = Date()
+        val uid = assignmentDao.insertOneCustom("my title", "my description", deadline, links)
+        val assignment:Assignment = assignmentDao.selectOne(uid)
+        assert(assignment.uid == uid)
+        assert(assignment.title == "my title")
+        assert(assignment.description == "my description")
+        assert(assignment.getDeadlineDate().before(Date(deadline.time + 10000)))
+        assert(assignment.getDeadlineDate().after(Date(deadline.time - 10000)))
+        assert(assignment.getLinksAsUrls()[0] == links[0])
+        assert(assignment.getLinksAsUrls()[1] == links[1])
+        assert(assignment.moodleId == null)  // No Moodle Identifier in this case
+    }
+
+    @Test
+    fun retrieveAllAssignmentsFromDb() {
+        val links = arrayListOf(URL("https://tc.tugraz.at"), URL("https://www.tugraz.at"))
+        val deadline = Date()
+        val moodleId = 1234
+        assignmentDao.insertOneFromMoodle("my title1", "my description1", deadline, links, moodleId)
+        assignmentDao.insertOneFromMoodle("my title2", "my description2", deadline, links, moodleId + 1)
+        val assignmentsList : ArrayList<Assignment> = assignmentDao.selectAll()  // TODO sorted by deadline?
+        assert(assignmentsList.size == 2)
+        assert(assignmentsList[0].title == "my title1")
+        assert(assignmentsList[0].description == "my description1")
+        assert(assignmentsList[0].getDeadlineDate().before(Date(deadline.time + 10000)))
+        assert(assignmentsList[0].getDeadlineDate().after(Date(deadline.time - 10000)))
+        assert(assignmentsList[0].getLinksAsUrls()[0] == links[0])
+        assert(assignmentsList[0].getLinksAsUrls()[1] == links[1])
+        assert(assignmentsList[0].moodleId == moodleId)
+        assert(assignmentsList[1].title == "my title2")
+        assert(assignmentsList[1].description == "my description2")
+        assert(assignmentsList[1].getDeadlineDate().before(Date(deadline.time + 10000)))
+        assert(assignmentsList[1].getDeadlineDate().after(Date(deadline.time - 10000)))
+        assert(assignmentsList[1].getLinksAsUrls()[0] == links[0])
+        assert(assignmentsList[1].getLinksAsUrls()[1] == links[1])
+        assert(assignmentsList[1].moodleId == moodleId + 1)
+        assert(assignmentsList[0].uid == assignmentsList[1].uid)
+    }
 }
