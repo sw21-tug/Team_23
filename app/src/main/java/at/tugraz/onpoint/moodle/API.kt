@@ -13,9 +13,32 @@ import java.util.*
 data class LoginErrorData(val error: String, val errorcode: String);
 data class LoginSuccessData(val token: String, val privatetoken: String);
 
+data class AssignmentError(val exception: String, val errorcode: String, val message: String)
+data class Assignment(val id: Int, val name: String, val intro: String, val duedate: Int, val cmid: Int)
+data class Course(val assignments: List<Assignment>)
+data class AssignmentResponse(val courses: Course)
+
 open class API {
     private val scheme = "https"
     private val authority = "moodle.divora.at"
+    var token = ""
+
+    // https://moodle.divora.at/webservice/rest/server.php?wstoken=9bdd89912814d67a6b429c183505119f&wsfunction=mod_assign_get_assignments%20&moodlewsrestformat=json
+
+    inline fun <reified T> getAssignments(username: String, password: String, crossinline onResponse: (data: T) -> Unit = {}) {
+        val parameters = mapOf("wstoken" to this.token, "wsfunction" to "mod_assign_get_assigments", "moodlewrestformat" to "json")
+        request("/webservice/rest/server.php", parameters, { data: String ->
+            val jsonObject = Gson().fromJson<JsonObject>(data, JsonObject::class.java)
+            if(jsonObject.has("errorcode")) {
+                val callbackObject = Gson().fromJson(data, AssignmentError::class.java)
+                onResponse(callbackObject as T)
+            } else {
+                val callbackObject = Gson().fromJson(data, AssignmentResponse::class.java)
+                onResponse(callbackObject as T)
+            }
+        })
+    }
+
 
     inline fun <reified T> login(username: String, password: String, crossinline onResponse: (data: T) -> Unit = {}) {
         val service: String = "moodle_mobile_app"
@@ -26,7 +49,9 @@ open class API {
                 val callbackObject = Gson().fromJson(data, LoginErrorData::class.java) as T
                 onResponse(callbackObject);
             } else {
-                val callbackObject = Gson().fromJson(data, LoginSuccessData::class.java) as T
+                val loginSuccessData = Gson().fromJson(data, LoginSuccessData::class.java)
+                this.token = loginSuccessData.token
+                val callbackObject = loginSuccessData as T
                 onResponse(callbackObject);
             }
         })
