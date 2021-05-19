@@ -35,5 +35,6 @@
     <string name="CHANNEL_ID" translatable="false">OnPointChannel</string>
     <string name="assignment_notification_title" >OnPoint Assignment Due</string>
     <string name="set_reminder">Set Reminder</string>
+    <string name="assignment_search">Assignment Search</string>
 
 </resources>
