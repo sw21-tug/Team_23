@@ -9,13 +9,11 @@
 
     <SearchView
         android:id="@+id/assignment_searchview"
-        android:title="Assignment Search"
+        android:title="@string/assignment_search"
         app:actionViewClass="android.support.v7.widget.SearchView"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/assignmentsList"
 
         app:showAsAction="always"
-        tools:ignore="MissingConstraints"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
 

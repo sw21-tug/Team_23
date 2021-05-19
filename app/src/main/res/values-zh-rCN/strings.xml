@@ -21,4 +21,5 @@
     <string name="assignment_notification_title" >OnPoint 作业到期 </string>
     <string name="set_reminder">设定提醒 </string>
     <string name="add_to_calendar">添加到日历</string>
+    <string name="assignment_search">作业搜索</string>
 </resources>
