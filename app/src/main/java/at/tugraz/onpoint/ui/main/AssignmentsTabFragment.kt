@@ -147,7 +147,7 @@ data class Assignment(
         }
 
         fun encodeLinks(linksList: List<URL>): String {
-            var encoded: String = ""
+            var encoded = ""
             linksList.forEach {
                 encoded += "$it;"
             }
@@ -156,7 +156,7 @@ data class Assignment(
     }
 
     fun getDeadlineDate(): Date {
-        return Date(deadlineUnixTime.toLong() * 1000);
+        return Date(deadlineUnixTime * 1000);
     }
 
     fun getLinksAsUrls(): List<URL> {
@@ -183,7 +183,7 @@ data class Assignment(
         )
         intentToLaunchNotification.putExtra(
             "text",
-            this.title + ": " + this.deadlineUnixTime.toString()
+            this.title + ": " + this.getDeadlineDate().toString()
         )
         intentToLaunchNotification.putExtra("notificationId", uid)
         // Schedule notification

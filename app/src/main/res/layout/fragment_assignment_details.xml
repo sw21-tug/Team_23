@@ -31,4 +31,12 @@
         android:paddingEnd="10dp"
         android:text="" />
 
+    <Button
+        android:id="@+id/addMeToCalendar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:text="@string/add_to_calendar" />
+
 </LinearLayout>
