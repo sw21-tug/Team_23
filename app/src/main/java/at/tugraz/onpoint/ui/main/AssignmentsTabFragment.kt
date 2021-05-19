@@ -79,7 +79,7 @@ class AssignmentsTabFragment : Fragment() {
 
     }
 
-    private fun filter(assignments: List<Assignment>, search: String): List<Assignment>? {
+     fun filter(assignments: List<Assignment>, search: String): List<Assignment>? {
         val lowerCaseQuery = search.toLowerCase()
         val found: MutableList<Assignment> = ArrayList()
         for (assi in assignments) {
