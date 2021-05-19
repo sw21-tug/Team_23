@@ -39,5 +39,6 @@
     <string name="university_label_password">Password</string>
     <string name="university_label_login">Add</string>
     <string name="university_login_name">Name of the university</string>
+    <string name="assignment_sync_now">Sync Now</string>
 
 </resources>

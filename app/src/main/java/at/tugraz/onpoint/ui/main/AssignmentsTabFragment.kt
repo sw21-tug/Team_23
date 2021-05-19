@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -15,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import at.tugraz.onpoint.R
+import at.tugraz.onpoint.moodle.*
 import java.net.URL
 import java.util.*
 
@@ -38,6 +40,7 @@ class AssignmentsTabFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_assignments, container, false)
+        root.findViewById<Button>(R.id.assignment_sync_assignments).setOnClickListener { syncAssignments() }
         // List of dummy assigments
         // TODO replace with selection of assignments from the DB on startup. See how the TodoList does it.
         for (i in 0..50) {
@@ -64,6 +67,26 @@ class AssignmentsTabFragment : Fragment() {
             this.context?.let { AssignmentsAdapter(assignmentsList, it, parentFragmentManager) }
         assignmentsRecView.adapter = this.adapter
         return root
+    }
+
+    fun syncAssignments() {
+        val moodle_api = API()
+        moodle_api.login("test", "CGR9*bcLuUtQye*2ZmMx5rv@CTitG6") { response: Any -> run {
+            if (response is LoginSuccessData) {
+                moodle_api.getAssignments{ response: Any -> run {
+                    if(response is AssignmentError) {
+                        println(response.message)
+                    }
+                    if(response is AssignmentResponse) {
+                        println(response)
+                    }
+                } }
+            }
+            if (response is LoginErrorData) {
+                println(response.error)
+            }
+            }
+        }
     }
 
     /**

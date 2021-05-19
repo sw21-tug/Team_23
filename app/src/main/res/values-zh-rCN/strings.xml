@@ -25,4 +25,5 @@
     <string name="university_label_password">密码</string>
     <string name="university_label_login">添加</string>
     <string name="university_login_name">大学名称</string>
+    <string name="assignment_sync_now">同步化</string>
 </resources>
