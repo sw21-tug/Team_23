@@ -3,6 +3,9 @@ package at.tugraz.onpoint
 import android.app.Activity
 import android.app.Instrumentation
 import android.content.Intent
+import androidx.fragment.app.testing.launchFragmentInContainer
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso.onView
@@ -20,10 +23,14 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
+import at.tugraz.onpoint.todolist.TodoFragmentAdd
+import at.tugraz.onpoint.todolist.TodoFragmentListView
+import at.tugraz.onpoint.ui.main.AssignmentsTabFragment
 import org.hamcrest.CoreMatchers.startsWith
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito
 
 
 @RunWith(AndroidJUnit4::class)
@@ -174,6 +181,17 @@ class AssignmentsListInstrumentedTest {
             .check(matches(isDisplayed()))
         onView(withId(R.id.addMeToCalendar))
             .perform(click())
+    }
+
+    @Test
+    fun checkIfSearchbarIsDisplayed(){
+        val mockNavController = Mockito.mock(NavController::class.java)
+        val firstScenario = launchFragmentInContainer<AssignmentsTabFragment>()
+
+        firstScenario.onFragment { fragment ->
+            Navigation.setViewNavController(fragment.requireView(), mockNavController)
+        }
+        onView(withId(R.id.assignment_searchview)).check(matches(isDisplayed()))
     }
 
 

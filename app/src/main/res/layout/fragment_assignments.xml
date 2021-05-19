@@ -7,6 +7,15 @@
     android:layout_height="match_parent"
     tools:context=".ui.main.AssignmentsTabFragment">
 
+    <item
+        android:id="@+id/assignment_searchview"
+        android:title="Assignment Search"
+        app:actionViewClass="android.support.v7.widget.SearchView"
+        app:layout_constraintTop_toTopOf="parent"
+        app:showAsAction="always"
+        tools:layout_editor_absoluteX="86dp"
+        tools:ignore="MissingConstraints" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/assignmentsList"
         android:layout_width="match_parent"
