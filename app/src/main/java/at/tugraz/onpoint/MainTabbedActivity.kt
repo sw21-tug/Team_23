@@ -35,7 +35,6 @@ class MainTabbedActivity : AppCompatActivity() {
         viewPager.adapter = sectionsPagerAdapter
         val tabs: TabLayout = findViewById(R.id.tabs)
         tabs.setupWithViewPager(viewPager)
-        findViewById<Button>(R.id.switch_language).setOnClickListener { onLanguageSwitch() }
         ////////////////////////////////////////////////////////////////////////////////////////////
         /// source: https://proandroiddev.com/easy-approach-to-navigation-drawer-7fe87d8fd7e7
         setSupportActionBar(findViewById(R.id.toolbar))

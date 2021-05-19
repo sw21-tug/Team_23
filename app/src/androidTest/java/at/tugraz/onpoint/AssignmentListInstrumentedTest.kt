@@ -185,12 +185,8 @@ class AssignmentsListInstrumentedTest {
 
     @Test
     fun checkIfSearchbarIsDisplayed(){
-        val mockNavController = Mockito.mock(NavController::class.java)
-        val firstScenario = launchFragmentInContainer<AssignmentsTabFragment>()
-
-        firstScenario.onFragment { fragment ->
-            Navigation.setViewNavController(fragment.requireView(), mockNavController)
-        }
+        launchActivity<MainTabbedActivity>()
+        onView(withText("Assign.")).perform(ViewActions.click())
         onView(withId(R.id.assignment_searchview)).check(matches(isDisplayed()))
     }
 

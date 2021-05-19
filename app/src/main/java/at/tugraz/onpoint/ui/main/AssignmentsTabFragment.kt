@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SearchView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -17,11 +18,13 @@ import androidx.recyclerview.widget.RecyclerView
 import at.tugraz.onpoint.R
 import java.net.URL
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class AssignmentsTabFragment : Fragment() {
     private lateinit var pageViewModel: PageViewModel
-    private val assignmentsList = arrayListOf<Assignment>()
+    private var assignmentsList = arrayListOf<Assignment>()
+    private var completeState = arrayListOf<Assignment>()
     private var adapter: AssignmentsAdapter? = null
     private var latestAssignmentId: Int = 1 // Unique ID for assignment
     // TODO latestAssignmentId replaced with one obtained from the DB (auto-incrementing integer). See how the TodoList does it.
@@ -63,6 +66,32 @@ class AssignmentsTabFragment : Fragment() {
         adapter =
             this.context?.let { AssignmentsAdapter(assignmentsList, it, parentFragmentManager) }
         assignmentsRecView.adapter = this.adapter
+
+        var searchView: SearchView = root.findViewById(R.id.assignment_searchview)
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+            override fun onQueryTextChange(newText: String?): Boolean {
+                if (newText != null) {
+                    var temp = completeState.toMutableList()
+                    assignmentsList.clear()
+                    assignmentsList.addAll(filter(temp, newText) as ArrayList<Assignment>)
+                    adapter!!.notifyDataSetChanged()
+                    return true
+                }
+                return false
+            }
+
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                if (query != null) {
+                    var temp = completeState.toMutableList()
+                    assignmentsList.clear()
+                    assignmentsList.addAll(filter(temp, query) as ArrayList<Assignment>)
+                    adapter!!.notifyDataSetChanged()
+                    return true
+                }
+                return false
+            }
+        })
+
         return root
     }
 
@@ -75,15 +104,19 @@ class AssignmentsTabFragment : Fragment() {
         latestAssignmentId += 1
         assignment.id = latestAssignmentId
         assignmentsList.add(assignment)
+        completeState.add(assignment)
         adapter?.notifyDataSetChanged()
 
     }
 
-     fun filter(assignments: List<Assignment>, search: String): List<Assignment>? {
-        val lowerCaseQuery = search.toLowerCase()
-        val found: MutableList<Assignment> = ArrayList()
+     fun filter(assignments: List<Assignment>, search: String): List<Assignment>{
+        val lowerCaseQuery = search.toLowerCase(Locale.ROOT)
+         val found: MutableList<Assignment> = ArrayList()
         for (assi in assignments) {
-
+            val text = assi.title.toLowerCase(Locale.ROOT)
+            if (text.contains(lowerCaseQuery)) {
+                found.add(assi);
+            }
         }
         return found
     }
