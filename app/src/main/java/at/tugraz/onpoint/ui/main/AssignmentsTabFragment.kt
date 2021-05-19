@@ -73,7 +73,7 @@ class AssignmentsTabFragment : Fragment() {
         assignment: Assignment,
     ) {
         latestAssignmentId += 1
-        assignment.id = latestAssignmentId
+        assignment.uid = latestAssignmentId
         assignmentsList.add(assignment)
         adapter?.notifyDataSetChanged()
 
@@ -106,7 +106,8 @@ data class Assignment(
     val description: String,
     val deadline: Date,
     val links: ArrayList<URL>,
-    var id: Int? = null,
+    var uid: Int? = null,
+    var moodleId : Int? = null
 ) {
     fun linksToMultiLineString(): String {
         val text: StringBuilder = StringBuilder()
@@ -125,11 +126,11 @@ data class Assignment(
             context.getString(R.string.assignment_notification_title)
         )
         intentToLaunchNotification.putExtra("text", this.title + ": " + this.deadline.toString())
-        intentToLaunchNotification.putExtra("notificationId", id)
+        intentToLaunchNotification.putExtra("notificationId", uid)
         // Schedule notification
         val pending = PendingIntent.getBroadcast(
             context,
-            id!!,
+            uid!!,
             intentToLaunchNotification,
             PendingIntent.FLAG_UPDATE_CURRENT
         )
