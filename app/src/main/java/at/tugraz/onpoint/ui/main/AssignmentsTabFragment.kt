@@ -26,7 +26,6 @@ import at.tugraz.onpoint.database.OnPointAppDatabase
 import at.tugraz.onpoint.database.getDbInstance
 import at.tugraz.onpoint.moodle.*
 import at.tugraz.onpoint.database.AssignmentDao
-import at.tugraz.onpoint.database.OnPointAppDatabase
 import at.tugraz.onpoint.database.TodoDao
 import at.tugraz.onpoint.database.getDbInstance
 import java.net.URL
@@ -115,8 +114,8 @@ class AssignmentsTabFragment : Fragment() {
                 val link : String = "https://" + apiLink + "/mod/assign/view.php?id=" + moodle_ass.cmid.toString()
                 var link_list : List<URL>
 
-                assignment = Assignment(moodle_ass.name, moodle_ass.intro, Date(moodle_ass.duedate), arrayListOf<URL>(URL(link)), moodle_ass.id)
-                addAssignmentCustomToAssignmentList(assignment.title, assignment.description, assignment.deadline, assignment.links)
+                assignment = Assignment(moodle_ass.name, moodle_ass.intro, moodle_ass.duedate, link, moodle_ass.id)
+                addAssignmentCustomToAssignmentList(assignment.title, assignment.description, assignment.getDeadlineDate(), assignment.getLinksAsUrls())
             }
         }
     }

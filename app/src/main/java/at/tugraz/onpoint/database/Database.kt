@@ -12,10 +12,11 @@ import java.util.*
 val MIGRATION_1_2: Migration = object : Migration(1, 2) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.execSQL("CREATE TABLE IF NOT EXISTS `assignment` (`title` TEXT NOT NULL, `description` TEXT NOT NULL, `deadline` INTEGER NOT NULL, `links` TEXT NOT NULL, `uid` INTEGER PRIMARY KEY AUTOINCREMENT, `moodle_id` INTEGER)")
+        database.execSQL("CREATE TABLE IF NOT EXISTS `moodle` (`universityName` TEXT NOT NULL, `userName` TEXT NOT NULL, `password` TEXT NOT NULL, `apiLink` TEXT NOT NULL, `uid` INTEGER PRIMARY KEY AUTOINCREMENT)")
     }
 }
 
-@Database(entities = [Todo::class, Assignment::class], version = 2, exportSchema = true)
+@Database(entities = [Todo::class, Assignment::class, Moodle::class], version = 2, exportSchema = true)
 abstract class OnPointAppDatabase : RoomDatabase() {
     abstract fun getTodoDao(): TodoDao
     abstract fun getMoodleDao(): MoodleDao

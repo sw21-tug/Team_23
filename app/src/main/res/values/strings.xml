@@ -41,5 +41,7 @@
     <string name="university_label_login">Add</string>
     <string name="university_login_name">Name of the university</string>
     <string name="assignment_sync_now">Sync Now</string>
+    <string name="university_login_successful">Login successful</string>
+    <string name="university_login_failed">Login failed</string>
 
 </resources>

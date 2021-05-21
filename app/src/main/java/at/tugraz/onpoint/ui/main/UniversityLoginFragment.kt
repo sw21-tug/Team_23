@@ -71,9 +71,9 @@ class UniversityLoginFragment : DialogFragment(R.layout.fragment_university_logi
             run {
                 if (response is LoginSuccessData) {
                     addUniversity(universityName, apiLink, apiUsername, apiPassword)
-                    Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, R.string.university_login_successful, Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(context, "Login failed", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, R.string.university_login_failed, Toast.LENGTH_SHORT).show()
                 }
             }
         }
