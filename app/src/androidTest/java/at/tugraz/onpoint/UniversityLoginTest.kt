@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
@@ -163,5 +164,12 @@ class UniversityLoginTest {
                     && view == parent.getChildAt(position)
             }
         }
+    }
+
+    @Test
+    fun checkAssignmentsInList() {
+        launchActivity<MainTabbedActivity>()
+        Espresso.onView(ViewMatchers.withText("Assign.")).perform(ViewActions.click())
+        Espresso.onView(ViewMatchers.withId(R.id.assignment_sync_assignments)).perform(ViewActions.click()).check(ViewAssertions.matches(ViewMatchers.isClickable()))
     }
 }

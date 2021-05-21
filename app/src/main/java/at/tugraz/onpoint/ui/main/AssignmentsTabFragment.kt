@@ -4,12 +4,14 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
@@ -18,7 +20,6 @@ import androidx.recyclerview.widget.RecyclerView
 import at.tugraz.onpoint.R
 import at.tugraz.onpoint.database.MoodleDao
 import at.tugraz.onpoint.database.OnPointAppDatabase
-import at.tugraz.onpoint.database.TodoDao
 import at.tugraz.onpoint.database.getDbInstance
 import at.tugraz.onpoint.moodle.*
 import java.net.URL
@@ -101,7 +102,7 @@ class AssignmentsTabFragment : Fragment() {
 
     }
 
-    fun addAssignmentsFromMoodle(courses : List<Course>, apiLink : String) {
+    fun addAssignmentsFromMoodle(courses: List<Course>, apiLink: String) {
         for(course in courses) {
             for(moodle_ass in course.assignments){
                 var assignment : Assignment
@@ -169,7 +170,7 @@ data class Assignment(
     }
 
     // Call this function ONLY after the ID is set.
-    fun buildAndScheduleNotification(context: Context, reminder_date : Calendar) {
+    fun buildAndScheduleNotification(context: Context, reminder_date: Calendar) {
         val intentToLaunchNotification = Intent(context, ScheduledNotificationReceiver::class.java)
         intentToLaunchNotification.putExtra(
             "title",
