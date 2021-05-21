@@ -1,9 +1,10 @@
 package at.tugraz.onpoint
 
-import android.app.Activity
-import android.app.Instrumentation
+import android.content.Context
 import android.content.Intent
 import androidx.recyclerview.widget.RecyclerView
+import androidx.room.Room
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
@@ -11,8 +12,6 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
-import androidx.test.espresso.intent.Intents.intending
-import androidx.test.espresso.intent.matcher.IntentMatchers.toPackage
 import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
@@ -20,10 +19,19 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
+import at.tugraz.onpoint.database.AssignmentDao
+import at.tugraz.onpoint.database.OnPointAppDatabase
+import at.tugraz.onpoint.database.getDbInstance
+import at.tugraz.onpoint.ui.main.Assignment
 import org.hamcrest.CoreMatchers.startsWith
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.io.IOException
+import java.net.URL
+import java.util.*
 
 
 @RunWith(AndroidJUnit4::class)
@@ -32,6 +40,30 @@ class AssignmentsListInstrumentedTest {
     var activityRule: ActivityScenarioRule<MainTabbedActivity> =
         ActivityScenarioRule(MainTabbedActivity::class.java)
     var activityTestRule = ActivityTestRule(MainTabbedActivity::class.java)
+
+    private lateinit var assignmentDao: AssignmentDao
+    private lateinit var db: OnPointAppDatabase
+
+    @Before
+    fun createDb() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        db = Room.inMemoryDatabaseBuilder(context, OnPointAppDatabase::class.java).build()
+        assignmentDao = db.getAssignmentDao()
+    }
+
+    @After
+    @Throws(IOException::class)
+    fun closeDb() {
+        db.clearAllTables()
+        db.close()
+    }
+
+    @After
+    @Throws(IOException::class)
+    fun emptyPersistentDb() {
+        val persistentDb = getDbInstance(null) // Already created singleton in @Before
+        persistentDb.clearAllTables()
+    }
 
     @Test
     fun activityHasTabList() {
@@ -147,6 +179,67 @@ class AssignmentsListInstrumentedTest {
     }
 
     @Test
+    fun storeNewAssignmentFromMoodleAndRetrieveItFromDb() {
+        val links = arrayListOf(URL("https://tc.tugraz.at"), URL("https://www.tugraz.at"))
+        val deadline = Date()
+        val moodleId = 1234
+        val uid = assignmentDao.insertOneFromMoodle("my title", "my description", deadline, links, moodleId)
+        val assignment:Assignment = assignmentDao.selectOne(uid)
+        assert(assignment.uid!!.toLong() ==  uid)
+        assert(assignment.title == "my title")
+        assert(assignment.description == "my description")
+        assert(assignment.getDeadlineDate().before(Date(deadline.time + 10000)))
+        assert(assignment.getDeadlineDate().after(Date(deadline.time - 10000)))
+        assert(assignment.getLinksAsUrls()[0] == links[0])
+        assert(assignment.getLinksAsUrls()[1] == links[1])
+        assert(assignment.moodleId == moodleId)
+    }
+
+    @Test
+    fun storeNewAssignmentCustomAndRetrieveItFromDb() {
+        val links = arrayListOf(URL("https://tc.tugraz.at"), URL("https://www.tugraz.at"))
+        val deadline = Date()
+        val uid = assignmentDao.insertOneCustom("my title", "my description", deadline, links)
+        val assignment:Assignment = assignmentDao.selectOne(uid)
+        assert(assignment.uid!!.toLong() == uid)
+        assert(assignment.title == "my title")
+        assert(assignment.description == "my description")
+        assert(assignment.getDeadlineDate().before(Date(deadline.time + 10000)))
+        assert(assignment.getDeadlineDate().after(Date(deadline.time - 10000)))
+        assert(assignment.getLinksAsUrls()[0] == links[0])
+        assert(assignment.getLinksAsUrls()[1] == links[1])
+        assert(assignment.moodleId == null)  // No Moodle Identifier in this case
+    }
+
+    @Test
+    fun retrieveAllAssignmentsFromDb() {
+        val links = arrayListOf(URL("https://tc.tugraz.at"), URL("https://www.tugraz.at"))
+        val deadlineEarly = Date()
+        val deadlineLate = Date(Date().time + 1000)
+        val moodleId = 1234
+        assignmentDao.insertOneFromMoodle("my title1", "my description1", deadlineLate, links, moodleId)
+        assignmentDao.insertOneFromMoodle("my title2", "my description2", deadlineEarly, links, moodleId + 1)
+        val assignmentsList : List<Assignment> = assignmentDao.selectAll()
+        assert(assignmentsList.size == 2)
+        assert(assignmentsList[0].title == "my title2")
+        assert(assignmentsList[0].description == "my description2")
+        // Data is sorted by deadline (closest deadline first)
+        assert(assignmentsList[0].getDeadlineDate().before(Date(deadlineEarly.time + 10000)))
+        assert(assignmentsList[0].getDeadlineDate().after(Date(deadlineEarly.time - 10000)))
+        assert(assignmentsList[0].getLinksAsUrls()[0] == links[0])
+        assert(assignmentsList[0].getLinksAsUrls()[1] == links[1])
+        assert(assignmentsList[0].moodleId == moodleId + 1)
+        assert(assignmentsList[1].title == "my title1")
+        assert(assignmentsList[1].description == "my description1")
+        assert(assignmentsList[1].getDeadlineDate().before(Date(deadlineLate.time + 10000)))
+        assert(assignmentsList[1].getDeadlineDate().after(Date(deadlineLate.time - 10000)))
+        assert(assignmentsList[1].getLinksAsUrls()[0] == links[0])
+        assert(assignmentsList[1].getLinksAsUrls()[1] == links[1])
+        assert(assignmentsList[1].moodleId == moodleId)
+        assert(assignmentsList[0].uid != assignmentsList[1].uid)
+    }
+
+    @Test
     fun checkForAddToCalendarButton() {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(ViewActions.click())
@@ -158,8 +251,6 @@ class AssignmentsListInstrumentedTest {
             .check(matches(isDisplayed()))
         onView(withId(R.id.addMeToCalendar))
             .check(matches(isDisplayed()))
-
-
     }
 
     @Test
@@ -175,7 +266,5 @@ class AssignmentsListInstrumentedTest {
         onView(withId(R.id.addMeToCalendar))
             .perform(click())
     }
-
-
 }
 

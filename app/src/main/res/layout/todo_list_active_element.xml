@@ -33,7 +33,6 @@ android:background="@color/lightGray_main">
         android:layout_marginBottom="8dp"
         android:background="@color/purple_700"
         android:drawableStart="@android:drawable/ic_menu_more"
-        android:onClick="checkItem"
         android:paddingLeft="14dp"
         android:paddingRight="14dp"
         app:layout_constraintBottom_toBottomOf="parent"
