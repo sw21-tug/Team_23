@@ -54,6 +54,8 @@ open class API {
                 val callbackObject = loginSuccessData
                 onResponse(callbackObject as T);
             }
+        }, {
+            onResponse(false as T)
         })
     }
 

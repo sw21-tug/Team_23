@@ -50,7 +50,6 @@ class AssignmentsTabFragment : Fragment() {
         root.findViewById<Button>(R.id.assignment_sync_assignments).setOnClickListener { syncAssignments() }
         // List of dummy assigments
         // TODO replace with selection of assignments from the DB on startup. See how the TodoList does it.
-       /*
         for (i in 0..50) {
             addAssignmentToAssignmentList(
                 Assignment(
@@ -65,8 +64,7 @@ class AssignmentsTabFragment : Fragment() {
                     )
                 ),
             )
-        }*/
-
+        }
         // Create the the Recyclerview, make it a linear list (not a grid), assign the list of
         // items to it and provide and adapter constructing each element of the list as a TextView
         val assignmentsRecView: RecyclerView = root.findViewById(R.id.assignmentsList)

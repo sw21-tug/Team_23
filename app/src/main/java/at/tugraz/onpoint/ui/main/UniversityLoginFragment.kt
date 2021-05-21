@@ -8,15 +8,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import at.tugraz.onpoint.R
 import at.tugraz.onpoint.database.*
+import at.tugraz.onpoint.moodle.API
+import at.tugraz.onpoint.moodle.LoginErrorData
+import at.tugraz.onpoint.moodle.LoginSuccessData
 import at.tugraz.onpoint.todolist.TodoListAdapter
 import at.tugraz.onpoint.todolist.TodoListDoneAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import org.w3c.dom.Text
 
 class UniversityLoginFragment : DialogFragment(R.layout.fragment_university_login) {
@@ -59,7 +64,22 @@ class UniversityLoginFragment : DialogFragment(R.layout.fragment_university_logi
         val apiLink: String = view.findViewById<TextView>(R.id.university_login_api).text.toString()
         val apiUsername: String = view.findViewById<TextView>(R.id.university_login_username).text.toString()
         val apiPassword: String = view.findViewById<TextView>(R.id.university_login_password).text.toString()
-        addUniversity(universityName, apiLink, apiUsername, apiPassword)
+        val moodle_api = API()
+        moodle_api.setAuthority(apiLink)
+        moodle_api.login(apiUsername, apiPassword) {
+            response: Any ->
+            run {
+                if (response is LoginSuccessData) {
+                    addUniversity(universityName, apiLink, apiUsername, apiPassword)
+                    Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "Login failed", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+
+
     }
 
     fun addUniversity(universityName: String, apiLink: String, apiUsername: String, apiPassword: String) {
