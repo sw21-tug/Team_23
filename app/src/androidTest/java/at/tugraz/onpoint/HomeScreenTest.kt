@@ -23,22 +23,22 @@ class HomeScreenTest {
 
 
     //source functional item: https://stackoverflow.com/questions/28742495/testing-background-color-espresso-android
-    fun matchesBackgroundColor(expectedResourceId: Int): Matcher<View?>? {
+    private fun matchesBackgroundColor(expectedResourceId: Int): Matcher<View?> {
         return object : BoundedMatcher<View?, View>(View::class.java) {
             var actualColor = 0
             var expectedColor = 0
             var message: String? = null
             override fun matchesSafely(item: View): Boolean {
-                if (item.getBackground() == null) {
-                    message = item.getId().toString() + " does not have a background"
+                if (item.background == null) {
+                    message = item.id.toString() + " does not have a background"
                     return false
                 }
-                val resources: Resources = item.getContext().getResources()
+                val resources: Resources = item.context.resources
                 expectedColor = ResourcesCompat.getColor(resources, expectedResourceId, null)
                 actualColor = try {
-                    (item.getBackground() as ColorDrawable).color
+                    (item.background as ColorDrawable).color
                 } catch (e: Exception) {
-                    (item.getBackground() as GradientDrawable).color!!.defaultColor
+                    (item.background as GradientDrawable).color!!.defaultColor
                 } finally {
                 }
                 return actualColor == expectedColor

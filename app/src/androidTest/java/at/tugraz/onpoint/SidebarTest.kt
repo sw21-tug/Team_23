@@ -35,7 +35,7 @@ class SidebarTest {
             ViewAssertions.matches(
                 ViewMatchers.isEnabled()
             )
-        );
+        )
     }
 
     /**

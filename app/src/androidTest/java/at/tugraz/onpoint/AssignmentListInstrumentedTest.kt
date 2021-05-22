@@ -39,7 +39,7 @@ class AssignmentsListInstrumentedTest {
     @get:Rule
     var activityRule: ActivityScenarioRule<MainTabbedActivity> =
         ActivityScenarioRule(MainTabbedActivity::class.java)
-    var activityTestRule = ActivityTestRule(MainTabbedActivity::class.java)
+    private var activityTestRule = ActivityTestRule(MainTabbedActivity::class.java)
 
     private lateinit var assignmentDao: AssignmentDao
     private lateinit var db: OnPointAppDatabase
@@ -68,36 +68,36 @@ class AssignmentsListInstrumentedTest {
     @Test
     fun activityHasTabList() {
         launchActivity<MainTabbedActivity>()
-        onView(withId(R.id.tabs)).check(ViewAssertions.matches(ViewMatchers.isEnabled()))
+        onView(withId(R.id.tabs)).check(matches(isEnabled()))
     }
 
     @Test
     fun tabsAreClickable() {
         launchActivity<MainTabbedActivity>()
-        onView(withText("Main")).perform(ViewActions.click())
-        onView(withText("Todo")).perform(ViewActions.click())
-        onView(withText("Assign.")).perform(ViewActions.click())
+        onView(withText("Main")).perform(click())
+        onView(withText("Todo")).perform(click())
+        onView(withText("Assign.")).perform(click())
     }
 
     @Test
     fun checkForAssignmentListExistence() {
         launchActivity<MainTabbedActivity>()
-        onView(withText("Assign.")).perform(ViewActions.click())
+        onView(withText("Assign.")).perform(click())
         onView(withId(R.id.assignmentsList)).check(matches(isDisplayed()))
     }
 
     @Test
     fun checkForContentInAssignmentList() {
         launchActivity<MainTabbedActivity>()
-        onView(withText("Assign.")).perform(ViewActions.click())
+        onView(withText("Assign.")).perform(click())
         onView(withId(R.id.assignmentsList))
-            .check(matches(hasDescendant(withText("Dummy Assignment 5"))));
+            .check(matches(hasDescendant(withText("Dummy Assignment 5"))))
     }
 
     @Test
     fun checkForDetailsInAssignmentListEntry() {
         launchActivity<MainTabbedActivity>()
-        onView(withText("Assign.")).perform(ViewActions.click())
+        onView(withText("Assign.")).perform(click())
         // Click item at position 3
         onView(withId(R.id.assignmentsList))
             .perform(
@@ -145,7 +145,7 @@ class AssignmentsListInstrumentedTest {
         val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
         val intent = Intent(targetContext, MainTabbedActivity::class.java)
         //Value 2 for assignmentTab
-        intent.putExtra("tabToOpen", 2);
+        intent.putExtra("tabToOpen", 2)
         activityTestRule.launchActivity(intent)
         onView(withText("Main")).check(matches(isDisplayed()))
         onView(withText("Todo")).check(matches(isDisplayed()))
@@ -156,7 +156,7 @@ class AssignmentsListInstrumentedTest {
     @Test
     fun checkDeadlinePickerAppearsWhenClickingOnSetReminder() {
         launchActivity<MainTabbedActivity>()
-        onView(withText("Assign.")).perform(ViewActions.click())
+        onView(withText("Assign.")).perform(click())
         // Click item at position 3
         onView(withId(R.id.assignmentsList))
             .perform(
@@ -175,7 +175,7 @@ class AssignmentsListInstrumentedTest {
             .perform(click())
         onView(withId(android.R.id.button1)) // OK button, with default Android ID
             .check(matches(isDisplayed()))
-            .perform(click());
+            .perform(click())
     }
 
     @Test
@@ -260,7 +260,7 @@ class AssignmentsListInstrumentedTest {
     @Test
     fun checkForAddToCalendarButton() {
         launchActivity<MainTabbedActivity>()
-        onView(withText("Assign.")).perform(ViewActions.click())
+        onView(withText("Assign.")).perform(click())
         // Click item at position 3
         onView(withId(R.id.assignmentsList))
             .perform(
@@ -279,7 +279,7 @@ class AssignmentsListInstrumentedTest {
     @Test
     fun checkClickForAddToCalendarButton() {
         launchActivity<MainTabbedActivity>()
-        onView(withText("Assign.")).perform(ViewActions.click())
+        onView(withText("Assign.")).perform(click())
         // Click item at position 3
         onView(withId(R.id.assignmentsList))
             .perform(
