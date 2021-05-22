@@ -9,7 +9,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.Room
 import at.tugraz.onpoint.R
 import at.tugraz.onpoint.database.OnPointAppDatabase
 import at.tugraz.onpoint.database.Todo

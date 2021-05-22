@@ -299,7 +299,7 @@ class TodoInstrumentedTest {
     }
 
     @Test
-    fun deleteElementTodo(){
+    fun deleteElementTodo() {
         val text = "This is a test text"
         val fragment = TodoFragmentListView()
         assert(fragment.todoList.isEmpty())
@@ -313,7 +313,6 @@ class TodoInstrumentedTest {
         fragment.deleteTodo(todo)
         assert(fragment.todoList.isEmpty())
         assert(fragment.todoListDone.isEmpty())
-
 
 
     }

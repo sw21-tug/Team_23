@@ -4,14 +4,12 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
@@ -21,13 +19,11 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import at.tugraz.onpoint.R
+import at.tugraz.onpoint.database.AssignmentDao
 import at.tugraz.onpoint.database.MoodleDao
 import at.tugraz.onpoint.database.OnPointAppDatabase
 import at.tugraz.onpoint.database.getDbInstance
 import at.tugraz.onpoint.moodle.*
-import at.tugraz.onpoint.database.AssignmentDao
-import at.tugraz.onpoint.database.TodoDao
-import at.tugraz.onpoint.database.getDbInstance
 import java.net.URL
 import java.util.*
 
@@ -56,7 +52,8 @@ class AssignmentsTabFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_assignments, container, false)
-        root.findViewById<Button>(R.id.assignment_sync_assignments).setOnClickListener { syncAssignments() }
+        root.findViewById<Button>(R.id.assignment_sync_assignments)
+            .setOnClickListener { syncAssignments() }
         // TODO replace with assignments obtained from the Moodle API on startup
         // List of dummy assignments, inserted only the first time
         if (assignmentsList.isEmpty()) {
@@ -84,38 +81,55 @@ class AssignmentsTabFragment : Fragment() {
     fun syncAssignments() {
         val moodle_api = API()
 
-        for(account in moodleDao.selectAll()) {
+        for (account in moodleDao.selectAll()) {
             moodle_api.setAuthority(account.apiLink)
-            moodle_api.login(account.userName, account.password) { response: Any -> run {
-                if (response is LoginSuccessData) {
-                    moodle_api.getAssignments{ response: Any -> run {
-                        if(response is AssignmentError) {
-                            println(response.message)
+            moodle_api.login(account.userName, account.password) { response: Any ->
+                run {
+                    if (response is LoginSuccessData) {
+                        moodle_api.getAssignments { response: Any ->
+                            run {
+                                if (response is AssignmentError) {
+                                    println(response.message)
+                                }
+                                if (response is AssignmentResponse) {
+                                    addAssignmentsFromMoodle(
+                                        response.courses,
+                                        moodle_api.getAuthority()
+                                    )
+                                }
+                            }
                         }
-                        if(response is AssignmentResponse) {
-                            addAssignmentsFromMoodle(response.courses, moodle_api.getAuthority())
-                        }
-                    } }
+                    }
+                    if (response is LoginErrorData) {
+                        println(response.error)
+                    }
                 }
-                if (response is LoginErrorData) {
-                    println(response.error)
-                }
-            }
             }
         }
 
     }
 
     fun addAssignmentsFromMoodle(courses: List<Course>, apiLink: String) {
-        for(course in courses) {
-            for(moodle_ass in course.assignments){
-                val link : String = "https://" + apiLink + "/mod/assign/view.php?id=" + moodle_ass.cmid.toString()
-                val assignment = Assignment(moodle_ass.name, moodle_ass.intro, moodle_ass.duedate, link, moodle_ass.id)
-                addAssignmentCustomToAssignmentList(assignment.title, assignment.description, assignment.getDeadlineDate(), assignment.getLinksAsUrls())
+        for (course in courses) {
+            for (moodle_ass in course.assignments) {
+                val link: String =
+                    "https://" + apiLink + "/mod/assign/view.php?id=" + moodle_ass.cmid.toString()
+                val assignment = Assignment(
+                    moodle_ass.name,
+                    moodle_ass.intro,
+                    moodle_ass.duedate,
+                    link,
+                    moodle_ass.id
+                )
+                addAssignmentCustomToAssignmentList(
+                    assignment.title,
+                    assignment.description,
+                    assignment.getDeadlineDate(),
+                    assignment.getLinksAsUrls()
+                )
             }
         }
     }
-
 
 
     /**

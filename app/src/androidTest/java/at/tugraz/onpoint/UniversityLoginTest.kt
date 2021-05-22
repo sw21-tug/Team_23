@@ -12,10 +12,14 @@ import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
-import at.tugraz.onpoint.database.*
-import at.tugraz.onpoint.todolist.TodoFragmentListView
+import at.tugraz.onpoint.database.MoodleDao
+import at.tugraz.onpoint.database.OnPointAppDatabase
+import at.tugraz.onpoint.database.getDbInstance
 import at.tugraz.onpoint.ui.main.UniversityLoginFragment
-import org.hamcrest.*
+import org.hamcrest.Description
+import org.hamcrest.Matcher
+import org.hamcrest.Matchers
+import org.hamcrest.TypeSafeMatcher
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -76,81 +80,133 @@ class UniversityLoginTest {
     @Test
     fun verifyUI() {
         val appCompatImageButton = Espresso.onView(
-            Matchers.allOf(ViewMatchers.withContentDescription("O"),
+            Matchers.allOf(
+                ViewMatchers.withContentDescription("O"),
                 childAtPosition(
-                    Matchers.allOf(ViewMatchers.withId(R.id.toolbar),
+                    Matchers.allOf(
+                        ViewMatchers.withId(R.id.toolbar),
                         childAtPosition(
                             ViewMatchers.withClassName(Matchers.`is`("android.widget.LinearLayout")),
-                            0)),
-                    1),
-                ViewMatchers.isDisplayed()))
+                            0
+                        )
+                    ),
+                    1
+                ),
+                ViewMatchers.isDisplayed()
+            )
+        )
         appCompatImageButton.perform(ViewActions.click())
 
         val navigationMenuItemView = Espresso.onView(
-            Matchers.allOf(ViewMatchers.withId(R.id.add_university_drawable_bar),
+            Matchers.allOf(
+                ViewMatchers.withId(R.id.add_university_drawable_bar),
                 childAtPosition(
-                    Matchers.allOf(ViewMatchers.withId(R.id.design_navigation_view),
+                    Matchers.allOf(
+                        ViewMatchers.withId(R.id.design_navigation_view),
                         childAtPosition(
                             ViewMatchers.withId(R.id.navigation_view),
-                            0)),
-                    2),
-                ViewMatchers.isDisplayed()))
+                            0
+                        )
+                    ),
+                    2
+                ),
+                ViewMatchers.isDisplayed()
+            )
+        )
         navigationMenuItemView.perform(ViewActions.click())
 
         val appCompatEditText = Espresso.onView(
-            Matchers.allOf(ViewMatchers.withId(R.id.university_login_name),
+            Matchers.allOf(
+                ViewMatchers.withId(R.id.university_login_name),
                 childAtPosition(
                     childAtPosition(
                         ViewMatchers.withId(android.R.id.custom),
-                        0),
-                    8),
-                ViewMatchers.isDisplayed()))
-        appCompatEditText.perform(ViewActions.replaceText("Universität Graz"), ViewActions.closeSoftKeyboard())
+                        0
+                    ),
+                    8
+                ),
+                ViewMatchers.isDisplayed()
+            )
+        )
+        appCompatEditText.perform(
+            ViewActions.replaceText("Universität Graz"),
+            ViewActions.closeSoftKeyboard()
+        )
 
         val appCompatEditText2 = Espresso.onView(
-            Matchers.allOf(ViewMatchers.withId(R.id.university_login_api),
+            Matchers.allOf(
+                ViewMatchers.withId(R.id.university_login_api),
                 childAtPosition(
                     childAtPosition(
                         ViewMatchers.withId(android.R.id.custom),
-                        0),
-                    1),
-                ViewMatchers.isDisplayed()))
-        appCompatEditText2.perform(ViewActions.replaceText("https://moodle.unigraz.at"), ViewActions.closeSoftKeyboard())
+                        0
+                    ),
+                    1
+                ),
+                ViewMatchers.isDisplayed()
+            )
+        )
+        appCompatEditText2.perform(
+            ViewActions.replaceText("https://moodle.unigraz.at"),
+            ViewActions.closeSoftKeyboard()
+        )
 
         val appCompatEditText3 = Espresso.onView(
-            Matchers.allOf(ViewMatchers.withId(R.id.university_login_username),
+            Matchers.allOf(
+                ViewMatchers.withId(R.id.university_login_username),
                 childAtPosition(
                     childAtPosition(
                         ViewMatchers.withId(android.R.id.custom),
-                        0),
-                    2),
-                ViewMatchers.isDisplayed()))
-        appCompatEditText3.perform(ViewActions.replaceText("studentId"), ViewActions.closeSoftKeyboard())
+                        0
+                    ),
+                    2
+                ),
+                ViewMatchers.isDisplayed()
+            )
+        )
+        appCompatEditText3.perform(
+            ViewActions.replaceText("studentId"),
+            ViewActions.closeSoftKeyboard()
+        )
 
         val appCompatEditText4 = Espresso.onView(
-            Matchers.allOf(ViewMatchers.withId(R.id.university_login_password),
+            Matchers.allOf(
+                ViewMatchers.withId(R.id.university_login_password),
                 childAtPosition(
                     childAtPosition(
                         ViewMatchers.withId(android.R.id.custom),
-                        0),
-                    3),
-                ViewMatchers.isDisplayed()))
-        appCompatEditText4.perform(ViewActions.replaceText("studentPassword"), ViewActions.closeSoftKeyboard())
+                        0
+                    ),
+                    3
+                ),
+                ViewMatchers.isDisplayed()
+            )
+        )
+        appCompatEditText4.perform(
+            ViewActions.replaceText("studentPassword"),
+            ViewActions.closeSoftKeyboard()
+        )
 
         val materialButton = Espresso.onView(
-            Matchers.allOf(ViewMatchers.withId(R.id.moodle_loginButton), ViewMatchers.withText("Add"),
+            Matchers.allOf(
+                ViewMatchers.withId(R.id.moodle_loginButton), ViewMatchers.withText("Add"),
                 childAtPosition(
                     childAtPosition(
                         ViewMatchers.withId(android.R.id.custom),
-                        0),
-                    0),
-                ViewMatchers.isDisplayed()))
+                        0
+                    ),
+                    0
+                ),
+                ViewMatchers.isDisplayed()
+            )
+        )
         materialButton.perform(ViewActions.click())
 
     }
 
     private fun childAtPosition(
-        parentMatcher: Matcher<View>, position: Int): Matcher<View> {
+        parentMatcher: Matcher<View>, position: Int
+    ): Matcher<View> {
 
         return object : TypeSafeMatcher<View>() {
             override fun describeTo(description: Description) {
@@ -170,6 +226,7 @@ class UniversityLoginTest {
     fun checkAssignmentsInList() {
         launchActivity<MainTabbedActivity>()
         Espresso.onView(ViewMatchers.withText("Assign.")).perform(ViewActions.click())
-        Espresso.onView(ViewMatchers.withId(R.id.assignment_sync_assignments)).perform(ViewActions.click()).check(ViewAssertions.matches(ViewMatchers.isClickable()))
+        Espresso.onView(ViewMatchers.withId(R.id.assignment_sync_assignments))
+            .perform(ViewActions.click()).check(ViewAssertions.matches(ViewMatchers.isClickable()))
     }
 }

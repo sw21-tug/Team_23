@@ -26,7 +26,10 @@ class LanguageHandler {
                 LocaleList(Locale(localeToSet))
             LocaleList.setDefault(localeListToSet)
             context.resources.configuration.setLocales(localeListToSet)
-            context.resources.updateConfiguration(context.resources.configuration, context.resources.displayMetrics)
+            context.resources.updateConfiguration(
+                context.resources.configuration,
+                context.resources.displayMetrics
+            )
             setLanguageToSettings(context, localeToSet)
         } else {
             TODO("VERSION.SDK_INT < N")
