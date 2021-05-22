@@ -40,7 +40,6 @@ class UniversityLoginFragment : DialogFragment(R.layout.fragment_university_logi
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
-            val db_entries = moodleDao.selectAll()
             universityList.addAll(moodleDao.selectAll())
             val dialogBuilder = AlertDialog.Builder(it)
             val inflater = requireActivity().layoutInflater
@@ -77,9 +76,6 @@ class UniversityLoginFragment : DialogFragment(R.layout.fragment_university_logi
                 }
             }
         }
-
-
-
     }
 
     fun addUniversity(universityName: String, apiLink: String, apiUsername: String, apiPassword: String) {

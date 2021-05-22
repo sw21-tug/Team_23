@@ -109,12 +109,8 @@ class AssignmentsTabFragment : Fragment() {
     fun addAssignmentsFromMoodle(courses: List<Course>, apiLink: String) {
         for(course in courses) {
             for(moodle_ass in course.assignments){
-                var assignment : Assignment
-
                 val link : String = "https://" + apiLink + "/mod/assign/view.php?id=" + moodle_ass.cmid.toString()
-                var link_list : List<URL>
-
-                assignment = Assignment(moodle_ass.name, moodle_ass.intro, moodle_ass.duedate, link, moodle_ass.id)
+                val assignment = Assignment(moodle_ass.name, moodle_ass.intro, moodle_ass.duedate, link, moodle_ass.id)
                 addAssignmentCustomToAssignmentList(assignment.title, assignment.description, assignment.getDeadlineDate(), assignment.getLinksAsUrls())
             }
         }

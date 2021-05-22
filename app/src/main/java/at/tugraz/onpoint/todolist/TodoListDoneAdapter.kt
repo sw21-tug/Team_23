@@ -13,15 +13,18 @@ import at.tugraz.onpoint.R
 import at.tugraz.onpoint.database.Todo
 
 
-class TodoListDoneAdapter(private val fragment: TodoFragmentListView,
-                          private val dataSet: ArrayList<Todo>) :
+class TodoListDoneAdapter(
+    private val fragment: TodoFragmentListView,
+    private val dataSet: ArrayList<Todo>
+) :
     RecyclerView.Adapter<TodoListDoneAdapter.ViewHolder>() {
 
     /**
      * Provide a reference to the type of views that you are using
      * (custom ViewHolder).
      */
-    class ViewHolder(view: View, private val fragment: TodoFragmentListView) : RecyclerView.ViewHolder(view) {
+    class ViewHolder(view: View, private val fragment: TodoFragmentListView) :
+        RecyclerView.ViewHolder(view) {
         val textView: TextView
         val button: Button
         lateinit var todo: Todo
@@ -31,14 +34,10 @@ class TodoListDoneAdapter(private val fragment: TodoFragmentListView,
             textView = view.findViewById(R.id.todo_list_inactive_textview)
             textView.paintFlags = textView.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
             button = view.findViewById(R.id.todo_delete_button)
-            button.setOnClickListener { view: View ->
-                deleteItem(
-                    view
-                )
-            }
+            button.setOnClickListener { deleteItem() }
         }
 
-        private fun deleteItem(v: View) {
+        private fun deleteItem() {
             fragment.deleteTodo(this.todo)
         }
     }

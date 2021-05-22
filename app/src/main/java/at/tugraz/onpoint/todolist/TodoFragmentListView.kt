@@ -35,11 +35,7 @@ class TodoFragmentListView : Fragment(R.layout.activity_todo_listview) {
         // Inflate the layout for this fragment
         val rootView: View = inflater.inflate(R.layout.activity_todo_listview, container, false)
         rootView.findViewById<FloatingActionButton>(R.id.todo_addButton)
-            .setOnClickListener { view: View ->
-                onAddButtonClick(
-                    view
-                )
-            }
+            .setOnClickListener { onAddButtonClick() }
         val todosView: RecyclerView = rootView.findViewById(R.id.todo_listview_active)
         todosView.layoutManager = LinearLayoutManager(this.context)
         adapter = TodoListAdapter(
@@ -67,7 +63,7 @@ class TodoFragmentListView : Fragment(R.layout.activity_todo_listview) {
         todoListDone.addAll(todoDao.selectAllCompleted())
     }
 
-    fun onAddButtonClick(v: View?) {
+    fun onAddButtonClick() {
         findNavController().navigate(R.id.action_todoFragmentListView_to_todoFragmentAdd)
     }
 
@@ -94,7 +90,7 @@ class TodoFragmentListView : Fragment(R.layout.activity_todo_listview) {
     }
 
 
-    fun deleteTodo(todo : Todo ){
+    fun deleteTodo(todo: Todo) {
         todoListDone.remove(todo)
         adapterDone?.notifyDataSetChanged()
         todoDao.deleteOne(todo)

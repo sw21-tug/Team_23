@@ -128,7 +128,7 @@ data class Moodle(
 
     @ColumnInfo(name = "apiLink")
     var apiLink: String,
-) {}
+)
 
 @Dao
 interface MoodleDao {

@@ -64,7 +64,7 @@ open class API {
         builder.scheme(scheme).authority(authority).path(path)
         query_params.forEach { (key: String, value: String) -> builder.appendQueryParameter(key, value) }
         val request_url: String = builder.build().toString()
-        request_url.httpGet().responseString { request, response, result ->
+        request_url.httpGet().responseString { _, _, result ->
             when(result) {
                 is Result.Failure -> {
                     onError(result.error);

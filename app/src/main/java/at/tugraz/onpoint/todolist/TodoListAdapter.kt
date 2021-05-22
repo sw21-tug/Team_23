@@ -30,14 +30,10 @@ class TodoListAdapter(
             // Define click listener for the ViewHolder's View.
             textView = view.findViewById(R.id.todo_list_active_textview)
             button = view.findViewById(R.id.todo_check_button)
-            button.setOnClickListener { view: View ->
-                checkItem(
-                    view
-                )
-            }
+            button.setOnClickListener { checkItem() }
         }
 
-        private fun checkItem(v: View?) {
+        private fun checkItem() {
             // At this point this.to-do should never be null, as is is set by onBindViewHolder().
             // Otherwise it would not make much sense: how can we check (tick, mark) a view
             // which was never displayed?
