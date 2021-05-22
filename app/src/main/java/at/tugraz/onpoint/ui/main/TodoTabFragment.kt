@@ -23,8 +23,7 @@ class TodoTabFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val root = inflater.inflate(R.layout.fragment_todo, container, false)
-        return root
+        return inflater.inflate(R.layout.fragment_todo, container, false)
     }
 
     companion object {

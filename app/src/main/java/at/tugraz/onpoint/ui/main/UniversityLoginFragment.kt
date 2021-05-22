@@ -20,7 +20,7 @@ import at.tugraz.onpoint.moodle.LoginSuccessData
 
 class UniversityLoginFragment : DialogFragment(R.layout.fragment_university_login) {
 
-    var universityList = arrayListOf<Moodle>()
+    private var universityList = arrayListOf<Moodle>()
     val db: OnPointAppDatabase = getDbInstance(null)
     val moodleDao: MoodleDao = db.getMoodleDao()
 
@@ -53,7 +53,7 @@ class UniversityLoginFragment : DialogFragment(R.layout.fragment_university_logi
         } ?: throw IllegalStateException("Activity cannot be null")
     }
 
-    fun onAddUniversity(view: View) {
+    private fun onAddUniversity(view: View) {
         val universityName: String =
             view.findViewById<TextView>(R.id.university_login_name).text.toString()
         val apiLink: String = view.findViewById<TextView>(R.id.university_login_api).text.toString()
@@ -61,9 +61,9 @@ class UniversityLoginFragment : DialogFragment(R.layout.fragment_university_logi
             view.findViewById<TextView>(R.id.university_login_username).text.toString()
         val apiPassword: String =
             view.findViewById<TextView>(R.id.university_login_password).text.toString()
-        val moodle_api = API()
-        moodle_api.setAuthority(apiLink)
-        moodle_api.login(apiUsername, apiPassword) { response: Any ->
+        val moodleApi = API()
+        moodleApi.setAuthority(apiLink)
+        moodleApi.login(apiUsername, apiPassword) { response: Any ->
             run {
                 if (response is LoginSuccessData) {
                     addUniversity(universityName, apiLink, apiUsername, apiPassword)

@@ -14,7 +14,7 @@ class TodoFragmentAdd : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         val rootView: View = inflater.inflate(R.layout.activity_todo_add, container, false)
         rootView.findViewById<FloatingActionButton>(R.id.todo_saveButton)
@@ -22,7 +22,7 @@ class TodoFragmentAdd : Fragment() {
         return rootView
     }
 
-    fun onSaveButtonClick() {
+    private fun onSaveButtonClick() {
         val textInputField: EditText? = view?.findViewById(R.id.todo_InputField)
         val input = textInputField?.text.toString()
         val action = TodoFragmentAddDirections.actionTodoFragmentAddToTodoFragmentListView(input)

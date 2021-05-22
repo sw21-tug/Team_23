@@ -31,8 +31,8 @@ class MainTabFragment : Fragment() {
 
         val todoLayout = root.findViewById(R.id.homescreen_todo_list_id) as ViewGroup
         val recentLayout = root.findViewById(R.id.recent_linear_layout) as ViewGroup
-        val todoList = listOf<String>("todo1", "todo2")
-        val recentList = listOf<String>("recent1")
+        val todoList = listOf("todo1", "todo2")
+        val recentList = listOf("recent1")
         for (todoItem in todoList) {
             // TextView2
             println("In todo loop")
@@ -44,8 +44,8 @@ class MainTabFragment : Fragment() {
             lptv.setMargins(10, 50, 10, 0)
             val textView = TextView(activity)
             textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20.0F)
-            textView.setLayoutParams(lptv)
-            textView.setText(todoItem)
+            textView.layoutParams = lptv
+            textView.text = todoItem
             textView.setTextColor(resources.getColor(R.color.text_grey))
             textView.setPadding(30, 40, 30, 40)
             textView.setBackgroundColor(resources.getColor(R.color.lightGray_main))
@@ -68,8 +68,8 @@ class MainTabFragment : Fragment() {
             lptv.setMargins(10, 50, 10, 0)
             val textView = TextView(activity)
             textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20.0F)
-            textView.setLayoutParams(lptv)
-            textView.setText(recentItem)
+            textView.layoutParams = lptv
+            textView.text = recentItem
             //textView.setTextColor(R.color.text_grey)
             textView.setTextColor(resources.getColor(R.color.text_grey))
 

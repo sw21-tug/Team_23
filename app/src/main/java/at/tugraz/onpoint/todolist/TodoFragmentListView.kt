@@ -16,16 +16,16 @@ import at.tugraz.onpoint.database.TodoDao
 import at.tugraz.onpoint.database.getDbInstance
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
+const val EMPTY_STRING: String = " "
 
 class TodoFragmentListView : Fragment(R.layout.activity_todo_listview) {
-    val EMPTY_STRING: String = " "
-    val args: TodoFragmentListViewArgs by navArgs()
+    private val args: TodoFragmentListViewArgs by navArgs()
     var todoList = arrayListOf<Todo>()
     var todoListDone = arrayListOf<Todo>()
-    var adapter: TodoListAdapter? = null
-    var adapterDone: TodoListDoneAdapter? = null
+    private var adapter: TodoListAdapter? = null
+    private var adapterDone: TodoListDoneAdapter? = null
     val db: OnPointAppDatabase = getDbInstance(null)
-    val todoDao: TodoDao = db.getTodoDao()
+    private val todoDao: TodoDao = db.getTodoDao()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -62,7 +62,7 @@ class TodoFragmentListView : Fragment(R.layout.activity_todo_listview) {
         todoListDone.addAll(todoDao.selectAllCompleted())
     }
 
-    fun onAddButtonClick() {
+    private fun onAddButtonClick() {
         findNavController().navigate(R.id.action_todoFragmentListView_to_todoFragmentAdd)
     }
 
@@ -98,7 +98,7 @@ class TodoFragmentListView : Fragment(R.layout.activity_todo_listview) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val text = args.listItemText
-        if (text.equals(EMPTY_STRING)) {
+        if (text == EMPTY_STRING) {
             return
         }
         addItemToTodoList(text)

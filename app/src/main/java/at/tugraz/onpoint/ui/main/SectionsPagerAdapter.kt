@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package at.tugraz.onpoint.ui.main
 
 import android.content.Context
@@ -36,7 +38,7 @@ class SectionsPagerAdapter(private val context: Context, fm: FragmentManager) :
         }
     }
 
-    override fun getPageTitle(position: Int): CharSequence? {
+    override fun getPageTitle(position: Int): CharSequence {
         return context.resources.getString(TAB_TITLES[position])
     }
 

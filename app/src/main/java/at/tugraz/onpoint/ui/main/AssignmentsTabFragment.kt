@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package at.tugraz.onpoint.ui.main
 
 import android.app.AlarmManager
@@ -32,11 +34,9 @@ class AssignmentsTabFragment : Fragment() {
     private lateinit var pageViewModel: PageViewModel
     private val assignmentsList = arrayListOf<Assignment>()
     private var adapter: AssignmentsAdapter? = null
-    private var latestAssignmentId: Int = 1 // Unique ID for assignment
     val db: OnPointAppDatabase = getDbInstance(null)
-    val moodleDao: MoodleDao = db.getMoodleDao()
-    val assignmentDao: AssignmentDao = db.getAssignmentDao()
-    // TODO latestAssignmentId replaced with one obtained from the DB (auto-incrementing integer). See how the TodoList does it.
+    private val moodleDao: MoodleDao = db.getMoodleDao()
+    private val assignmentDao: AssignmentDao = db.getAssignmentDao()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,15 +78,15 @@ class AssignmentsTabFragment : Fragment() {
         return root
     }
 
-    fun syncAssignments() {
-        val moodle_api = API()
+    private fun syncAssignments() {
+        val moodleApi = API()
 
         for (account in moodleDao.selectAll()) {
-            moodle_api.setAuthority(account.apiLink)
-            moodle_api.login(account.userName, account.password) { response: Any ->
+            moodleApi.setAuthority(account.apiLink)
+            moodleApi.login(account.userName, account.password) { response: Any ->
                 run {
                     if (response is LoginSuccessData) {
-                        moodle_api.getAssignments { response: Any ->
+                        moodleApi.getAssignments { response: Any ->
                             run {
                                 if (response is AssignmentError) {
                                     println(response.message)
@@ -94,7 +94,7 @@ class AssignmentsTabFragment : Fragment() {
                                 if (response is AssignmentResponse) {
                                     addAssignmentsFromMoodle(
                                         response.courses,
-                                        moodle_api.getAuthority()
+                                        moodleApi.getAuthority()
                                     )
                                 }
                             }
@@ -109,7 +109,7 @@ class AssignmentsTabFragment : Fragment() {
 
     }
 
-    fun addAssignmentsFromMoodle(courses: List<Course>, apiLink: String) {
+    private fun addAssignmentsFromMoodle(courses: List<Course>, apiLink: String) {
         for (course in courses) {
             for (moodle_ass in course.assignments) {
                 val link: String =
@@ -217,7 +217,7 @@ data class Assignment(
     }
 
     fun getDeadlineDate(): Date {
-        return Date(deadlineUnixTime * 1000);
+        return Date(deadlineUnixTime * 1000)
     }
 
     fun getLinksAsUrls(): List<URL> {

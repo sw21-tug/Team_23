@@ -22,14 +22,12 @@ class TodoListAdapter(
      */
     class ViewHolder(view: View, private val fragment: TodoFragmentListView) :
         RecyclerView.ViewHolder(view) {
-        val textView: TextView
-        val button: Button
+        val textView: TextView = view.findViewById(R.id.todo_list_active_textview)
+        val button: Button = view.findViewById(R.id.todo_check_button)
         lateinit var todo: Todo
 
         init {
             // Define click listener for the ViewHolder's View.
-            textView = view.findViewById(R.id.todo_list_active_textview)
-            button = view.findViewById(R.id.todo_check_button)
             button.setOnClickListener { checkItem() }
         }
 

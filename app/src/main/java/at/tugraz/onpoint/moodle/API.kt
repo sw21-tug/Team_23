@@ -7,8 +7,8 @@ import com.github.kittinunf.result.Result
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 
-data class LoginErrorData(val error: String, val errorcode: String);
-data class LoginSuccessData(val token: String, val privatetoken: String);
+data class LoginErrorData(val error: String, val errorcode: String)
+data class LoginSuccessData(val token: String, val privatetoken: String)
 
 data class AssignmentError(val exception: String, val errorcode: String, val message: String)
 data class Assignment(
@@ -53,18 +53,17 @@ open class API {
         password: String,
         crossinline onResponse: (data: T) -> Unit = {}
     ) {
-        val service: String = "moodle_mobile_app"
+        val service = "moodle_mobile_app"
         val parameters = mapOf("service" to service, "username" to username, "password" to password)
         request("login/token.php", parameters, { data: String ->
             val jsonObject = Gson().fromJson(data, JsonObject::class.java)
             if (jsonObject.has("errorcode")) {
                 val callbackObject = Gson().fromJson(data, LoginErrorData::class.java)
-                onResponse(callbackObject as T);
+                onResponse(callbackObject as T)
             } else {
                 val loginSuccessData = Gson().fromJson(data, LoginSuccessData::class.java)
                 this.token = loginSuccessData.token
-                val callbackObject = loginSuccessData
-                onResponse(callbackObject as T);
+                onResponse(loginSuccessData as T)
             }
         }, {
             onResponse(false as T)
@@ -77,7 +76,7 @@ open class API {
         onSuccess: (data: String) -> Unit = {},
         onError: (error: FuelError) -> Unit = {}
     ) {
-        val builder = Uri.Builder();
+        val builder = Uri.Builder()
         builder.scheme(scheme).authority(authority).path(path)
         query_params.forEach { (key: String, value: String) ->
             builder.appendQueryParameter(
@@ -85,15 +84,15 @@ open class API {
                 value
             )
         }
-        val request_url: String = builder.build().toString()
-        request_url.httpGet().responseString { _, _, result ->
+        val requestUrl: String = builder.build().toString()
+        requestUrl.httpGet().responseString { _, _, result ->
             when (result) {
                 is Result.Failure -> {
-                    onError(result.error);
+                    onError(result.error)
                 }
                 is Result.Success -> {
-                    val data = result.get();
-                    onSuccess(data);
+                    val data = result.get()
+                    onSuccess(data)
                 }
             }
         }

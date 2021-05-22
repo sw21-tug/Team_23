@@ -20,15 +20,9 @@ import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.Fragment
 import at.tugraz.onpoint.R
 import java.util.*
 
-/**
- * A simple [Fragment] subclass for the details of an assignment displayed within a Dialog.
- * Use the [AssignmentDetailsFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class AssignmentDetailsFragment(val assignment: Assignment) :
     DialogFragment(R.layout.fragment_assignment_details) {
     override fun onCreateView(
@@ -53,7 +47,7 @@ class AssignmentDetailsFragment(val assignment: Assignment) :
             view.findViewById<TextView>(R.id.assignmentsListDetailsLinks).text =
                 assignment.linksToMultiLineString()
             // Add-to-calendar button
-            val button: Button = view.findViewById<Button>(R.id.addMeToCalendar)
+            val button: Button = view.findViewById(R.id.addMeToCalendar)
             button.setOnClickListener { addDeadlineToCalendar(assignment) }
             dialogBuilder.setView(view)
             dialogBuilder.setTitle(assignment.title)
@@ -75,7 +69,7 @@ class AssignmentDetailsFragment(val assignment: Assignment) :
         } ?: throw IllegalStateException("Activity cannot be null")
     }
 
-    fun addDeadlineToCalendar(assignment: Assignment) {
+    private fun addDeadlineToCalendar(assignment: Assignment) {
         context?.let {
             if (ContextCompat.checkSelfPermission(
                     it,
@@ -88,23 +82,23 @@ class AssignmentDetailsFragment(val assignment: Assignment) :
                     1
                 )
             } else {
-                val cont_res: ContentResolver = context?.contentResolver!!
-
+                val contRes: ContentResolver = context?.contentResolver!!
                 val projection = arrayOf(
                     CalendarContract.Calendars._ID,
                     CalendarContract.Calendars.CALENDAR_DISPLAY_NAME
                 )
-                val calCursor: Cursor? = cont_res.query(
+                val calCursor: Cursor? = contRes.query(
                     CalendarContract.Calendars.CONTENT_URI,
                     projection,
                     CalendarContract.Calendars.VISIBLE + " = 1 AND " + CalendarContract.Calendars.IS_PRIMARY + " = 1",
                     null,
                     CalendarContract.Calendars._ID + " ASC"
-                );
+                )
                 var id = 0L
                 if (calCursor != null && calCursor.moveToFirst()) {
                     val calIdCol = calCursor.getColumnIndex(projection[0])
                     id = calCursor.getLong(calIdCol)
+                    calCursor.close()
                 }
                 val cal = Calendar.getInstance()
                 cal.time = assignment.getDeadlineDate()
@@ -119,9 +113,8 @@ class AssignmentDetailsFragment(val assignment: Assignment) :
                     put(CalendarContract.Events.CALENDAR_ID, id)
                     put(CalendarContract.Events.EVENT_TIMEZONE, TimeZone.getDefault().id)
                 }
-                val uri: Uri? = cont_res.insert(CalendarContract.Events.CONTENT_URI, values)
-                val intent = Intent(Intent.ACTION_VIEW)
-                    .setData(uri)
+                val uri: Uri? = contRes.insert(CalendarContract.Events.CONTENT_URI, values)
+                val intent = Intent(Intent.ACTION_VIEW).setData(uri)
                 startActivity(intent)
             }
         }

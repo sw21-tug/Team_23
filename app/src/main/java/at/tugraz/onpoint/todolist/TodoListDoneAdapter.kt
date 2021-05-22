@@ -23,13 +23,12 @@ class TodoListDoneAdapter(
      */
     class ViewHolder(view: View, private val fragment: TodoFragmentListView) :
         RecyclerView.ViewHolder(view) {
-        val textView: TextView
+        val textView: TextView = view.findViewById(R.id.todo_list_inactive_textview)
         val button: Button
         lateinit var todo: Todo
 
         init {
             // Define click listener for the ViewHolder's View.
-            textView = view.findViewById(R.id.todo_list_inactive_textview)
             textView.paintFlags = textView.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
             button = view.findViewById(R.id.todo_delete_button)
             button.setOnClickListener { deleteItem() }

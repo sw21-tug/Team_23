@@ -55,7 +55,7 @@ class MainTabbedActivity : AppCompatActivity() {
         }
     }
 
-    fun onSidebarItemClick(menuItem: MenuItem): Boolean {
+    private fun onSidebarItemClick(menuItem: MenuItem): Boolean {
         if (menuItem.itemId == R.id.add_university_drawable_bar) {
             val fragment = UniversityLoginFragment()
             fragment.show(supportFragmentManager, null)
@@ -90,7 +90,7 @@ class MainTabbedActivity : AppCompatActivity() {
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    fun onLanguageSwitch() {
+    private fun onLanguageSwitch() {
         val sharedPref = getSharedPreferences("Settings", Context.MODE_PRIVATE)
         val currentLocal: String = sharedPref.getString("locale_to_set", "")!!
         val languagehandler = LanguageHandler()
