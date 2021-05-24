@@ -46,22 +46,16 @@ class AssignmentDetailsFragment(val assignment: Assignment) : DialogFragment(R.l
             view.findViewById<TextView>(R.id.assignmentsListDetailsDescription).text =
                 assignment.description
             view.findViewById<TextView>(R.id.assignmentsListDetailsDeadline).text =
-                getString(R.string.assignment_dialog_deadline).plus(assignment.deadline.toString())
+                getString(R.string.assignment_dialog_deadline).plus(assignment.getDeadlineDate().toString())
             view.findViewById<TextView>(R.id.assignmentsListDetailsLinks).text =
                 assignment.linksToMultiLineString()
-
-            ////////////////////////// FOR Add To Calendar ///////////////////////////7
-
+            // Add-to-calendar button
             val button: Button =  view.findViewById<Button>(R.id.addMeToCalendar)
             button.setOnClickListener { view: View ->
                 addDeadlineToCalendar(
                     assignment
                 )
             }
-
-            ////////////////////////// FOR Add To Calendar ///////////////////////////7
-
-
             dialogBuilder.setView(view)
             dialogBuilder.setTitle(assignment.title)
             dialogBuilder.setNegativeButton(
@@ -76,10 +70,7 @@ class AssignmentDetailsFragment(val assignment: Assignment) : DialogFragment(R.l
                 //display the dialog to set time for notification
                 val fragment = AssignmentSetDateDialog(assignment)
                 fragment.show(parentFragmentManager, null)
-
             }
-
-
             // Create the AlertDialog object and return it
             dialogBuilder.create()
         } ?: throw IllegalStateException("Activity cannot be null")
@@ -106,7 +97,7 @@ class AssignmentDetailsFragment(val assignment: Assignment) : DialogFragment(R.l
                 }
 
                 val cal = Calendar.getInstance()
-                cal.time = assignment.deadline
+                cal.time = assignment.getDeadlineDate()
                 val end = cal.timeInMillis
                 cal.timeInMillis = cal.timeInMillis - (1000 * 3600)
                 val start = cal.timeInMillis
