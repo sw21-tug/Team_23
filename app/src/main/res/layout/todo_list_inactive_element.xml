@@ -33,7 +33,6 @@
         android:layout_marginBottom="8dp"
         android:background="@color/purple_700"
         android:drawableStart="@android:drawable/ic_delete"
-        android:onClick="deleteItem"
         android:paddingLeft="15dp"
         android:paddingRight="15dp"
         app:layout_constraintBottom_toBottomOf="parent"

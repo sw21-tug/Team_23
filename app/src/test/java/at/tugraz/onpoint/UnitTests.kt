@@ -16,23 +16,17 @@ import at.tugraz.onpoint.ui.main.AssignmentsTabFragment
  */
 
 class UnitTests {
-    val atf: AssignmentsTabFragment = AssignmentsTabFragment()
+   // val atf: AssignmentsTabFragment = AssignmentsTabFragment()
     @Test
     fun checkFilter() {
 
         val test_input: MutableList<Assignment> = ArrayList()
-        val a1 : Assignment = Assignment("Title 1", "description", Date(1000000000000),                     arrayListOf<URL>(
-            URL("https://www.tugraz.at"),
-            URL("https://tc.tugraz.at"),
-        ), 1)
+        val a1 : Assignment = Assignment("Title 1", "description",1000000000000,                    "https://www.tugraz.at https://tc.tugraz.at", 1)
 
-        val a2 : Assignment = Assignment("Title 2", "description", Date(1000000000000),                     arrayListOf<URL>(
-            URL("https://www.tugraz.at"),
-            URL("https://tc.tugraz.at"),
-        ), 2)
+        val a2 : Assignment = Assignment("Title 2", "description", 1000000000000,     "https://www.tugraz.at https://tc.tugraz.at", 2)
         test_input.add(a1)
         test_input.add(a2)
-        assertEquals(1, atf.filter(test_input, "Title 1")?.size)
+        assertEquals(1, AssignmentsTabFragment.filter(test_input, "Title 1")?.size)
 
 
     }

@@ -2,12 +2,25 @@ package at.tugraz.onpoint.database
 
 import android.content.Context
 import androidx.room.*
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
+import at.tugraz.onpoint.ui.main.Assignment
+import java.net.URL
 import java.util.*
 
+// https://developer.android.com/reference/android/arch/persistence/room/ColumnInfo
+val MIGRATION_1_2: Migration = object : Migration(1, 2) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("CREATE TABLE IF NOT EXISTS `assignment` (`title` TEXT NOT NULL, `description` TEXT NOT NULL, `deadline` INTEGER NOT NULL, `links` TEXT NOT NULL, `uid` INTEGER PRIMARY KEY AUTOINCREMENT, `moodle_id` INTEGER)")
+        database.execSQL("CREATE TABLE IF NOT EXISTS `moodle` (`universityName` TEXT NOT NULL, `userName` TEXT NOT NULL, `password` TEXT NOT NULL, `apiLink` TEXT NOT NULL, `uid` INTEGER PRIMARY KEY AUTOINCREMENT)")
+    }
+}
 
-@Database(entities = [Todo::class], version = 1)
+@Database(entities = [Todo::class, Assignment::class, Moodle::class], version = 2, exportSchema = true)
 abstract class OnPointAppDatabase : RoomDatabase() {
     abstract fun getTodoDao(): TodoDao
+    abstract fun getMoodleDao(): MoodleDao
+    abstract fun getAssignmentDao() : AssignmentDao
 }
 
 @Entity
@@ -75,6 +88,60 @@ interface TodoDao {
     fun deleteAll()
 }
 
+@Dao
+interface AssignmentDao {
+    @Query("SELECT * FROM assignment ORDER BY deadline ASC")
+    fun selectAll(): List<Assignment>
+
+    @Query("SELECT * FROM assignment WHERE uid = (:uid)")
+    fun selectOne(uid: Long): Assignment
+
+    @Query("INSERT INTO assignment (title, description, deadline, links, moodle_id) VALUES (:title, :description, :deadline, :links, :moodleId)")
+    fun insertOneRaw(title: String, description: String, deadline : Long, links : String, moodleId : Int?): Long
+
+    fun insertOneFromMoodle(title: String, description: String, deadline : Date, links : List<URL>? = null, moodleId : Int) : Long {
+        // TODO consider stripping the HTML from the description here, to get unformatted text
+        return insertOneRaw(title, description, Assignment.convertDeadlineDate(deadline), Assignment.encodeLinks(links?: arrayListOf<URL>()), moodleId)
+    }
+
+    fun insertOneCustom(title: String, description: String, deadline : Date, links : List<URL>? = null) : Long {
+        return insertOneRaw(title, description, Assignment.convertDeadlineDate(deadline), Assignment.encodeLinks(links ?: arrayListOf<URL>()), null)
+    }
+
+    @Query("DELETE FROM assignment")
+    fun deleteAll()
+}
+
+@Entity
+data class Moodle(
+    @PrimaryKey(autoGenerate = true)
+    val uid: Int = -1,
+
+    @ColumnInfo(name = "universityName")
+    var universityName: String,
+
+    @ColumnInfo(name = "userName")
+    var userName: String,
+
+    @ColumnInfo(name = "password")
+    var password: String,
+
+    @ColumnInfo(name = "apiLink")
+    var apiLink: String,
+) {}
+
+@Dao
+interface MoodleDao {
+    @Query("SELECT * FROM moodle")
+    fun selectAll(): List<Moodle>
+
+    @Query("SELECT * FROM moodle WHERE uid = (:uid)")
+    fun selectOne(uid: Long): Moodle
+
+    @Query("INSERT INTO moodle (universityName, userName, password, apiLink) VALUES (:universityName, :userName, :password, :apiLink)")
+    fun insertOne(universityName: String, userName: String, password: String, apiLink: String): Long
+}
+
 var INSTANCE: OnPointAppDatabase? = null
 
 fun getDbInstance(context: Context?): OnPointAppDatabase {
@@ -82,7 +149,7 @@ fun getDbInstance(context: Context?): OnPointAppDatabase {
         val builder = Room.databaseBuilder(
             context!!,
             OnPointAppDatabase::class.java,
-            "OnPointDb_v1"
+            "OnPointDb_v2"
         )
         // DB queries in the main thread need to be allowed explicitly to avoid a compilation error.
         // By default IO operations should be delegated to a background thread to avoid the UI
@@ -90,12 +157,8 @@ fun getDbInstance(context: Context?): OnPointAppDatabase {
         // We have very fast IO operations (small updates) and introducing background threads
         // and async queries is a pain for what we need to achieve.
         builder.allowMainThreadQueries()
+        builder.addMigrations(MIGRATION_1_2)
         INSTANCE = builder.build()
     }
     return INSTANCE as OnPointAppDatabase
 }
-
-// TODO ideas:
-// - isExpired() method to the Todo class
-// - pre-populate the DB with 2 dummy tasks
-// - select the tasks sorted by creation date (ORDER BY deadlineTs, creationTs)
