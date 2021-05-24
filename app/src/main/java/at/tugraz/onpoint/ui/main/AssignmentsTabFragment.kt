@@ -153,6 +153,8 @@ class AssignmentsTabFragment : Fragment() {
     /**
      * Appends an assignment as received from Moodle, refreshing the recycler view and the
      * notifications for the deadlines.
+     * */
+
     private fun addAssignmentFromMoodleToAssignmentList(
         title: String, description: String, deadline: Date, links: List<URL>? = null, moodleId: Int
     ) {
@@ -163,7 +165,6 @@ class AssignmentsTabFragment : Fragment() {
         completeState.add(assignment)
         adapter?.notifyDataSetChanged()
     }
-     */
 
 
     /**

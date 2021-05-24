@@ -262,8 +262,6 @@ class AssignmentsListInstrumentedTest {
             .check(matches(isDisplayed()))
         onView(withId(R.id.addMeToCalendar))
             .check(matches(isDisplayed()))
-
-
     }
 
     @Test
