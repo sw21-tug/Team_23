@@ -12,12 +12,14 @@ import java.util.*
 val MIGRATION_1_2: Migration = object : Migration(1, 2) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.execSQL("CREATE TABLE IF NOT EXISTS `assignment` (`title` TEXT NOT NULL, `description` TEXT NOT NULL, `deadline` INTEGER NOT NULL, `links` TEXT NOT NULL, `uid` INTEGER PRIMARY KEY AUTOINCREMENT, `moodle_id` INTEGER)")
+        database.execSQL("CREATE TABLE IF NOT EXISTS `moodle` (`universityName` TEXT NOT NULL, `userName` TEXT NOT NULL, `password` TEXT NOT NULL, `apiLink` TEXT NOT NULL, `uid` INTEGER PRIMARY KEY AUTOINCREMENT)")
     }
 }
 
-@Database(entities = [Todo::class, Assignment::class], version = 2, exportSchema = true)
+@Database(entities = [Todo::class, Assignment::class, Moodle::class], version = 2, exportSchema = true)
 abstract class OnPointAppDatabase : RoomDatabase() {
     abstract fun getTodoDao(): TodoDao
+    abstract fun getMoodleDao(): MoodleDao
     abstract fun getAssignmentDao() : AssignmentDao
 }
 
@@ -110,6 +112,36 @@ interface AssignmentDao {
     fun deleteAll()
 }
 
+@Entity
+data class Moodle(
+    @PrimaryKey(autoGenerate = true)
+    val uid: Int = -1,
+
+    @ColumnInfo(name = "universityName")
+    var universityName: String,
+
+    @ColumnInfo(name = "userName")
+    var userName: String,
+
+    @ColumnInfo(name = "password")
+    var password: String,
+
+    @ColumnInfo(name = "apiLink")
+    var apiLink: String,
+) {}
+
+@Dao
+interface MoodleDao {
+    @Query("SELECT * FROM moodle")
+    fun selectAll(): List<Moodle>
+
+    @Query("SELECT * FROM moodle WHERE uid = (:uid)")
+    fun selectOne(uid: Long): Moodle
+
+    @Query("INSERT INTO moodle (universityName, userName, password, apiLink) VALUES (:universityName, :userName, :password, :apiLink)")
+    fun insertOne(universityName: String, userName: String, password: String, apiLink: String): Long
+}
+
 var INSTANCE: OnPointAppDatabase? = null
 
 fun getDbInstance(context: Context?): OnPointAppDatabase {
@@ -117,7 +149,7 @@ fun getDbInstance(context: Context?): OnPointAppDatabase {
         val builder = Room.databaseBuilder(
             context!!,
             OnPointAppDatabase::class.java,
-            "OnPointDb_v1"
+            "OnPointDb_v2"
         )
         // DB queries in the main thread need to be allowed explicitly to avoid a compilation error.
         // By default IO operations should be delegated to a background thread to avoid the UI

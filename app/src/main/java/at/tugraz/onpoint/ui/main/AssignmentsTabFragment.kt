@@ -4,11 +4,14 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
@@ -18,8 +21,11 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import at.tugraz.onpoint.R
-import at.tugraz.onpoint.database.AssignmentDao
+import at.tugraz.onpoint.database.MoodleDao
 import at.tugraz.onpoint.database.OnPointAppDatabase
+import at.tugraz.onpoint.database.getDbInstance
+import at.tugraz.onpoint.moodle.*
+import at.tugraz.onpoint.database.AssignmentDao
 import at.tugraz.onpoint.database.TodoDao
 import at.tugraz.onpoint.database.getDbInstance
 import java.net.URL
@@ -30,8 +36,11 @@ class AssignmentsTabFragment : Fragment() {
     private lateinit var pageViewModel: PageViewModel
     private val assignmentsList = arrayListOf<Assignment>()
     private var adapter: AssignmentsAdapter? = null
+    private var latestAssignmentId: Int = 1 // Unique ID for assignment
     val db: OnPointAppDatabase = getDbInstance(null)
+    val moodleDao: MoodleDao = db.getMoodleDao()
     val assignmentDao: AssignmentDao = db.getAssignmentDao()
+    // TODO latestAssignmentId replaced with one obtained from the DB (auto-incrementing integer). See how the TodoList does it.
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +56,7 @@ class AssignmentsTabFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_assignments, container, false)
+        root.findViewById<Button>(R.id.assignment_sync_assignments).setOnClickListener { syncAssignments() }
         // TODO replace with assignments obtained from the Moodle API on startup
         // List of dummy assignments, inserted only the first time
         if (assignmentsList.isEmpty()) {
@@ -70,6 +80,47 @@ class AssignmentsTabFragment : Fragment() {
         adapter?.notifyDataSetChanged()
         return root
     }
+
+    fun syncAssignments() {
+        val moodle_api = API()
+
+        for(account in moodleDao.selectAll()) {
+            moodle_api.setAuthority(account.apiLink)
+            moodle_api.login(account.userName, account.password) { response: Any -> run {
+                if (response is LoginSuccessData) {
+                    moodle_api.getAssignments{ response: Any -> run {
+                        if(response is AssignmentError) {
+                            println(response.message)
+                        }
+                        if(response is AssignmentResponse) {
+                            addAssignmentsFromMoodle(response.courses, moodle_api.getAuthority())
+                        }
+                    } }
+                }
+                if (response is LoginErrorData) {
+                    println(response.error)
+                }
+            }
+            }
+        }
+
+    }
+
+    fun addAssignmentsFromMoodle(courses: List<Course>, apiLink: String) {
+        for(course in courses) {
+            for(moodle_ass in course.assignments){
+                var assignment : Assignment
+
+                val link : String = "https://" + apiLink + "/mod/assign/view.php?id=" + moodle_ass.cmid.toString()
+                var link_list : List<URL>
+
+                assignment = Assignment(moodle_ass.name, moodle_ass.intro, moodle_ass.duedate, link, moodle_ass.id)
+                addAssignmentCustomToAssignmentList(assignment.title, assignment.description, assignment.getDeadlineDate(), assignment.getLinksAsUrls())
+            }
+        }
+    }
+
+
 
     /**
      * Appends an assignment as received from Moodle, refreshing the recycler view and the

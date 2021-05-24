@@ -35,5 +35,13 @@
     <string name="CHANNEL_ID" translatable="false">OnPointChannel</string>
     <string name="assignment_notification_title" >OnPoint Assignment Due</string>
     <string name="set_reminder">Set Reminder</string>
+    <string name="university_label_api">API Link</string>
+    <string name="university_label_username">Username</string>
+    <string name="university_label_password">Password</string>
+    <string name="university_label_login">Add</string>
+    <string name="university_login_name">Name of the university</string>
+    <string name="assignment_sync_now">Sync Now</string>
+    <string name="university_login_successful">Login successful</string>
+    <string name="university_login_failed">Login failed</string>
 
 </resources>
