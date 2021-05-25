@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import at.tugraz.onpoint.R
@@ -46,9 +47,9 @@ class MainTabFragment : Fragment() {
             textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20.0F)
             textView.layoutParams = lptv
             textView.text = todoItem
-            textView.setTextColor(resources.getColor(R.color.text_grey))
+            textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_grey))
             textView.setPadding(30, 40, 30, 40)
-            textView.setBackgroundColor(resources.getColor(R.color.lightGray_main))
+            textView.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.lightGray_main))
             textView.gravity = Gravity.CENTER
 
             // textView.textAlignment =
@@ -71,10 +72,10 @@ class MainTabFragment : Fragment() {
             textView.layoutParams = lptv
             textView.text = recentItem
             //textView.setTextColor(R.color.text_grey)
-            textView.setTextColor(resources.getColor(R.color.text_grey))
+            textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_grey))
 
             textView.setPadding(30, 40, 30, 40)
-            textView.setBackgroundColor(resources.getColor(R.color.lightGray_main))
+            textView.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.lightGray_main))
             textView.gravity = Gravity.CENTER
 
             recentLayout.addView(textView)
