@@ -25,12 +25,10 @@ class LanguageHandler {
             val localeListToSet =
                 LocaleList(Locale(localeToSet))
             LocaleList.setDefault(localeListToSet)
-            context.resources.configuration.setLocales(localeListToSet)
-            context.resources.updateConfiguration(
-                context.resources.configuration,
-                context.resources.displayMetrics
-            )
-            setLanguageToSettings(context, localeToSet)
+            val overrideConfiguration = context.resources.configuration
+            overrideConfiguration.setLocales(localeListToSet)
+            val updatedContext: Context = context.createConfigurationContext(overrideConfiguration)
+            setLanguageToSettings(updatedContext, localeToSet)
         } else {
             TODO("VERSION.SDK_INT < N")
         }
