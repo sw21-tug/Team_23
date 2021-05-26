@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.SearchView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -28,15 +29,18 @@ import at.tugraz.onpoint.database.getDbInstance
 import at.tugraz.onpoint.moodle.*
 import java.net.URL
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class AssignmentsTabFragment : Fragment() {
     private lateinit var pageViewModel: PageViewModel
-    private val assignmentsList = arrayListOf<Assignment>()
+    private var assignmentsList = arrayListOf<Assignment>()
+    private var completeState = arrayListOf<Assignment>()
     private var adapter: AssignmentsAdapter? = null
     val db: OnPointAppDatabase = getDbInstance(null)
     private val moodleDao: MoodleDao = db.getMoodleDao()
     private val assignmentDao: AssignmentDao = db.getAssignmentDao()
+    // TODO latestAssignmentId replaced with one obtained from the DB (auto-incrementing integer). See how the TodoList does it.
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,7 +78,32 @@ class AssignmentsTabFragment : Fragment() {
         adapter =
             this.context?.let { AssignmentsAdapter(assignmentsList, it, parentFragmentManager) }
         assignmentsRecView.adapter = this.adapter
-        adapter?.notifyDataSetChanged()
+
+        val searchView: SearchView = root.findViewById(R.id.assignment_searchview)
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextChange(newText: String?): Boolean {
+                if (newText != null) {
+                    val temp = completeState.toMutableList()
+                    assignmentsList.clear()
+                    assignmentsList.addAll(filter(temp, newText) as ArrayList<Assignment>)
+                    adapter!!.notifyDataSetChanged()
+                    return true
+                }
+                return false
+            }
+
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                if (query != null) {
+                    val temp = completeState.toMutableList()
+                    assignmentsList.clear()
+                    assignmentsList.addAll(filter(temp, query) as ArrayList<Assignment>)
+                    adapter!!.notifyDataSetChanged()
+                    return true
+                }
+                return false
+            }
+        })
+
         return root
     }
 
@@ -143,6 +172,7 @@ class AssignmentsTabFragment : Fragment() {
             assignmentDao.insertOneFromMoodle(title, description, deadline, links, moodleId)
         val assignment = assignmentDao.selectOne(uid)
         assignmentsList.add(assignment)
+        completeState.add(assignment)
         adapter?.notifyDataSetChanged()
     }
 
@@ -156,6 +186,7 @@ class AssignmentsTabFragment : Fragment() {
         val uid: Long = assignmentDao.insertOneCustom(title, description, deadline, links)
         val assignment = assignmentDao.selectOne(uid)
         assignmentsList.add(assignment)
+        completeState.add(assignment)
         adapter?.notifyDataSetChanged()
     }
 
@@ -165,6 +196,19 @@ class AssignmentsTabFragment : Fragment() {
          * fragment.
          */
         private const val ARG_SECTION_NUMBER = "section_number"
+
+
+        fun filter(assignments: List<Assignment>, search: String): List<Assignment> {
+            val lowerCaseQuery = search.toLowerCase(Locale.ROOT)
+            val found: MutableList<Assignment> = ArrayList()
+            for (assi in assignments) {
+                val text = assi.title.toLowerCase(Locale.ROOT)
+                if (text.contains(lowerCaseQuery)) {
+                    found.add(assi)
+                }
+            }
+            return found
+        }
 
         /**
          * Returns a new instance of this fragment for the given section

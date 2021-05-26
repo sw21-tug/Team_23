@@ -49,7 +49,12 @@ class MainTabFragment : Fragment() {
             textView.text = todoItem
             textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_grey))
             textView.setPadding(30, 40, 30, 40)
-            textView.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.lightGray_main))
+            textView.setBackgroundColor(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.lightGray_main
+                )
+            )
             textView.gravity = Gravity.CENTER
 
             // textView.textAlignment =
@@ -75,7 +80,12 @@ class MainTabFragment : Fragment() {
             textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_grey))
 
             textView.setPadding(30, 40, 30, 40)
-            textView.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.lightGray_main))
+            textView.setBackgroundColor(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.lightGray_main
+                )
+            )
             textView.gravity = Gravity.CENTER
 
             recentLayout.addView(textView)
