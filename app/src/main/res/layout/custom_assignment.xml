@@ -16,7 +16,7 @@
             android:id="@+id/custom_assignment_title_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Title" />
+            android:hint="@string/custom_assignment_title_input" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -28,7 +28,7 @@
             android:id="@+id/custom_assignment_description_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Description" />
+            android:hint="@string/custom_assignmnet_description_input" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
