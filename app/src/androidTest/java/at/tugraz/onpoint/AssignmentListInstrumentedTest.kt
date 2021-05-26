@@ -334,5 +334,39 @@ class AssignmentsListInstrumentedTest {
         onView(withText("Assign.")).perform(click())
         onView(withId(R.id.assignmentListDone)).check(matches(isDisplayed()))
     }
+
+    @Test
+    fun clickDoneButtonDialogCloses(){
+        launchActivity<MainTabbedActivity>()
+        onView(withText("Assign.")).perform(click())
+        onView(withId(R.id.assignmentsList))
+            .perform(
+                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
+                    3,
+                    click()
+                )
+            )
+        onView(withId(R.id.assignmentsListDetailsDoneButton))
+            .perform(click())
+        onView(withId(R.id.assignmentListDone))
+            .check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun clickDoneButtonDoneListContainsAssignment(){
+        launchActivity<MainTabbedActivity>()
+        onView(withText("Assign.")).perform(click())
+        onView(withId(R.id.assignmentsList))
+            .perform(
+                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
+                    3,
+                    click()
+                )
+            )
+        onView(withId(R.id.assignmentsListDetailsDoneButton))
+            .perform(click())
+        onView(withId(R.id.assignmentListDone))
+            .check(matches(hasDescendant(withText("Dummy Assignment 3"))))
+    }
 }
 
