@@ -54,7 +54,11 @@ class AssignmentDetailsFragment(val assignment: Assignment) :
             val button: Button = view.findViewById(R.id.addMeToCalendar)
             button.setOnClickListener { addDeadlineToCalendar(assignment) }
             val done_button: Button = view.findViewById(R.id.assignmentsListDetailsDoneButton)
-            done_button.setOnClickListener { onAssignmentDone() }
+            if(assignment.done == 0) {
+                done_button.setOnClickListener { onAssignmentDone() }
+            } else {
+                done_button.visibility = View.INVISIBLE
+            }
             dialogBuilder.setView(view)
             dialogBuilder.setTitle(assignment.title)
             dialogBuilder.setNegativeButton(
@@ -77,9 +81,11 @@ class AssignmentDetailsFragment(val assignment: Assignment) :
     }
 
     fun onAssignmentDone() {
-        isAssignmentDone = true;
-        onDoneButtonClicked();
-        alertDialog.dismiss()
+        if(assignment.done == 0) {
+            isAssignmentDone = true;
+            onDoneButtonClicked();
+            alertDialog.dismiss()
+        }
     }
 
     private fun addDeadlineToCalendar(assignment: Assignment) {
