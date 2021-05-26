@@ -19,26 +19,26 @@ import org.junit.runner.RunWith
 
 
 @RunWith(AndroidJUnit4::class)
-class HomeScreenTest{
+class HomeScreenTest {
 
 
     //source functional item: https://stackoverflow.com/questions/28742495/testing-background-color-espresso-android
-    fun matchesBackgroundColor(expectedResourceId: Int): Matcher<View?>? {
+    private fun matchesBackgroundColor(expectedResourceId: Int): Matcher<View?> {
         return object : BoundedMatcher<View?, View>(View::class.java) {
             var actualColor = 0
             var expectedColor = 0
             var message: String? = null
             override fun matchesSafely(item: View): Boolean {
-                if (item.getBackground() == null) {
-                    message = item.getId().toString() + " does not have a background"
+                if (item.background == null) {
+                    message = item.id.toString() + " does not have a background"
                     return false
                 }
-                val resources: Resources = item.getContext().getResources()
+                val resources: Resources = item.context.resources
                 expectedColor = ResourcesCompat.getColor(resources, expectedResourceId, null)
                 actualColor = try {
-                    (item.getBackground() as ColorDrawable).color
+                    (item.background as ColorDrawable).color
                 } catch (e: Exception) {
-                    (item.getBackground() as GradientDrawable).color!!.defaultColor
+                    (item.background as GradientDrawable).color!!.defaultColor
                 } finally {
                 }
                 return actualColor == expectedColor
@@ -47,7 +47,10 @@ class HomeScreenTest{
             override fun describeTo(description: Description) {
                 if (actualColor != 0) {
                     message = ("Background color did not match: Expected "
-                        + String.format("#%06X", 0xFFFFFF and expectedColor) + " was " + String.format("#%06X", 0xFFFFFF and actualColor))
+                        + String.format(
+                        "#%06X",
+                        0xFFFFFF and expectedColor
+                    ) + " was " + String.format("#%06X", 0xFFFFFF and actualColor))
                 }
                 description.appendText(message)
             }
@@ -70,31 +73,32 @@ class HomeScreenTest{
     //source end
 
     @Rule
-    @JvmField var activityRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java)
+    @JvmField
+    var activityRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java)
 
 
     @Test
-    fun todo_exists(){
+    fun todo_exists() {
         onView(withId(R.id.homescreen_todo_id)).check(matches(isDisplayed()))
     }
 
     @Test
-    fun recent_exists(){
+    fun recent_exists() {
         onView(withId(R.id.homescreen_recent_id)).check(matches(isDisplayed()))
     }
 
     @Test
-    fun todo_list_exists(){
+    fun todo_list_exists() {
         onView(withId(R.id.homescreen_todo_list_id)).check(matches(isDisplayed()))
     }
 
     @Test
-    fun background_color(){
+    fun background_color() {
         onView(withId(R.id.todo_linear_layout)).check(matches(matchesBackgroundColor(R.color.darkGray_main)))
     }
 
     @Test
-    fun item_design(){
+    fun item_design() {
 
         onView(withId(R.id.homescreen_recent_heading_id)).check(matches(hasTextColor(R.color.black)))
         onView(withId(R.id.homescreen_todo_heading_id)).check(matches(hasTextColor(R.color.black)))

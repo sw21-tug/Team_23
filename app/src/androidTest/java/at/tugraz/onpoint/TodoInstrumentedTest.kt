@@ -11,7 +11,6 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
@@ -58,7 +57,7 @@ class TodoInstrumentedTest {
         launchActivity<MainTabbedActivity>()
         val persistentDb = getDbInstance(null) // Already created singleton in line above
         persistentDb.clearAllTables()
-        onView(withText("Todo")).perform(ViewActions.click()) // Select To-do tab
+        onView(withText("Todo")).perform(click()) // Select To-do tab
     }
 
     @After
@@ -256,11 +255,11 @@ class TodoInstrumentedTest {
 
     @Test
     fun todoObjectConvertsUnixTimeToJavaObject() {
-        val timestamp = Date();
+        val timestamp = Date()
         val uid = todoDao.insertNew("Buy some carrots")
         val todo = todoDao.selectOne(uid)
-        assert(todo.creationDateTime().before(Date(timestamp.getTime() + 10000)))
-        assert(todo.creationDateTime().after(Date(timestamp.getTime() - 10000)))
+        assert(todo.creationDateTime().before(Date(timestamp.time + 10000)))
+        assert(todo.creationDateTime().after(Date(timestamp.time - 10000)))
         assertThat(todo.expirationDateTime(), equalTo(null)) // When null
         todo.expirationUnixTime = todo.creationUnixTime + 10
         assert(timestamp.before(todo.expirationDateTime())) // When not-null
@@ -280,7 +279,7 @@ class TodoInstrumentedTest {
         pressBackUnconditionally()
         activityRule.finishActivity()
         activityRule.launchActivity(Intent()) // Restarts at the main activity
-        onView(withText("Todo")).perform(ViewActions.click()) // Select To-do tab
+        onView(withText("Todo")).perform(click()) // Select To-do tab
         // The to-do is still in the list
         assert(fragment.todoList.isNotEmpty())
         assert(fragment.todoListDone.isEmpty())
@@ -292,14 +291,14 @@ class TodoInstrumentedTest {
         pressBackUnconditionally()
         activityRule.finishActivity()
         activityRule.launchActivity(Intent()) // Restarts at the main activity
-        onView(withText("Todo")).perform(ViewActions.click()) // Select To-do tab
+        onView(withText("Todo")).perform(click()) // Select To-do tab
         // The to-do is still in the completed list
         assert(fragment.todoList.isEmpty())
         assert(fragment.todoListDone.isNotEmpty())
     }
 
     @Test
-    fun deleteElementTodo(){
+    fun deleteElementTodo() {
         val text = "This is a test text"
         val fragment = TodoFragmentListView()
         assert(fragment.todoList.isEmpty())
@@ -313,7 +312,6 @@ class TodoInstrumentedTest {
         fragment.deleteTodo(todo)
         assert(fragment.todoList.isEmpty())
         assert(fragment.todoListDone.isEmpty())
-
 
 
     }

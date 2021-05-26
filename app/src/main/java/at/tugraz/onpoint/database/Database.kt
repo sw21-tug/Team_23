@@ -16,11 +16,15 @@ val MIGRATION_1_2: Migration = object : Migration(1, 2) {
     }
 }
 
-@Database(entities = [Todo::class, Assignment::class, Moodle::class], version = 2, exportSchema = true)
+@Database(
+    entities = [Todo::class, Assignment::class, Moodle::class],
+    version = 2,
+    exportSchema = true
+)
 abstract class OnPointAppDatabase : RoomDatabase() {
     abstract fun getTodoDao(): TodoDao
     abstract fun getMoodleDao(): MoodleDao
-    abstract fun getAssignmentDao() : AssignmentDao
+    abstract fun getAssignmentDao(): AssignmentDao
 }
 
 @Entity
@@ -41,14 +45,14 @@ data class Todo(
     var isCompleted: Boolean = false,
 ) {
     fun creationDateTime(): Date {
-        return Date(creationUnixTime.toLong() * 1000);
+        return Date(creationUnixTime.toLong() * 1000)
     }
 
     fun expirationDateTime(): Date? {
         if (expirationUnixTime != null) {
-            return Date(expirationUnixTime!!.toLong() * 1000);
+            return Date(expirationUnixTime!!.toLong() * 1000)
         }
-        return null;
+        return null
     }
 }
 
@@ -97,15 +101,44 @@ interface AssignmentDao {
     fun selectOne(uid: Long): Assignment
 
     @Query("INSERT INTO assignment (title, description, deadline, links, moodle_id) VALUES (:title, :description, :deadline, :links, :moodleId)")
-    fun insertOneRaw(title: String, description: String, deadline : Long, links : String, moodleId : Int?): Long
+    fun insertOneRaw(
+        title: String,
+        description: String,
+        deadline: Long,
+        links: String,
+        moodleId: Int?
+    ): Long
 
-    fun insertOneFromMoodle(title: String, description: String, deadline : Date, links : List<URL>? = null, moodleId : Int) : Long {
+    fun insertOneFromMoodle(
+        title: String,
+        description: String,
+        deadline: Date,
+        links: List<URL>? = null,
+        moodleId: Int
+    ): Long {
         // TODO consider stripping the HTML from the description here, to get unformatted text
-        return insertOneRaw(title, description, Assignment.convertDeadlineDate(deadline), Assignment.encodeLinks(links?: arrayListOf<URL>()), moodleId)
+        return insertOneRaw(
+            title,
+            description,
+            Assignment.convertDeadlineDate(deadline),
+            Assignment.encodeLinks(links ?: arrayListOf()),
+            moodleId
+        )
     }
 
-    fun insertOneCustom(title: String, description: String, deadline : Date, links : List<URL>? = null) : Long {
-        return insertOneRaw(title, description, Assignment.convertDeadlineDate(deadline), Assignment.encodeLinks(links ?: arrayListOf<URL>()), null)
+    fun insertOneCustom(
+        title: String,
+        description: String,
+        deadline: Date,
+        links: List<URL>? = null
+    ): Long {
+        return insertOneRaw(
+            title,
+            description,
+            Assignment.convertDeadlineDate(deadline),
+            Assignment.encodeLinks(links ?: arrayListOf()),
+            null
+        )
     }
 
     @Query("DELETE FROM assignment")
@@ -128,7 +161,7 @@ data class Moodle(
 
     @ColumnInfo(name = "apiLink")
     var apiLink: String,
-) {}
+)
 
 @Dao
 interface MoodleDao {

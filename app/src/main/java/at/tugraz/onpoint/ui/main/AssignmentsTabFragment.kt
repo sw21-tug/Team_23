@@ -1,10 +1,11 @@
+@file:Suppress("unused")
+
 package at.tugraz.onpoint.ui.main
 
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,7 +13,6 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.SearchView
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
@@ -22,13 +22,11 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import at.tugraz.onpoint.R
+import at.tugraz.onpoint.database.AssignmentDao
 import at.tugraz.onpoint.database.MoodleDao
 import at.tugraz.onpoint.database.OnPointAppDatabase
 import at.tugraz.onpoint.database.getDbInstance
 import at.tugraz.onpoint.moodle.*
-import at.tugraz.onpoint.database.AssignmentDao
-import at.tugraz.onpoint.database.TodoDao
-import at.tugraz.onpoint.database.getDbInstance
 import java.net.URL
 import java.util.*
 import kotlin.collections.ArrayList
@@ -39,10 +37,9 @@ class AssignmentsTabFragment : Fragment() {
     private var assignmentsList = arrayListOf<Assignment>()
     private var completeState = arrayListOf<Assignment>()
     private var adapter: AssignmentsAdapter? = null
-    private var latestAssignmentId: Int = 1 // Unique ID for assignment
-    val db: OnPointAppDatabase = getDbInstance( context ) //ApplicationProvider.getApplicationContext<Context>()
-    val moodleDao: MoodleDao = db.getMoodleDao()
-    val assignmentDao: AssignmentDao = db.getAssignmentDao()
+    val db: OnPointAppDatabase = getDbInstance(null)
+    private val moodleDao: MoodleDao = db.getMoodleDao()
+    private val assignmentDao: AssignmentDao = db.getAssignmentDao()
     // TODO latestAssignmentId replaced with one obtained from the DB (auto-incrementing integer). See how the TodoList does it.
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,7 +56,8 @@ class AssignmentsTabFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_assignments, container, false)
-        root.findViewById<Button>(R.id.assignment_sync_assignments).setOnClickListener { syncAssignments() }
+        root.findViewById<Button>(R.id.assignment_sync_assignments)
+            .setOnClickListener { syncAssignments() }
         // TODO replace with assignments obtained from the Moodle API on startup
         // List of dummy assignments, inserted only the first time
         if (assignmentsList.isEmpty()) {
@@ -81,11 +79,11 @@ class AssignmentsTabFragment : Fragment() {
             this.context?.let { AssignmentsAdapter(assignmentsList, it, parentFragmentManager) }
         assignmentsRecView.adapter = this.adapter
 
-        var searchView: SearchView = root.findViewById(R.id.assignment_searchview)
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+        val searchView: SearchView = root.findViewById(R.id.assignment_searchview)
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextChange(newText: String?): Boolean {
                 if (newText != null) {
-                    var temp = completeState.toMutableList()
+                    val temp = completeState.toMutableList()
                     assignmentsList.clear()
                     assignmentsList.addAll(filter(temp, newText) as ArrayList<Assignment>)
                     adapter!!.notifyDataSetChanged()
@@ -96,7 +94,7 @@ class AssignmentsTabFragment : Fragment() {
 
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (query != null) {
-                    var temp = completeState.toMutableList()
+                    val temp = completeState.toMutableList()
                     assignmentsList.clear()
                     assignmentsList.addAll(filter(temp, query) as ArrayList<Assignment>)
                     adapter!!.notifyDataSetChanged()
@@ -109,52 +107,64 @@ class AssignmentsTabFragment : Fragment() {
         return root
     }
 
-    fun syncAssignments() {
-        val moodle_api = API()
+    private fun syncAssignments() {
+        val moodleApi = API()
 
-        for(account in moodleDao.selectAll()) {
-            moodle_api.setAuthority(account.apiLink)
-            moodle_api.login(account.userName, account.password) { response: Any -> run {
-                if (response is LoginSuccessData) {
-                    moodle_api.getAssignments{ response: Any -> run {
-                        if(response is AssignmentError) {
-                            println(response.message)
+        for (account in moodleDao.selectAll()) {
+            moodleApi.setAuthority(account.apiLink)
+            moodleApi.login(account.userName, account.password) { response: Any ->
+                run {
+                    if (response is LoginSuccessData) {
+                        moodleApi.getAssignments { response: Any ->
+                            run {
+                                if (response is AssignmentError) {
+                                    println(response.message)
+                                }
+                                if (response is AssignmentResponse) {
+                                    addAssignmentsFromMoodle(
+                                        response.courses,
+                                        moodleApi.getAuthority()
+                                    )
+                                }
+                            }
                         }
-                        if(response is AssignmentResponse) {
-                            addAssignmentsFromMoodle(response.courses, moodle_api.getAuthority())
-                        }
-                    } }
+                    }
+                    if (response is LoginErrorData) {
+                        println(response.error)
+                    }
                 }
-                if (response is LoginErrorData) {
-                    println(response.error)
-                }
-            }
             }
         }
 
     }
 
-    fun addAssignmentsFromMoodle(courses: List<Course>, apiLink: String) {
-        for(course in courses) {
-            for(moodle_ass in course.assignments){
-                var assignment : Assignment
-
-                val link : String = "https://" + apiLink + "/mod/assign/view.php?id=" + moodle_ass.cmid.toString()
-                var link_list : List<URL>
-
-                assignment = Assignment(moodle_ass.name, moodle_ass.intro, moodle_ass.duedate, link, moodle_ass.id)
-                addAssignmentCustomToAssignmentList(assignment.title, assignment.description, assignment.getDeadlineDate(), assignment.getLinksAsUrls())
+    private fun addAssignmentsFromMoodle(courses: List<Course>, apiLink: String) {
+        for (course in courses) {
+            for (moodle_ass in course.assignments) {
+                val link: String =
+                    "https://" + apiLink + "/mod/assign/view.php?id=" + moodle_ass.cmid.toString()
+                val assignment = Assignment(
+                    moodle_ass.name,
+                    moodle_ass.intro,
+                    moodle_ass.duedate,
+                    link,
+                    moodle_ass.id
+                )
+                addAssignmentCustomToAssignmentList(
+                    assignment.title,
+                    assignment.description,
+                    assignment.getDeadlineDate(),
+                    assignment.getLinksAsUrls()
+                )
             }
         }
     }
-
 
 
     /**
      * Appends an assignment as received from Moodle, refreshing the recycler view and the
      * notifications for the deadlines.
-     * */
-
+     */
     private fun addAssignmentFromMoodleToAssignmentList(
         title: String, description: String, deadline: Date, links: List<URL>? = null, moodleId: Int
     ) {
@@ -165,7 +175,6 @@ class AssignmentsTabFragment : Fragment() {
         completeState.add(assignment)
         adapter?.notifyDataSetChanged()
     }
-
 
     /**
      * Appends an assignment written by the user, refreshing the recycler view and the notifications
@@ -181,8 +190,6 @@ class AssignmentsTabFragment : Fragment() {
         adapter?.notifyDataSetChanged()
     }
 
-
-
     companion object {
         /**
          * The fragment argument representing the section number for this
@@ -197,7 +204,7 @@ class AssignmentsTabFragment : Fragment() {
             for (assi in assignments) {
                 val text = assi.title.toLowerCase(Locale.ROOT)
                 if (text.contains(lowerCaseQuery)) {
-                    found.add(assi);
+                    found.add(assi)
                 }
             }
             return found
@@ -254,7 +261,7 @@ data class Assignment(
     }
 
     fun getDeadlineDate(): Date {
-        return Date(deadlineUnixTime * 1000);
+        return Date(deadlineUnixTime * 1000)
     }
 
     fun getLinksAsUrls(): List<URL> {

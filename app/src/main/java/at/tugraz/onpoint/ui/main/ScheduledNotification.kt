@@ -21,14 +21,15 @@ class ScheduledNotificationReceiver : BroadcastReceiver() {
             PendingIntent.FLAG_UPDATE_CURRENT
         )
         // Build notification based on Intent
-        val notification = NotificationCompat.Builder(context, context.getString(R.string.CHANNEL_ID))
-            .setSmallIcon(R.drawable.ic_baseline_uni_24)
-            .setContentTitle(intent.getStringExtra("title"))
-            .setContentText(intent.getStringExtra("text"))
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setAutoCancel(true)
-            .setContentIntent(pendingIntentToOpenApp)
-            .build()
+        val notification =
+            NotificationCompat.Builder(context, context.getString(R.string.CHANNEL_ID))
+                .setSmallIcon(R.drawable.ic_baseline_uni_24)
+                .setContentTitle(intent.getStringExtra("title"))
+                .setContentText(intent.getStringExtra("text"))
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntentToOpenApp)
+                .build()
         // Show notification
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         manager.notify(intent.getIntExtra("notificationId", 0), notification)

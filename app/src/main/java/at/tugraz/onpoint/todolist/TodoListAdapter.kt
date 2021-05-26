@@ -22,22 +22,16 @@ class TodoListAdapter(
      */
     class ViewHolder(view: View, private val fragment: TodoFragmentListView) :
         RecyclerView.ViewHolder(view) {
-        val textView: TextView
-        val button: Button
+        val textView: TextView = view.findViewById(R.id.todo_list_active_textview)
+        val button: Button = view.findViewById(R.id.todo_check_button)
         lateinit var todo: Todo
 
         init {
             // Define click listener for the ViewHolder's View.
-            textView = view.findViewById(R.id.todo_list_active_textview)
-            button = view.findViewById(R.id.todo_check_button)
-            button.setOnClickListener { view: View ->
-                checkItem(
-                    view
-                )
-            }
+            button.setOnClickListener { checkItem() }
         }
 
-        private fun checkItem(v: View?) {
+        private fun checkItem() {
             // At this point this.to-do should never be null, as is is set by onBindViewHolder().
             // Otherwise it would not make much sense: how can we check (tick, mark) a view
             // which was never displayed?

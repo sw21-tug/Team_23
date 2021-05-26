@@ -1,44 +1,40 @@
 package at.tugraz.onpoint.todolist
 
 import android.graphics.Paint
-import android.graphics.PorterDuff
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import at.tugraz.onpoint.R
 import at.tugraz.onpoint.database.Todo
 
 
-class TodoListDoneAdapter(private val fragment: TodoFragmentListView,
-                          private val dataSet: ArrayList<Todo>) :
+class TodoListDoneAdapter(
+    private val fragment: TodoFragmentListView,
+    private val dataSet: ArrayList<Todo>
+) :
     RecyclerView.Adapter<TodoListDoneAdapter.ViewHolder>() {
 
     /**
      * Provide a reference to the type of views that you are using
      * (custom ViewHolder).
      */
-    class ViewHolder(view: View, private val fragment: TodoFragmentListView) : RecyclerView.ViewHolder(view) {
-        val textView: TextView
+    class ViewHolder(view: View, private val fragment: TodoFragmentListView) :
+        RecyclerView.ViewHolder(view) {
+        val textView: TextView = view.findViewById(R.id.todo_list_inactive_textview)
         val button: Button
         lateinit var todo: Todo
 
         init {
             // Define click listener for the ViewHolder's View.
-            textView = view.findViewById(R.id.todo_list_inactive_textview)
             textView.paintFlags = textView.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
             button = view.findViewById(R.id.todo_delete_button)
-            button.setOnClickListener { view: View ->
-                deleteItem(
-                    view
-                )
-            }
+            button.setOnClickListener { deleteItem() }
         }
 
-        private fun deleteItem(v: View) {
+        private fun deleteItem() {
             fragment.deleteTodo(this.todo)
         }
     }

@@ -8,11 +8,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.core.content.ContextCompat.getColor
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.RecyclerView
 import at.tugraz.onpoint.R
 
 class MainTabFragment : Fragment() {
@@ -34,23 +32,29 @@ class MainTabFragment : Fragment() {
 
         val todoLayout = root.findViewById(R.id.homescreen_todo_list_id) as ViewGroup
         val recentLayout = root.findViewById(R.id.recent_linear_layout) as ViewGroup
-        val todoList = listOf<String>("todo1", "todo2")
-        val recentList = listOf<String>("recent1")
-        for(todoItem in todoList){
+        val todoList = listOf("todo1", "todo2")
+        val recentList = listOf("recent1")
+        for (todoItem in todoList) {
             // TextView2
             println("In todo loop")
             val lptv = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT)
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
 
             lptv.setMargins(10, 50, 10, 0)
             val textView = TextView(activity)
             textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20.0F)
-            textView.setLayoutParams(lptv)
-            textView.setText(todoItem)
-            textView.setTextColor(resources.getColor(R.color.text_grey))
-            textView.setPadding(30 , 40, 30, 40)
-            textView.setBackgroundColor(resources.getColor(R.color.lightGray_main))
+            textView.layoutParams = lptv
+            textView.text = todoItem
+            textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_grey))
+            textView.setPadding(30, 40, 30, 40)
+            textView.setBackgroundColor(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.lightGray_main
+                )
+            )
             textView.gravity = Gravity.CENTER
 
             // textView.textAlignment =
@@ -59,23 +63,29 @@ class MainTabFragment : Fragment() {
 
         }
 
-        for(recentItem in recentList){
+        for (recentItem in recentList) {
             // TextView2
             println("In todo loop")
             val lptv = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT)
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
 
             lptv.setMargins(10, 50, 10, 0)
             val textView = TextView(activity)
             textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20.0F)
-            textView.setLayoutParams(lptv)
-            textView.setText(recentItem)
+            textView.layoutParams = lptv
+            textView.text = recentItem
             //textView.setTextColor(R.color.text_grey)
-            textView.setTextColor(resources.getColor(R.color.text_grey))
+            textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_grey))
 
-            textView.setPadding(30 , 40, 30, 40)
-            textView.setBackgroundColor(resources.getColor(R.color.lightGray_main))
+            textView.setPadding(30, 40, 30, 40)
+            textView.setBackgroundColor(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.lightGray_main
+                )
+            )
             textView.gravity = Gravity.CENTER
 
             recentLayout.addView(textView)

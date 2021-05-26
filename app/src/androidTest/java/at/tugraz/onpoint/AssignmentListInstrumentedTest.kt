@@ -1,12 +1,7 @@
 package at.tugraz.onpoint
 
-import android.app.Activity
-import android.app.Instrumentation
 import android.content.Context
 import android.content.Intent
-import androidx.fragment.app.testing.launchFragmentInContainer
-import androidx.navigation.NavController
-import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
@@ -14,13 +9,9 @@ import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
-import androidx.test.espresso.intent.Intents.intending
-import androidx.test.espresso.intent.matcher.IntentMatchers.toPackage
 import androidx.test.espresso.matcher.RootMatchers.isDialog
-import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -30,16 +21,12 @@ import at.tugraz.onpoint.database.AssignmentDao
 import at.tugraz.onpoint.database.OnPointAppDatabase
 import at.tugraz.onpoint.database.getDbInstance
 import at.tugraz.onpoint.ui.main.Assignment
-import at.tugraz.onpoint.todolist.TodoFragmentAdd
-import at.tugraz.onpoint.todolist.TodoFragmentListView
-import at.tugraz.onpoint.ui.main.AssignmentsTabFragment
 import org.hamcrest.CoreMatchers.startsWith
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito
 import java.io.IOException
 import java.net.URL
 import java.util.*
@@ -50,7 +37,7 @@ class AssignmentsListInstrumentedTest {
     @get:Rule
     var activityRule: ActivityScenarioRule<MainTabbedActivity> =
         ActivityScenarioRule(MainTabbedActivity::class.java)
-    var activityTestRule = ActivityTestRule(MainTabbedActivity::class.java)
+    private var activityTestRule = ActivityTestRule(MainTabbedActivity::class.java)
 
     private lateinit var assignmentDao: AssignmentDao
     private lateinit var db: OnPointAppDatabase
@@ -79,36 +66,36 @@ class AssignmentsListInstrumentedTest {
     @Test
     fun activityHasTabList() {
         launchActivity<MainTabbedActivity>()
-        onView(withId(R.id.tabs)).check(ViewAssertions.matches(ViewMatchers.isEnabled()))
+        onView(withId(R.id.tabs)).check(matches(isEnabled()))
     }
 
     @Test
     fun tabsAreClickable() {
         launchActivity<MainTabbedActivity>()
-        onView(withText("Main")).perform(ViewActions.click())
-        onView(withText("Todo")).perform(ViewActions.click())
-        onView(withText("Assign.")).perform(ViewActions.click())
+        onView(withText("Main")).perform(click())
+        onView(withText("Todo")).perform(click())
+        onView(withText("Assign.")).perform(click())
     }
 
     @Test
     fun checkForAssignmentListExistence() {
         launchActivity<MainTabbedActivity>()
-        onView(withText("Assign.")).perform(ViewActions.click())
+        onView(withText("Assign.")).perform(click())
         onView(withId(R.id.assignmentsList)).check(matches(isDisplayed()))
     }
 
     @Test
     fun checkForContentInAssignmentList() {
         launchActivity<MainTabbedActivity>()
-        onView(withText("Assign.")).perform(ViewActions.click())
+        onView(withText("Assign.")).perform(click())
         onView(withId(R.id.assignmentsList))
-            .check(matches(hasDescendant(withText("Dummy Assignment 5"))));
+            .check(matches(hasDescendant(withText("Dummy Assignment 5"))))
     }
 
     @Test
     fun checkForDetailsInAssignmentListEntry() {
         launchActivity<MainTabbedActivity>()
-        onView(withText("Assign.")).perform(ViewActions.click())
+        onView(withText("Assign.")).perform(click())
         // Click item at position 3
         onView(withId(R.id.assignmentsList))
             .perform(
@@ -156,7 +143,7 @@ class AssignmentsListInstrumentedTest {
         val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
         val intent = Intent(targetContext, MainTabbedActivity::class.java)
         //Value 2 for assignmentTab
-        intent.putExtra("tabToOpen", 2);
+        intent.putExtra("tabToOpen", 2)
         activityTestRule.launchActivity(intent)
         onView(withText("Main")).check(matches(isDisplayed()))
         onView(withText("Todo")).check(matches(isDisplayed()))
@@ -167,7 +154,7 @@ class AssignmentsListInstrumentedTest {
     @Test
     fun checkDeadlinePickerAppearsWhenClickingOnSetReminder() {
         launchActivity<MainTabbedActivity>()
-        onView(withText("Assign.")).perform(ViewActions.click())
+        onView(withText("Assign.")).perform(click())
         // Click item at position 3
         onView(withId(R.id.assignmentsList))
             .perform(
@@ -186,7 +173,7 @@ class AssignmentsListInstrumentedTest {
             .perform(click())
         onView(withId(android.R.id.button1)) // OK button, with default Android ID
             .check(matches(isDisplayed()))
-            .perform(click());
+            .perform(click())
     }
 
     @Test
@@ -194,9 +181,15 @@ class AssignmentsListInstrumentedTest {
         val links = arrayListOf(URL("https://tc.tugraz.at"), URL("https://www.tugraz.at"))
         val deadline = Date()
         val moodleId = 1234
-        val uid = assignmentDao.insertOneFromMoodle("my title", "my description", deadline, links, moodleId)
-        val assignment:Assignment = assignmentDao.selectOne(uid)
-        assert(assignment.uid!!.toLong() ==  uid)
+        val uid = assignmentDao.insertOneFromMoodle(
+            "my title",
+            "my description",
+            deadline,
+            links,
+            moodleId
+        )
+        val assignment: Assignment = assignmentDao.selectOne(uid)
+        assert(assignment.uid!!.toLong() == uid)
         assert(assignment.title == "my title")
         assert(assignment.description == "my description")
         assert(assignment.getDeadlineDate().before(Date(deadline.time + 10000)))
@@ -211,7 +204,7 @@ class AssignmentsListInstrumentedTest {
         val links = arrayListOf(URL("https://tc.tugraz.at"), URL("https://www.tugraz.at"))
         val deadline = Date()
         val uid = assignmentDao.insertOneCustom("my title", "my description", deadline, links)
-        val assignment:Assignment = assignmentDao.selectOne(uid)
+        val assignment: Assignment = assignmentDao.selectOne(uid)
         assert(assignment.uid!!.toLong() == uid)
         assert(assignment.title == "my title")
         assert(assignment.description == "my description")
@@ -228,9 +221,21 @@ class AssignmentsListInstrumentedTest {
         val deadlineEarly = Date()
         val deadlineLate = Date(Date().time + 1000)
         val moodleId = 1234
-        assignmentDao.insertOneFromMoodle("my title1", "my description1", deadlineLate, links, moodleId)
-        assignmentDao.insertOneFromMoodle("my title2", "my description2", deadlineEarly, links, moodleId + 1)
-        val assignmentsList : List<Assignment> = assignmentDao.selectAll()
+        assignmentDao.insertOneFromMoodle(
+            "my title1",
+            "my description1",
+            deadlineLate,
+            links,
+            moodleId
+        )
+        assignmentDao.insertOneFromMoodle(
+            "my title2",
+            "my description2",
+            deadlineEarly,
+            links,
+            moodleId + 1
+        )
+        val assignmentsList: List<Assignment> = assignmentDao.selectAll()
         assert(assignmentsList.size == 2)
         assert(assignmentsList[0].title == "my title2")
         assert(assignmentsList[0].description == "my description2")
@@ -253,10 +258,15 @@ class AssignmentsListInstrumentedTest {
     @Test
     fun checkForAddToCalendarButton() {
         launchActivity<MainTabbedActivity>()
-        onView(withText("Assign.")).perform(ViewActions.click())
+        onView(withText("Assign.")).perform(click())
         // Click item at position 3
         onView(withId(R.id.assignmentsList))
-            .perform(RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(3, click()))
+            .perform(
+                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
+                    3,
+                    click()
+                )
+            )
         onView(withId(R.id.fragment_assignment_details_linearlayout))
             .inRoot(isDialog())
             .check(matches(isDisplayed()))
@@ -267,10 +277,15 @@ class AssignmentsListInstrumentedTest {
     @Test
     fun checkClickForAddToCalendarButton() {
         launchActivity<MainTabbedActivity>()
-        onView(withText("Assign.")).perform(ViewActions.click())
+        onView(withText("Assign.")).perform(click())
         // Click item at position 3
         onView(withId(R.id.assignmentsList))
-            .perform(RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(3, click()))
+            .perform(
+                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
+                    3,
+                    click()
+                )
+            )
         onView(withId(R.id.fragment_assignment_details_linearlayout))
             .inRoot(isDialog())
             .check(matches(isDisplayed()))
@@ -279,9 +294,9 @@ class AssignmentsListInstrumentedTest {
     }
 
     @Test
-    fun checkIfSearchbarIsDisplayed(){
+    fun checkIfSearchbarIsDisplayed() {
         launchActivity<MainTabbedActivity>()
-        onView(withText("Assign.")).perform(ViewActions.click())
+        onView(withText("Assign.")).perform(click())
         onView(withId(R.id.assignment_searchview)).check(matches(isDisplayed()))
     }
 

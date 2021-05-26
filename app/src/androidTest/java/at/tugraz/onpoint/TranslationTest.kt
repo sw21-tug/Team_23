@@ -18,48 +18,71 @@ import org.junit.runner.RunWith
 
 
 @RunWith(AndroidJUnit4::class)
-class TranslationTest{
+class TranslationTest {
 
 
     @Rule
-    @JvmField var activityRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java)
+    @JvmField
+    var activityRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java)
 
     @Test
     fun tab_language() {
         onView(
-            Matchers.allOf(withContentDescription("O"),
+            Matchers.allOf(
+                withContentDescription("O"),
                 childAtPosition(
-                    Matchers.allOf(withId(R.id.toolbar),
+                    Matchers.allOf(
+                        withId(R.id.toolbar),
                         childAtPosition(
                             withClassName(Matchers.`is`("android.widget.LinearLayout")),
-                            0)),
-                    1),
-                isDisplayed())).perform(click())
+                            0
+                        )
+                    ),
+                    1
+                ),
+                isDisplayed()
+            )
+        ).perform(click())
 
         onView(
-            Matchers.allOf(withId(R.id.language_toggle),
+            Matchers.allOf(
+                withId(R.id.language_toggle),
                 childAtPosition(
-                    Matchers.allOf(withId(R.id.design_navigation_view),
+                    Matchers.allOf(
+                        withId(R.id.design_navigation_view),
                         childAtPosition(
                             withId(R.id.navigation_view),
-                            0)),
-                    3),
-                isDisplayed())).perform(click())
+                            0
+                        )
+                    ),
+                    3
+                ),
+                isDisplayed()
+            )
+        ).perform(click())
         onView(withId(R.id.homescreen_recent_heading_id)).check(matches(withText("最近的")))
         onView(withId(R.id.homescreen_todo_heading_id)).check(matches(withText("去做")))
         onView(
-            Matchers.allOf(withId(R.id.language_toggle),
+            Matchers.allOf(
+                withId(R.id.language_toggle),
                 childAtPosition(
-                    Matchers.allOf(withId(R.id.design_navigation_view),
+                    Matchers.allOf(
+                        withId(R.id.design_navigation_view),
                         childAtPosition(
                             withId(R.id.navigation_view),
-                            0)),
-                    3),
-                isDisplayed())).perform(click())
+                            0
+                        )
+                    ),
+                    3
+                ),
+                isDisplayed()
+            )
+        ).perform(click())
     }
 
     private fun childAtPosition(
-        parentMatcher: Matcher<View>, position: Int): Matcher<View> {
+        parentMatcher: Matcher<View>, position: Int
+    ): Matcher<View> {
 
         return object : TypeSafeMatcher<View>() {
             override fun describeTo(description: Description) {
