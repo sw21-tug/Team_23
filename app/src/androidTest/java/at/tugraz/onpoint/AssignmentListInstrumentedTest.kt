@@ -300,6 +300,24 @@ class AssignmentsListInstrumentedTest {
         onView(withId(R.id.assignment_searchview)).check(matches(isDisplayed()))
     }
 
-
+    @Test
+    fun checkForDoneButtonInAssignmentListEntry() {
+        launchActivity<MainTabbedActivity>()
+        onView(withText("Assign.")).perform(click())
+        // Click item at position 3
+        onView(withId(R.id.assignmentsList))
+            .perform(
+                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
+                    3,
+                    click()
+                )
+            )
+        onView(withId(R.id.fragment_assignment_details_linearlayout))
+            .inRoot(isDialog())
+            .check(matches(isDisplayed()))
+        onView(withId(R.id.assignmentsListDetailsDoneButton))
+            .check(matches(isDisplayed()))
+            .check(matches(withText("Done")))
+    }
 }
 
