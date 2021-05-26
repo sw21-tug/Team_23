@@ -9,18 +9,24 @@ import com.google.gson.JsonObject
 
 data class LoginErrorData(val error: String, val errorcode: String)
 data class LoginSuccessData(val token: String, val privatetoken: String)
-
 data class AssignmentError(val exception: String, val errorcode: String, val message: String)
+
+data class AssignmentResponse(
+    val courses: List<Course>
+)
+data class Course(
+    val assignments: List<Assignment>
+)
 data class Assignment(
-    val id: Int,
     val name: String,
     val intro: String,
     val duedate: Long,
-    val cmid: Int
+    val introattachments: List<Attachment>,
 )
-
-data class Course(val assignments: List<Assignment>)
-data class AssignmentResponse(val courses: List<Course>)
+data class Attachment(
+    val filename: String,
+    val fileurl: String,
+)
 
 open class API {
     private val scheme = "https"
@@ -105,5 +111,4 @@ open class API {
     fun setAuthority(auth: String) {
         this.authority = auth
     }
-
 }

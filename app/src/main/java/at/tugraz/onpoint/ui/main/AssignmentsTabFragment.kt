@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.SearchView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
@@ -57,17 +58,10 @@ class AssignmentsTabFragment : Fragment() {
         val root = inflater.inflate(R.layout.fragment_assignments, container, false)
         root.findViewById<Button>(R.id.assignment_sync_assignments)
             .setOnClickListener { syncAssignments() }
-        // TODO replace with assignments obtained from the Moodle API on startup
-        // List of dummy assignments, inserted only the first time
-        if (assignmentsList.isEmpty()) {
-            for (i in 0..50) {
-                addAssignmentCustomToAssignmentList(
-                    "Dummy Assignment $i",
-                    "Dummy Description $i",
-                    Date(Date().time + (24L * 3600 * 1000 * i) + 60000L),
-                    arrayListOf(URL("https://www.tugraz.at"), URL("https://tc.tugraz.at"))
-                )
-            }
+
+        if (moodleDao.selectAll().isEmpty()) {
+            notifyUser("Automatically added login info to di Vora's Moodle")
+            moodleDao.insertOne("diVoraTestMoodle", "test", "onpoint!T23", "moodle.divora.at")
         }
 
         // Create the the Recyclerview, make it a linear list (not a grid), assign the list of
@@ -106,23 +100,35 @@ class AssignmentsTabFragment : Fragment() {
         return root
     }
 
+    private fun notifyUser(msg: String) {
+        Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+    }
+
     fun syncAssignments() {
         val moodleApi = API()
-
+        val accounts = moodleDao.selectAll()
+        if (accounts.isEmpty()) {
+            notifyUser("No Moodle accounts saved")
+            return
+        }
         for (account in moodleDao.selectAll()) {
             moodleApi.setAuthority(account.apiLink)
+            notifyUser("Accessing ${moodleApi.getAuthority()}")
             moodleApi.login(account.userName, account.password) { response: Any ->
                 run {
                     if (response is LoginSuccessData) {
+                        notifyUser("Moodle: successful login")
                         moodleApi.getAssignments { response: Any ->
                             run {
                                 if (response is AssignmentError) {
                                     println(response.message)
+                                    notifyUser("Moodle: failed to get assignments")
                                 }
                                 if (response is AssignmentResponse) {
+                                    notifyUser("Moodle: successfully obtained assignments")
                                     addAssignmentsFromMoodle(
                                         response.courses,
-                                        moodleApi.getAuthority()
+                                        moodleApi.token,
                                     )
                                 }
                             }
@@ -130,59 +136,39 @@ class AssignmentsTabFragment : Fragment() {
                     }
                     if (response is LoginErrorData) {
                         println(response.error)
+                        notifyUser("Moodle: failed to login")
                     }
                 }
             }
         }
-
     }
 
-    private fun addAssignmentsFromMoodle(courses: List<Course>, apiLink: String) {
+    private fun addAssignmentsFromMoodle(courses: List<Course>, token: String) {
         for (course in courses) {
-            for (moodle_ass in course.assignments) {
-                val link: String =
-                    "https://" + apiLink + "/mod/assign/view.php?id=" + moodle_ass.cmid.toString()
-                val assignment = Assignment(
-                    moodle_ass.name,
-                    moodle_ass.intro,
-                    moodle_ass.duedate,
-                    link,
-                    moodle_ass.id
-                )
-                addAssignmentCustomToAssignmentList(
-                    assignment.title,
-                    assignment.description,
-                    assignment.getDeadlineDate(),
-                    assignment.getLinksAsUrls()
+            for (moodleAssignment in course.assignments) {
+                val listOfUrlsStrings: List<String> = moodleAssignment.introattachments.map {
+                    it.fileurl
+                }
+                val listOfUrls: List<URL> = listOfUrlsStrings.map { URL("$it?token=$token") }
+                addAssignmentToAssignmentList(
+                    title = moodleAssignment.name,
+                    // TODO consider stripping the HTML from the description here
+                    description = moodleAssignment.intro,
+                    deadline = Date(moodleAssignment.duedate),
+                    links = listOfUrls,
                 )
             }
         }
-    }
-
-
-    /**
-     * Appends an assignment as received from Moodle, refreshing the recycler view and the
-     * notifications for the deadlines.
-     */
-    private fun addAssignmentFromMoodleToAssignmentList(
-        title: String, description: String, deadline: Date, links: List<URL>? = null, moodleId: Int
-    ) {
-        val uid: Long =
-            assignmentDao.insertOneFromMoodle(title, description, deadline, links, moodleId)
-        val assignment = assignmentDao.selectOne(uid)
-        assignmentsList.add(assignment)
-        completeState.add(assignment)
-        adapter?.notifyDataSetChanged()
     }
 
     /**
      * Appends an assignment written by the user, refreshing the recycler view and the notifications
      * for the deadlines.
      */
-    private fun addAssignmentCustomToAssignmentList(
+    private fun addAssignmentToAssignmentList(
         title: String, description: String, deadline: Date, links: List<URL>? = null
     ) {
-        val uid: Long = assignmentDao.insertOneCustom(title, description, deadline, links)
+        val uid: Long = assignmentDao.insertOne(title, description, deadline, links)
         val assignment = assignmentDao.selectOne(uid)
         assignmentsList.add(assignment)
         completeState.add(assignment)

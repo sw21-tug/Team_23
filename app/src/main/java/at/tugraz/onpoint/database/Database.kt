@@ -109,24 +109,7 @@ interface AssignmentDao {
         moodleId: Int?
     ): Long
 
-    fun insertOneFromMoodle(
-        title: String,
-        description: String,
-        deadline: Date,
-        links: List<URL>? = null,
-        moodleId: Int
-    ): Long {
-        // TODO consider stripping the HTML from the description here, to get unformatted text
-        return insertOneRaw(
-            title,
-            description,
-            Assignment.convertDeadlineDate(deadline),
-            Assignment.encodeLinks(links ?: arrayListOf()),
-            moodleId
-        )
-    }
-
-    fun insertOneCustom(
+    fun insertOne(
         title: String,
         description: String,
         deadline: Date,
@@ -161,6 +144,7 @@ data class Moodle(
 
     @ColumnInfo(name = "apiLink")
     var apiLink: String,
+    // TODO unique combo of apilink and username
 )
 
 @Dao
@@ -173,6 +157,7 @@ interface MoodleDao {
 
     @Query("INSERT INTO moodle (universityName, userName, password, apiLink) VALUES (:universityName, :userName, :password, :apiLink)")
     fun insertOne(universityName: String, userName: String, password: String, apiLink: String): Long
+    // TODO on insert conflict, do nothing
 }
 
 var INSTANCE: OnPointAppDatabase? = null

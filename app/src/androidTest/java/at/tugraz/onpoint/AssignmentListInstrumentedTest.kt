@@ -6,15 +6,11 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.core.app.launchActivity
-import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.RootMatchers.isDialog
-import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -23,9 +19,11 @@ import androidx.test.rule.ActivityTestRule
 import at.tugraz.onpoint.database.AssignmentDao
 import at.tugraz.onpoint.database.OnPointAppDatabase
 import at.tugraz.onpoint.database.getDbInstance
+import at.tugraz.onpoint.moodle.API
+import at.tugraz.onpoint.moodle.AssignmentResponse
+import at.tugraz.onpoint.moodle.LoginSuccessData
 import at.tugraz.onpoint.ui.main.Assignment
 import at.tugraz.onpoint.ui.main.AssignmentsTabFragment
-import at.tugraz.onpoint.ui.main.UniversityLoginFragment
 import org.hamcrest.CoreMatchers.startsWith
 import org.junit.After
 import org.junit.Before
@@ -182,33 +180,10 @@ class AssignmentsListInstrumentedTest {
     }
 
     @Test
-    fun storeNewAssignmentFromMoodleAndRetrieveItFromDb() {
+    fun storeNewAssignmentAndRetrieveItFromDb() {
         val links = arrayListOf(URL("https://tc.tugraz.at"), URL("https://www.tugraz.at"))
         val deadline = Date()
-        val moodleId = 1234
-        val uid = assignmentDao.insertOneFromMoodle(
-            "my title",
-            "my description",
-            deadline,
-            links,
-            moodleId
-        )
-        val assignment: Assignment = assignmentDao.selectOne(uid)
-        assert(assignment.uid!!.toLong() == uid)
-        assert(assignment.title == "my title")
-        assert(assignment.description == "my description")
-        assert(assignment.getDeadlineDate().before(Date(deadline.time + 10000)))
-        assert(assignment.getDeadlineDate().after(Date(deadline.time - 10000)))
-        assert(assignment.getLinksAsUrls()[0] == links[0])
-        assert(assignment.getLinksAsUrls()[1] == links[1])
-        assert(assignment.moodleId == moodleId)
-    }
-
-    @Test
-    fun storeNewAssignmentCustomAndRetrieveItFromDb() {
-        val links = arrayListOf(URL("https://tc.tugraz.at"), URL("https://www.tugraz.at"))
-        val deadline = Date()
-        val uid = assignmentDao.insertOneCustom("my title", "my description", deadline, links)
+        val uid = assignmentDao.insertOne("my title", "my description", deadline, links)
         val assignment: Assignment = assignmentDao.selectOne(uid)
         assert(assignment.uid!!.toLong() == uid)
         assert(assignment.title == "my title")
@@ -226,19 +201,17 @@ class AssignmentsListInstrumentedTest {
         val deadlineEarly = Date()
         val deadlineLate = Date(Date().time + 1000)
         val moodleId = 1234
-        assignmentDao.insertOneFromMoodle(
+        assignmentDao.insertOne(
             "my title1",
             "my description1",
             deadlineLate,
-            links,
-            moodleId
+            links
         )
-        assignmentDao.insertOneFromMoodle(
+        assignmentDao.insertOne(
             "my title2",
             "my description2",
             deadlineEarly,
-            links,
-            moodleId + 1
+            links
         )
         val assignmentsList: List<Assignment> = assignmentDao.selectAll()
         assert(assignmentsList.size == 2)
@@ -249,14 +222,12 @@ class AssignmentsListInstrumentedTest {
         assert(assignmentsList[0].getDeadlineDate().after(Date(deadlineEarly.time - 10000)))
         assert(assignmentsList[0].getLinksAsUrls()[0] == links[0])
         assert(assignmentsList[0].getLinksAsUrls()[1] == links[1])
-        assert(assignmentsList[0].moodleId == moodleId + 1)
         assert(assignmentsList[1].title == "my title1")
         assert(assignmentsList[1].description == "my description1")
         assert(assignmentsList[1].getDeadlineDate().before(Date(deadlineLate.time + 10000)))
         assert(assignmentsList[1].getDeadlineDate().after(Date(deadlineLate.time - 10000)))
         assert(assignmentsList[1].getLinksAsUrls()[0] == links[0])
         assert(assignmentsList[1].getLinksAsUrls()[1] == links[1])
-        assert(assignmentsList[1].moodleId == moodleId)
         assert(assignmentsList[0].uid != assignmentsList[1].uid)
     }
 
@@ -330,11 +301,9 @@ class AssignmentsListInstrumentedTest {
     @Test
     fun getAssignmentFiles() {
         launchActivity<MainTabbedActivity>()
-
         val assingmentTabFrag = AssignmentsTabFragment()
         assingmentTabFrag.db.getMoodleDao()
             .insertOne("di Vora", "test", "onpoint!T23", "moodle.divora.at")
-
         assingmentTabFrag.syncAssignments()
         val moddleAssignment: Assignment = assingmentTabFrag.assignmentsList.last()
         assert(moddleAssignment.title == "Assignment 1")
@@ -344,5 +313,24 @@ class AssignmentsListInstrumentedTest {
         assert(moddleAssignment.getLinksAsUrls()[1].toString().contains(".pdf?"))
     }
 
-}
+    @Test
+    fun verifyLoginToOnlineMoodle() {
+        val moodleApi = API()
+        moodleApi.setAuthority("moodle.divora.at")
+        moodleApi.login("test", "onpoint!T23") { response: Any ->
+            assert(response is LoginSuccessData)
+        }
+    }
 
+    @Test
+    fun getAssignmentsFromOnlineMoodle() {
+        val moodleApi = API()
+        moodleApi.setAuthority("moodle.divora.at")
+        moodleApi.login("test", "onpoint!T23") { response: Any ->
+            assert(response is LoginSuccessData)
+        }
+        moodleApi.getAssignments { response: Any ->
+            assert(response is AssignmentResponse)
+        }
+    }
+}
