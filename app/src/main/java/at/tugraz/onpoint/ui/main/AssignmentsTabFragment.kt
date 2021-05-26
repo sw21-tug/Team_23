@@ -27,6 +27,7 @@ import at.tugraz.onpoint.database.MoodleDao
 import at.tugraz.onpoint.database.OnPointAppDatabase
 import at.tugraz.onpoint.database.getDbInstance
 import at.tugraz.onpoint.moodle.*
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.net.URL
 import java.util.*
 import kotlin.collections.ArrayList
@@ -58,6 +59,8 @@ class AssignmentsTabFragment : Fragment() {
         val root = inflater.inflate(R.layout.fragment_assignments, container, false)
         root.findViewById<Button>(R.id.assignment_sync_assignments)
             .setOnClickListener { syncAssignments() }
+        root.findViewById<FloatingActionButton>(R.id.custom_assignment_add_button)
+            .setOnClickListener { addCustomAssignment() }
         // TODO replace with assignments obtained from the Moodle API on startup
         // List of dummy assignments, inserted only the first time
         if (assignmentsList.isEmpty()) {
@@ -105,6 +108,11 @@ class AssignmentsTabFragment : Fragment() {
         })
 
         return root
+    }
+
+    private fun addCustomAssignment() {
+        val fragment = CustomAssignmentDialog()
+        fragment.show(parentFragmentManager, null)
     }
 
     private fun syncAssignments() {
