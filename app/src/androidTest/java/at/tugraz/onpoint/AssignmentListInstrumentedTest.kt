@@ -300,6 +300,13 @@ class AssignmentsListInstrumentedTest {
         onView(withId(R.id.assignment_searchview)).check(matches(isDisplayed()))
     }
 
+    @Test
+    fun checkIfCustomAddButtonExists() {
+        launchActivity<MainTabbedActivity>()
+        onView(withId(R.id.custom_assignment_add_button).check(matches(isClickable())))
+    }
+
+
 
 }
 
