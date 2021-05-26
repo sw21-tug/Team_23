@@ -29,7 +29,10 @@
         android:layout_height="wrap_content"
         android:paddingStart="10dp"
         android:paddingEnd="10dp"
-        android:text="" />
+        android:autoLink="web"
+        android:clickable="true"
+        android:text=""
+        android:focusable="true" />
 
     <Button
         android:id="@+id/addMeToCalendar"
