@@ -46,6 +46,6 @@
     <string name="university_login_failed">Login failed</string>
     <string name="assignment_dialog_done_button">Done</string>
     <string name="text_assignment_done">Done</string>
-    <string name="text_assignment_active">Active</string>
+    <string name="text_assignment_active">Active Assignments</string>
 
 </resources>
