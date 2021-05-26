@@ -82,9 +82,9 @@ class UniversityLoginFragment : DialogFragment(R.layout.fragment_university_logi
 
     fun addUniversity(
         universityName: String,
-        apiLink: String,
         apiUsername: String,
-        apiPassword: String
+        apiPassword: String,
+        apiLink: String
     ) {
         val uid = moodleDao.insertOne(universityName, apiUsername, apiPassword, apiLink)
         val newUniversityFromDatabase = moodleDao.selectOne(uid)
