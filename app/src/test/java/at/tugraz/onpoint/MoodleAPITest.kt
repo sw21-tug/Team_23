@@ -34,4 +34,13 @@ class MoodleAPITest {
             assert(response is LoginErrorData)
         }
     }
+
+    @Test
+    fun verifyLoginToOnlineMoodle() {
+        val moodleApi = API()
+        moodleApi.setAuthority("moodle.divora.at")
+        moodleApi.login("test", "onpoint!T23") { response: Any ->
+            assert(response is LoginSuccessData)
+        }
+    }
 }

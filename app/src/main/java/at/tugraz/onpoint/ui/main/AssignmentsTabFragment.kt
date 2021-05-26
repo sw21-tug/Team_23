@@ -34,7 +34,7 @@ import kotlin.collections.ArrayList
 
 class AssignmentsTabFragment : Fragment() {
     private lateinit var pageViewModel: PageViewModel
-    private var assignmentsList = arrayListOf<Assignment>()
+    var assignmentsList = arrayListOf<Assignment>()
     private var completeState = arrayListOf<Assignment>()
     private var adapter: AssignmentsAdapter? = null
     val db: OnPointAppDatabase = getDbInstance(null)
@@ -106,7 +106,7 @@ class AssignmentsTabFragment : Fragment() {
         return root
     }
 
-    private fun syncAssignments() {
+    fun syncAssignments() {
         val moodleApi = API()
 
         for (account in moodleDao.selectAll()) {

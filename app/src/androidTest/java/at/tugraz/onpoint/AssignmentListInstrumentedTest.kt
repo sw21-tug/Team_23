@@ -6,12 +6,15 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.core.app.launchActivity
+import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.RootMatchers.isDialog
+import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -21,6 +24,8 @@ import at.tugraz.onpoint.database.AssignmentDao
 import at.tugraz.onpoint.database.OnPointAppDatabase
 import at.tugraz.onpoint.database.getDbInstance
 import at.tugraz.onpoint.ui.main.Assignment
+import at.tugraz.onpoint.ui.main.AssignmentsTabFragment
+import at.tugraz.onpoint.ui.main.UniversityLoginFragment
 import org.hamcrest.CoreMatchers.startsWith
 import org.junit.After
 import org.junit.Before
@@ -321,5 +326,23 @@ class AssignmentsListInstrumentedTest {
             .check(matches(isClickable()))
             .perform(click())
     }
+
+    @Test
+    fun getAssignmentFiles() {
+        launchActivity<MainTabbedActivity>()
+
+        val assingmentTabFrag = AssignmentsTabFragment()
+        assingmentTabFrag.db.getMoodleDao()
+            .insertOne("di Vora", "test", "onpoint!T23", "moodle.divora.at")
+
+        assingmentTabFrag.syncAssignments()
+        val moddleAssignment: Assignment = assingmentTabFrag.assignmentsList.last()
+        assert(moddleAssignment.title == "Assignment 1")
+        assert(moddleAssignment.description.contains("Assignment 1 - Description"))
+        assert(moddleAssignment.getLinksAsUrls().size == 2)
+        assert(moddleAssignment.getLinksAsUrls()[0].toString().contains(".pdf?"))
+        assert(moddleAssignment.getLinksAsUrls()[1].toString().contains(".pdf?"))
+    }
+
 }
 
