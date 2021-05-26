@@ -1,7 +1,12 @@
 package at.tugraz.onpoint
 
+import android.app.Activity
+import android.app.Instrumentation
 import android.content.Context
 import android.content.Intent
+import androidx.fragment.app.testing.launchFragmentInContainer
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
@@ -12,6 +17,8 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
+import androidx.test.espresso.intent.Intents.intending
+import androidx.test.espresso.intent.matcher.IntentMatchers.toPackage
 import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
@@ -23,12 +30,16 @@ import at.tugraz.onpoint.database.AssignmentDao
 import at.tugraz.onpoint.database.OnPointAppDatabase
 import at.tugraz.onpoint.database.getDbInstance
 import at.tugraz.onpoint.ui.main.Assignment
+import at.tugraz.onpoint.todolist.TodoFragmentAdd
+import at.tugraz.onpoint.todolist.TodoFragmentListView
+import at.tugraz.onpoint.ui.main.AssignmentsTabFragment
 import org.hamcrest.CoreMatchers.startsWith
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito
 import java.io.IOException
 import java.net.URL
 import java.util.*
@@ -266,5 +277,14 @@ class AssignmentsListInstrumentedTest {
         onView(withId(R.id.addMeToCalendar))
             .perform(click())
     }
+
+    @Test
+    fun checkIfSearchbarIsDisplayed(){
+        launchActivity<MainTabbedActivity>()
+        onView(withText("Assign.")).perform(ViewActions.click())
+        onView(withId(R.id.assignment_searchview)).check(matches(isDisplayed()))
+    }
+
+
 }
 
