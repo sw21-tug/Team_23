@@ -111,7 +111,7 @@ class AssignmentsTabFragment : Fragment() {
     }
 
     private fun addCustomAssignment() {
-        val fragment = CustomAssignmentDialog()
+        val fragment = CustomAssignmentDialog(this)
         fragment.show(parentFragmentManager, null)
     }
 

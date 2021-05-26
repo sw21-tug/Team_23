@@ -8,6 +8,30 @@
     android:orientation="vertical">
 
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/custom_assignment_title_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Title" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/custom_assignment_description_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Description" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
     <Button
         android:id="@+id/custom_assignment_deadline_button"
         android:layout_width="match_parent"
@@ -15,6 +39,8 @@
         android:paddingStart="10dp"
         android:paddingEnd="10dp"
         android:text="@string/custom_assignment_set_deadline" />
+
+
 
 
 </LinearLayout>
