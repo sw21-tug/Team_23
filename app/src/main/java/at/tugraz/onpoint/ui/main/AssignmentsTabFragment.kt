@@ -188,7 +188,7 @@ class AssignmentsTabFragment : Fragment() {
      * Appends an assignment written by the user, refreshing the recycler view and the notifications
      * for the deadlines.
      */
-    private fun addAssignmentCustomToAssignmentList(
+    fun addAssignmentCustomToAssignmentList(
         title: String, description: String, deadline: Date, links: List<URL>? = null
     ) {
         val uid: Long = assignmentDao.insertOneCustom(title, description, deadline, links)
@@ -273,6 +273,9 @@ data class Assignment(
     }
 
     fun getLinksAsUrls(): List<URL> {
+        if(links.isEmpty()) {
+            return emptyList()
+        }
         return links.split(";").map {
             URL(it)
         }

@@ -46,5 +46,7 @@
     <string name="university_login_failed">Login failed</string>
     <string name="custom_assignment_set_deadline">Set deadline</string>
     <string name="custom_assignment_title">Add custom assignment</string>
+    <string name="save_button">Save</string>
+    <string name="cancel_button">Cancel</string>
 
 </resources>
