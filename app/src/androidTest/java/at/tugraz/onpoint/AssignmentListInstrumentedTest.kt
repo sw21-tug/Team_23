@@ -301,16 +301,34 @@ class AssignmentsListInstrumentedTest {
     @Test
     fun getAssignmentFiles() {
         launchActivity<MainTabbedActivity>()
-        val assingmentTabFrag = AssignmentsTabFragment()
-        assingmentTabFrag.db.getMoodleDao()
-            .insertOne("di Vora", "test", "onpoint!T23", "moodle.divora.at")
-        assingmentTabFrag.syncAssignments()
-        val moddleAssignment: Assignment = assingmentTabFrag.assignmentsList.last()
-        assert(moddleAssignment.title == "Assignment 1")
-        assert(moddleAssignment.description.contains("Assignment 1 - Description"))
-        assert(moddleAssignment.getLinksAsUrls().size == 2)
-        assert(moddleAssignment.getLinksAsUrls()[0].toString().contains(".pdf?"))
-        assert(moddleAssignment.getLinksAsUrls()[1].toString().contains(".pdf?"))
+        onView(withText("Assign.")).perform(click())
+        onView(withId(R.id.assignment_sync_assignments)).perform(click())
+        Thread.sleep(5000) /// Sleeping to wait for request through moddle API to
+        // be recieved and the list updated
+
+
+        onView(withId(R.id.assignmentsList))
+            .perform(
+                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
+                    0,
+                    click()
+                )
+            )
+        onView(withId(R.id.fragment_assignment_details_linearlayout))
+            .inRoot(isDialog())
+            .check(matches(isDisplayed()))
+        onView(withId(R.id.assignmentsListDetailsDescription))
+            .check(matches(withSubstring("Assignment 1 - Description")))
+            .check(matches(isDisplayed()))
+        onView(withId(R.id.assignmentsListDetailsDeadline))
+            .check(matches(withText(startsWith("Deadline"))))
+            .check(matches(isDisplayed()))
+        onView(withId(R.id.assignmentsListDetailsLinks))
+            .check(matches(withText(startsWith("http"))))
+            .check(matches(withSubstring(".pdf?")))
+            .check(matches(isDisplayed()))
+            .check(matches(isClickable()))
+            .perform(click())
     }
 
     @Test
@@ -333,4 +351,6 @@ class AssignmentsListInstrumentedTest {
             assert(response is AssignmentResponse)
         }
     }
+
+
 }
