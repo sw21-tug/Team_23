@@ -40,7 +40,6 @@ class AssignmentsTabFragment : Fragment() {
     val db: OnPointAppDatabase = getDbInstance(null)
     private val moodleDao: MoodleDao = db.getMoodleDao()
     private val assignmentDao: AssignmentDao = db.getAssignmentDao()
-    // TODO latestAssignmentId replaced with one obtained from the DB (auto-incrementing integer). See how the TodoList does it.
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

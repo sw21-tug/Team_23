@@ -300,6 +300,26 @@ class AssignmentsListInstrumentedTest {
         onView(withId(R.id.assignment_searchview)).check(matches(isDisplayed()))
     }
 
-
+    @Test
+    fun assignmentListDetailsHaveClickableLinks() {
+        launchActivity<MainTabbedActivity>()
+        onView(withText("Assign.")).perform(click())
+        // Click item at position 3
+        onView(withId(R.id.assignmentsList))
+            .perform(
+                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
+                    3,
+                    click()
+                )
+            )
+        onView(withId(R.id.fragment_assignment_details_linearlayout))
+            .inRoot(isDialog())
+            .check(matches(isDisplayed()))
+        onView(withId(R.id.assignmentsListDetailsLinks))
+            .check(matches(withText(startsWith("http"))))
+            .check(matches(isDisplayed()))
+            .check(matches(isClickable()))
+            .perform(click())
+    }
 }
 
