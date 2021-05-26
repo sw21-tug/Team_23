@@ -113,7 +113,7 @@ class AssignmentsTabFragment : Fragment() {
         }
         for (account in moodleDao.selectAll()) {
             moodleApi.setAuthority(account.apiLink)
-            notifyUser("Accessing ${moodleApi.getAuthority()}")
+            notifyUser("Accessing ${account.apiLink} as ${account.userName}")
             moodleApi.login(account.userName, account.password) { response: Any ->
                 run {
                     if (response is LoginSuccessData) {

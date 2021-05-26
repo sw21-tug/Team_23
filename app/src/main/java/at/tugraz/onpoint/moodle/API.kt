@@ -104,10 +104,6 @@ open class API {
         }
     }
 
-    fun getAuthority(): String {
-        return authority
-    }
-
     fun setAuthority(auth: String) {
         this.authority = auth
     }
