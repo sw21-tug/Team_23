@@ -50,6 +50,7 @@ class AssignmentsTabFragment : Fragment() {
         }
         // Fill the assignment list retrieved from the persistent database
         assignmentsList.addAll(assignmentDao.selectAll())
+        completeState.addAll(assignmentDao.selectAll())
     }
 
     override fun onCreateView(
@@ -85,13 +86,15 @@ class AssignmentsTabFragment : Fragment() {
         val searchView: SearchView = root.findViewById(R.id.assignment_searchview)
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextChange(newText: String?): Boolean {
-                if (newText != null) {
+                if (newText != null){
                     val temp = completeState.toMutableList()
                     assignmentsList.clear()
                     assignmentsList.addAll(filter(temp, newText) as ArrayList<Assignment>)
                     adapter!!.notifyDataSetChanged()
                     return true
                 }
+
+
                 return false
             }
 
