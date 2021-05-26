@@ -33,6 +33,8 @@ class AssignmentDetailsFragment(val assignment: Assignment) :
         return inflater.inflate(R.layout.fragment_assignment_details, container, false)
     }
 
+    lateinit var alertDialog: AlertDialog;
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             val dialogBuilder = AlertDialog.Builder(it)
@@ -49,6 +51,8 @@ class AssignmentDetailsFragment(val assignment: Assignment) :
             // Add-to-calendar button
             val button: Button = view.findViewById(R.id.addMeToCalendar)
             button.setOnClickListener { addDeadlineToCalendar(assignment) }
+            val done_button: Button = view.findViewById(R.id.assignmentsListDetailsDoneButton)
+            done_button.setOnClickListener { onAssignmentDone() }
             dialogBuilder.setView(view)
             dialogBuilder.setTitle(assignment.title)
             dialogBuilder.setNegativeButton(
@@ -65,8 +69,13 @@ class AssignmentDetailsFragment(val assignment: Assignment) :
                 fragment.show(parentFragmentManager, null)
             }
             // Create the AlertDialog object and return it
-            dialogBuilder.create()
+            alertDialog = dialogBuilder.create()
+            return alertDialog
         } ?: throw IllegalStateException("Activity cannot be null")
+    }
+
+    fun onAssignmentDone() {
+        alertDialog.dismiss()
     }
 
     private fun addDeadlineToCalendar(assignment: Assignment) {
