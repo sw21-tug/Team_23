@@ -325,7 +325,7 @@ class AssignmentsListInstrumentedTest {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
         onView(withId(R.id.text_assignment_active)).check(matches(withText("Active Assignments")));
-        onView(withId(R.id.text_assignment_done)).check(matches(withText("Done")));
+        onView(withId(R.id.text_assignment_done)).check(matches(withText("Done Assignments")));
     }
 
     @Test
