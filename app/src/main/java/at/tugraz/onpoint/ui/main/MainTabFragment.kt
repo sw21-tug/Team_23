@@ -12,8 +12,15 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import at.tugraz.onpoint.R
+import at.tugraz.onpoint.database.*
 
 class MainTabFragment : Fragment() {
+    val db: OnPointAppDatabase = getDbInstance(null)
+    private val assignmentDao: AssignmentDao = db.getAssignmentDao()
+    private val todoDao: TodoDao = db.getTodoDao()
+    private val assignmentList =  arrayListOf<Assignment>()
+    private val todoList =  arrayListOf<Todo>()
+
 
     private lateinit var pageViewModel: PageViewModel
 
@@ -22,21 +29,30 @@ class MainTabFragment : Fragment() {
         pageViewModel = ViewModelProvider(this).get(PageViewModel::class.java).apply {
             setIndex(arguments?.getInt(ARG_SECTION_NUMBER) ?: 1)
         }
+
     }
 
+
+
     override fun onCreateView(
+
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_main, container, false)
 
+        println("InMainTabbedActivity")
+        todoList.clear()
+        assignmentList.clear()
+        todoList.addAll(todoDao.selectAllNotCompleted())
+        assignmentList.addAll(assignmentDao.selectAll())
+
+
+        //get todos and assignments from db
         val todoLayout = root.findViewById(R.id.homescreen_todo_list_id) as ViewGroup
         val recentLayout = root.findViewById(R.id.recent_linear_layout) as ViewGroup
-        val todoList = listOf("todo1", "todo2")
-        val recentList = listOf("recent1")
+
         for (todoItem in todoList) {
-            // TextView2
-            println("In todo loop")
             val lptv = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
@@ -46,7 +62,7 @@ class MainTabFragment : Fragment() {
             val textView = TextView(activity)
             textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20.0F)
             textView.layoutParams = lptv
-            textView.text = todoItem
+            textView.text = todoItem.title
             textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_grey))
             textView.setPadding(30, 40, 30, 40)
             textView.setBackgroundColor(
@@ -63,7 +79,7 @@ class MainTabFragment : Fragment() {
 
         }
 
-        for (recentItem in recentList) {
+        for (recentItem in assignmentList) {
             // TextView2
             println("In todo loop")
             val lptv = LinearLayout.LayoutParams(
@@ -75,7 +91,7 @@ class MainTabFragment : Fragment() {
             val textView = TextView(activity)
             textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20.0F)
             textView.layoutParams = lptv
-            textView.text = recentItem
+            textView.text = recentItem.title
             //textView.setTextColor(R.color.text_grey)
             textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_grey))
 
