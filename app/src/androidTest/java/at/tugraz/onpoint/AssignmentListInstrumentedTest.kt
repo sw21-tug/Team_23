@@ -303,7 +303,8 @@ class AssignmentsListInstrumentedTest {
     @Test
     fun checkIfCustomAddButtonExists() {
         launchActivity<MainTabbedActivity>()
-        onView(withId(R.id.custom_assignment_add_button).check(matches(isClickable())))
+        onView(withText("Assign.")).perform(click())
+        onView(withId(R.id.custom_assignment_add_button)).check(matches(isClickable()))
     }
 
 
