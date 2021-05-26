@@ -356,11 +356,11 @@ class AssignmentsListInstrumentedTest {
             .inRoot(isDialog())
             .check(matches(isDisplayed()))
 
-        onView(withText("Cancel"))
+        onView(withText( R.string.cancel_button))
             .inRoot(isDialog())
             .check(matches(isClickable()))
 
-        onView(withText("Save"))
+        onView(withText(R.string.save_button))
             .inRoot(isDialog())
             .check(matches(isClickable()))
     }
