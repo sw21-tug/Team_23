@@ -307,7 +307,15 @@ class AssignmentsListInstrumentedTest {
         onView(withId(R.id.custom_assignment_add_button)).check(matches(isClickable()))
     }
 
-
+    @Test
+    fun checkIfCustomDetailsDialogIsShown() {
+        launchActivity<MainTabbedActivity>()
+        onView(withText("Assign.")).perform(click())
+        onView(withId(R.id.custom_assignment_add_button)).perform(click())
+        onView(withId(R.id.fragment_assignment_custom_details))
+            .inRoot(isDialog())
+            .check(matches(isDisplayed()))
+    }
 
 }
 
