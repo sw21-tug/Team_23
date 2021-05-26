@@ -324,7 +324,7 @@ class AssignmentsListInstrumentedTest {
     fun checkForAssignmentLabels() {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
-        onView(withId(R.id.text_assignment_active)).check(matches(withText("Active")));
+        onView(withId(R.id.text_assignment_active)).check(matches(withText("Active Assignments")));
         onView(withId(R.id.text_assignment_done)).check(matches(withText("Done")));
     }
 
