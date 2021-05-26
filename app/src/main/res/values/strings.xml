@@ -44,5 +44,7 @@
     <string name="assignment_sync_now">Sync Now</string>
     <string name="university_login_successful">Login successful</string>
     <string name="university_login_failed">Login failed</string>
+    <string name="custom_assignment_set_deadline">Set deadline</string>
+    <string name="custom_assignment_title">Add custom assignment</string>
 
 </resources>
