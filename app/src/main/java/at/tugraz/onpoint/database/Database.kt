@@ -102,10 +102,10 @@ interface AssignmentDao {
     @Query("SELECT * FROM assignment ORDER BY deadline ASC")
     fun selectAll(): List<Assignment>
 
-    @Query("SELECT * FROM assignment ORDER BY deadline ASC")
+    @Query("SELECT * FROM assignment WHERE done = 0 ORDER BY deadline ASC")
     fun selectAllActive(): List<Assignment>
 
-    @Query("SELECT * FROM assignment ORDER BY deadline ASC")
+    @Query("SELECT * FROM assignment WHERE done = 1 ORDER BY deadline ASC")
     fun selectAllDone(): List<Assignment>
 
     @Query("SELECT * FROM assignment WHERE uid = (:uid)")
