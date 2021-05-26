@@ -36,7 +36,9 @@ class AssignmentsTabFragment : Fragment() {
     private lateinit var pageViewModel: PageViewModel
     private var assignmentsList = arrayListOf<Assignment>()
     private var completeState = arrayListOf<Assignment>()
+    private var completedAssignmentsList = arrayListOf<Assignment>()
     private var adapter: AssignmentsAdapter? = null
+    private var completedAdapter: AssignmentsAdapter? = null
     val db: OnPointAppDatabase = getDbInstance(null)
     private val moodleDao: MoodleDao = db.getMoodleDao()
     private val assignmentDao: AssignmentDao = db.getAssignmentDao()
@@ -66,7 +68,18 @@ class AssignmentsTabFragment : Fragment() {
                     "Dummy Assignment $i",
                     "Dummy Description $i",
                     Date(Date().time + (24L * 3600 * 1000 * i) + 60000L),
-                    arrayListOf(URL("https://www.tugraz.at"), URL("https://tc.tugraz.at"))
+                    arrayListOf(URL("https://www.tugraz.at"), URL("https://tc.tugraz.at")),
+                )
+            }
+        }
+        if (completedAssignmentsList.isEmpty()) {
+            for (i in 51..55) {
+                addAssignmentCustomToAssignmentList(
+                    "Dummy Assignment $i",
+                    "Dummy Description $i",
+                    Date(Date().time + (24L * 3600 * 1000 * i) + 60000L),
+                    arrayListOf(URL("https://www.tugraz.at"), URL("https://tc.tugraz.at")),
+                    true
                 )
             }
         }
@@ -78,6 +91,14 @@ class AssignmentsTabFragment : Fragment() {
         adapter =
             this.context?.let { AssignmentsAdapter(assignmentsList, it, parentFragmentManager) }
         assignmentsRecView.adapter = this.adapter
+
+        // Create the Recyclerview for completed assignments, make it a linear list (not a grid), assign the list of
+        // items to it and provide and adapter constructing each element of the list as a TextView
+        val completedAssignmentsRecView: RecyclerView = root.findViewById(R.id.assignmentListDone)
+        completedAssignmentsRecView.layoutManager = LinearLayoutManager(this.context)
+        completedAdapter =
+            this.context?.let { AssignmentsAdapter(completedAssignmentsList, it, parentFragmentManager) }
+        completedAssignmentsRecView.adapter = this.completedAdapter
 
         val searchView: SearchView = root.findViewById(R.id.assignment_searchview)
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -181,12 +202,16 @@ class AssignmentsTabFragment : Fragment() {
      * for the deadlines.
      */
     private fun addAssignmentCustomToAssignmentList(
-        title: String, description: String, deadline: Date, links: List<URL>? = null
+        title: String, description: String, deadline: Date, links: List<URL>? = null, done: Boolean = false
     ) {
         val uid: Long = assignmentDao.insertOneCustom(title, description, deadline, links)
         val assignment = assignmentDao.selectOne(uid)
-        assignmentsList.add(assignment)
-        completeState.add(assignment)
+        if(!done){
+            assignmentsList.add(assignment)
+            completeState.add(assignment)
+        }else{
+            completedAssignmentsList.add(assignment)
+        }
         adapter?.notifyDataSetChanged()
     }
 
