@@ -79,7 +79,7 @@ class AssignmentsTabFragment : Fragment() {
                     "Dummy Description $i",
                     Date(Date().time + (24L * 3600 * 1000 * i) + 60000L),
                     arrayListOf(URL("https://www.tugraz.at"), URL("https://tc.tugraz.at")),
-                    true
+                    1
                 )
             }
         }
@@ -187,10 +187,10 @@ class AssignmentsTabFragment : Fragment() {
      * notifications for the deadlines.
      */
     private fun addAssignmentFromMoodleToAssignmentList(
-        title: String, description: String, deadline: Date, links: List<URL>? = null, moodleId: Int
+        title: String, description: String, deadline: Date, links: List<URL>? = null, moodleId: Int, done: Int? = 0
     ) {
         val uid: Long =
-            assignmentDao.insertOneFromMoodle(title, description, deadline, links, moodleId)
+            assignmentDao.insertOneFromMoodle(title, description, deadline, links, moodleId, done)
         val assignment = assignmentDao.selectOne(uid)
         assignmentsList.add(assignment)
         completeState.add(assignment)
@@ -202,11 +202,11 @@ class AssignmentsTabFragment : Fragment() {
      * for the deadlines.
      */
     private fun addAssignmentCustomToAssignmentList(
-        title: String, description: String, deadline: Date, links: List<URL>? = null, done: Boolean = false
+        title: String, description: String, deadline: Date, links: List<URL>? = null, done: Int? = 0
     ) {
-        val uid: Long = assignmentDao.insertOneCustom(title, description, deadline, links)
+        val uid: Long = assignmentDao.insertOneCustom(title, description, deadline, links, done)
         val assignment = assignmentDao.selectOne(uid)
-        if(!done){
+        if(done == 0){
             assignmentsList.add(assignment)
             completeState.add(assignment)
             adapter?.notifyDataSetChanged()
@@ -278,7 +278,10 @@ data class Assignment(
     var uid: Int? = null,
 
     @ColumnInfo(name = "moodle_id")
-    var moodleId: Int? = null
+    var moodleId: Int? = null,
+
+    @ColumnInfo(name = "done")
+    var done: Int? = 0
 ) {
 
     companion object {

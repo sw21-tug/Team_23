@@ -368,5 +368,19 @@ class AssignmentsListInstrumentedTest {
         onView(withId(R.id.assignmentListDone))
             .check(matches(hasDescendant(withText("Dummy Assignment 3"))))
     }
+
+    @Test
+    fun databaseSelectAllSpecific() {
+        assignmentDao.insertOneRaw("Test", "Test", 0, "https://example.com", 0, 0);
+        assignmentDao.insertOneRaw("Test2", "Test2", 0, "https://example.com", 0, 0);
+        assignmentDao.insertOneRaw("Test3", "Test3", 0, "https://example.com", 0, 0);
+        assignmentDao.insertOneRaw("Test4", "Test4", 0, "https://example.com", 0, 1);
+        assignmentDao.insertOneRaw("Test5", "Test5", 0, "https://example.com", 0, 1);
+
+        val assignmentActive: List<Assignment> = assignmentDao.selectAllActive()
+        val assignmentDone: List<Assignment> = assignmentDao.selectAllDone()
+        assert(assignmentActive.size == 3)
+        assert(assignmentDone.size == 2)
+    }
 }
 
