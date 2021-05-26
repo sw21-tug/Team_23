@@ -21,6 +21,7 @@ import at.tugraz.onpoint.database.AssignmentDao
 import at.tugraz.onpoint.database.OnPointAppDatabase
 import at.tugraz.onpoint.database.getDbInstance
 import at.tugraz.onpoint.ui.main.Assignment
+import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.startsWith
 import org.junit.After
 import org.junit.Before
@@ -381,6 +382,21 @@ class AssignmentsListInstrumentedTest {
         val assignmentDone: List<Assignment> = assignmentDao.selectAllDone()
         assert(assignmentActive.size == 3)
         assert(assignmentDone.size == 2)
+    }
+
+    @Test
+    fun checkDisabledDoneButtonForCompletedAssignment(){
+        launchActivity<MainTabbedActivity>()
+        onView(withText("Assign.")).perform(click())
+        onView(withId(R.id.assignmentListDone))
+            .perform(
+                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
+                    1,
+                    click()
+                )
+            )
+        onView(withId(R.id.assignmentsListDetailsDoneButton))
+            .check(matches(not(isDisplayed())))
     }
 }
 
