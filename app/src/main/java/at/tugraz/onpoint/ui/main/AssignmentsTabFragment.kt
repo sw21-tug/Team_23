@@ -89,7 +89,7 @@ class AssignmentsTabFragment : Fragment() {
         val assignmentsRecView: RecyclerView = root.findViewById(R.id.assignmentsList)
         assignmentsRecView.layoutManager = LinearLayoutManager(this.context)
         adapter =
-            this.context?.let { AssignmentsAdapter(assignmentsList, it, parentFragmentManager) }
+            this.context?.let { AssignmentsAdapter(assignmentsList, it, parentFragmentManager, this) }
         assignmentsRecView.adapter = this.adapter
 
         // Create the Recyclerview for completed assignments, make it a linear list (not a grid), assign the list of
@@ -97,7 +97,7 @@ class AssignmentsTabFragment : Fragment() {
         val completedAssignmentsRecView: RecyclerView = root.findViewById(R.id.assignmentListDone)
         completedAssignmentsRecView.layoutManager = LinearLayoutManager(this.context)
         completedAdapter =
-            this.context?.let { AssignmentsAdapter(completedAssignmentsList, it, parentFragmentManager) }
+            this.context?.let { AssignmentsAdapter(completedAssignmentsList, it, parentFragmentManager, this) }
         completedAssignmentsRecView.adapter = this.completedAdapter
 
         val searchView: SearchView = root.findViewById(R.id.assignment_searchview)
@@ -209,10 +209,20 @@ class AssignmentsTabFragment : Fragment() {
         if(!done){
             assignmentsList.add(assignment)
             completeState.add(assignment)
+            adapter?.notifyDataSetChanged()
         }else{
             completedAssignmentsList.add(assignment)
+            completedAdapter?.notifyDataSetChanged()
         }
-        adapter?.notifyDataSetChanged()
+
+    }
+
+
+    fun markAssignmentAsDone(assignment: Assignment) {
+        completedAssignmentsList.add(assignment);
+        assignmentsList.remove(assignment);
+        adapter?.notifyDataSetChanged();
+        completedAdapter?.notifyDataSetChanged();
     }
 
     companion object {
@@ -331,7 +341,8 @@ data class Assignment(
 private class AssignmentsAdapter(
     val items: ArrayList<Assignment>,
     val context: Context,
-    val fragmentManager: FragmentManager
+    val fragmentManager: FragmentManager,
+    val fragment: AssignmentsTabFragment
 ) :
     RecyclerView.Adapter<ViewHolder>() {
     override fun getItemCount(): Int {
@@ -342,7 +353,8 @@ private class AssignmentsAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
             LayoutInflater.from(context).inflate(R.layout.assignment_list_entry, parent, false),
-            fragmentManager
+            fragmentManager,
+            fragment
         )
     }
 
@@ -353,7 +365,7 @@ private class AssignmentsAdapter(
     }
 }
 
-private class ViewHolder(view: View, val fragmentManager: FragmentManager) :
+private class ViewHolder(view: View, val fragmentManager: FragmentManager, val assignment_fragment: AssignmentsTabFragment) :
     RecyclerView.ViewHolder(view) {
     lateinit var assignment: Assignment
     val assignmentListEntryTextView: TextView = view.findViewById(R.id.assignmentsListEntry)
@@ -370,5 +382,12 @@ private class ViewHolder(view: View, val fragmentManager: FragmentManager) :
         // which was never displayed?
         val fragment = AssignmentDetailsFragment(assignment)
         fragment.show(fragmentManager, null)
+        fragment.onDoneButtonClicked = {
+            val isAssignmentDone: Boolean = fragment.isAssignmentDone;
+            if(isAssignmentDone) {
+                val assignment = fragment.assignment;
+                assignment_fragment.markAssignmentAsDone(assignment);
+            }
+        }
     }
 }

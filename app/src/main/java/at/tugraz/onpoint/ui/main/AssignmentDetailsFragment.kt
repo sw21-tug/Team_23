@@ -34,6 +34,8 @@ class AssignmentDetailsFragment(val assignment: Assignment) :
     }
 
     lateinit var alertDialog: AlertDialog;
+    var isAssignmentDone: Boolean = false;
+    var onDoneButtonClicked: () -> Unit = {};
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
@@ -75,6 +77,8 @@ class AssignmentDetailsFragment(val assignment: Assignment) :
     }
 
     fun onAssignmentDone() {
+        isAssignmentDone = true;
+        onDoneButtonClicked();
         alertDialog.dismiss()
     }
 
