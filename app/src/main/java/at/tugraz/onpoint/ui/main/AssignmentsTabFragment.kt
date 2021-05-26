@@ -221,6 +221,7 @@ class AssignmentsTabFragment : Fragment() {
     fun markAssignmentAsDone(assignment: Assignment) {
         completedAssignmentsList.add(assignment);
         assignmentsList.remove(assignment);
+        completeState.remove(assignment);
         adapter?.notifyDataSetChanged();
         completedAdapter?.notifyDataSetChanged();
     }

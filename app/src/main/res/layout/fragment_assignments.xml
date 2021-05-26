@@ -18,25 +18,25 @@
 
     <SearchView
         android:id="@+id/assignment_searchview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="20dp"
+
         android:title="@string/assignment_search"
         app:actionViewClass="android.support.v7.widget.SearchView"
+        app:layout_constraintBottom_toTopOf="@+id/text_assignment_active"
+
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/assignment_sync_assignments"
-
-        app:showAsAction="always"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-
-        android:paddingTop="20dp"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:showAsAction="always" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/assignmentsList"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:visibility="visible"
         app:layout_constraintBottom_toTopOf="@+id/text_assignment_done"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/text_assignment_active">
 
@@ -45,11 +45,9 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/assignmentListDone"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:visibility="visible"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/text_assignment_done" />
 
@@ -57,11 +55,12 @@
         android:id="@+id/text_assignment_done"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="94dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp"
         android:text="@string/text_assignment_done"
+        android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/assignmentListDone"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/assignmentsList" />
 
@@ -69,11 +68,12 @@
         android:id="@+id/text_assignment_active"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="8dp"
         android:text="@string/text_assignment_active"
+        android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/assignmentsList"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/assignment_searchview" />
 

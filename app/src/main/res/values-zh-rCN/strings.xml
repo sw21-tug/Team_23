@@ -31,7 +31,7 @@
     <string name="university_login_failed">登录失败</string>
     <string name="assignment_search">作业搜索</string>
     <string name="assignment_dialog_done_button">完毕</string>
-    <string name="text_assignment_done">完毕</string>
+    <string name="text_assignment_done">已完成的作业</string>
     <string name="text_assignment_active">活跃的任务</string>
 
 </resources>
