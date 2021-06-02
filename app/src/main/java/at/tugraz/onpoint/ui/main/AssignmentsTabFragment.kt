@@ -101,13 +101,12 @@ class AssignmentsTabFragment : Fragment() {
     }
 
     private fun notifyUser(msg: String) {
-        Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+        if (context != null) {
+            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+        }
     }
 
     fun syncAssignments() {
-
-
-
         val moodleApi = API()
         assignmentDao.deleteMoodleAssignments()
         assignmentsList.clear()

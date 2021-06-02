@@ -88,6 +88,8 @@ class AssignmentsListInstrumentedTest {
     fun checkForAssignmentListExistence() {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
+        onView(withId(R.id.assignment_sync_assignments)).perform(click())
+        Thread.sleep(2000) /// Sleeping to wait for request through Moodle API
         onView(withId(R.id.assignmentsList)).check(matches(isDisplayed()))
     }
 
@@ -95,19 +97,22 @@ class AssignmentsListInstrumentedTest {
     fun checkForContentInAssignmentList() {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
+        onView(withId(R.id.assignment_sync_assignments)).perform(click())
+        Thread.sleep(2000) /// Sleeping to wait for request through Moodle API
         onView(withId(R.id.assignmentsList))
-            .check(matches(hasDescendant(withText("Dummy Assignment 5"))))
+            .check(matches(hasDescendant(withText("Assignment 1"))))
     }
 
     @Test
     fun checkForDetailsInAssignmentListEntry() {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
-        // Click item at position 3
+        onView(withId(R.id.assignment_sync_assignments)).perform(click())
+        Thread.sleep(2000) /// Sleeping to wait for request through Moodle API
         onView(withId(R.id.assignmentsList))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
-                    3,
+                    1,
                     click()
                 )
             )
@@ -115,7 +120,7 @@ class AssignmentsListInstrumentedTest {
             .inRoot(isDialog())
             .check(matches(isDisplayed()))
         onView(withId(R.id.assignmentsListDetailsDescription))
-            .check(matches(withText("Dummy Description 3")))
+            .check(matches(withText("Assignment 1 - Description")))
             .check(matches(isDisplayed()))
         onView(withId(R.id.assignmentsListDetailsDeadline))
             .check(matches(withText(startsWith("Deadline"))))
@@ -141,7 +146,7 @@ class AssignmentsListInstrumentedTest {
     }
 
     @Test
-    fun mockNotificationTappingOpensAppInAssignemntTab() {
+    fun mockNotificationTappingOpensAppInAssignmentTab() {
         // Mock intent that is fired when tapping on the notification
         // Does exactly the same stuff as the one implemented inside the app.
         // Testing the notification behaviour is out of scope: we assume Android works properly.
@@ -155,18 +160,19 @@ class AssignmentsListInstrumentedTest {
         onView(withText("Main")).check(matches(isDisplayed()))
         onView(withText("Todo")).check(matches(isDisplayed()))
         onView(withText("Assign.")).check(matches(isDisplayed()))
-        onView(withId(R.id.assignmentsList)).check(matches(isDisplayed()))
+        onView(withId(R.id.assignment_sync_assignments)).check(matches(isDisplayed()))
     }
 
     @Test
     fun checkDeadlinePickerAppearsWhenClickingOnSetReminder() {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
-        // Click item at position 3
+        onView(withId(R.id.assignment_sync_assignments)).perform(click())
+        Thread.sleep(2000) /// Sleeping to wait for request through Moodle API
         onView(withId(R.id.assignmentsList))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
-                    3,
+                    1,
                     click()
                 )
             )
@@ -239,11 +245,12 @@ class AssignmentsListInstrumentedTest {
     fun checkForAddToCalendarButton() {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
-        // Click item at position 3
+        onView(withId(R.id.assignment_sync_assignments)).perform(click())
+        Thread.sleep(2000) /// Sleeping to wait for request through Moodle API
         onView(withId(R.id.assignmentsList))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
-                    3,
+                    1,
                     click()
                 )
             )
@@ -258,11 +265,12 @@ class AssignmentsListInstrumentedTest {
     fun checkClickForAddToCalendarButton() {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
-        // Click item at position 3
+        onView(withId(R.id.assignment_sync_assignments)).perform(click())
+        Thread.sleep(2000) /// Sleeping to wait for request through Moodle API
         onView(withId(R.id.assignmentsList))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
-                    3,
+                    1,
                     click()
                 )
             )
@@ -284,11 +292,12 @@ class AssignmentsListInstrumentedTest {
     fun assignmentListDetailsHaveClickableLinks() {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
-        // Click item at position 3
+        onView(withId(R.id.assignment_sync_assignments)).perform(click())
+        Thread.sleep(2000) /// Sleeping to wait for request through Moodle API
         onView(withId(R.id.assignmentsList))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
-                    3,
+                    1,
                     click()
                 )
             )
@@ -299,7 +308,6 @@ class AssignmentsListInstrumentedTest {
             .check(matches(withText(startsWith("http"))))
             .check(matches(isDisplayed()))
             .check(matches(isClickable()))
-            .perform(click())
     }
 
     @Test
@@ -307,7 +315,7 @@ class AssignmentsListInstrumentedTest {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
         onView(withId(R.id.assignment_sync_assignments)).perform(click())
-        Thread.sleep(5000) /// Sleeping to wait for request through moddle API to
+        Thread.sleep(2000) /// Sleeping to wait for request through moddle API to
         // be recieved and the list updated
         onView(withId(R.id.assignmentsList))
             .perform(
@@ -380,7 +388,7 @@ class AssignmentsListInstrumentedTest {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
         onView(withId(R.id.assignment_sync_assignments)).perform(click())
-        Thread.sleep(5000) /// Sleeping to wait for request through moddle API to
+        Thread.sleep(2000) /// Sleeping to wait for request through moddle API to
         // be recieved and the list updated
         onView(withId(R.id.assignmentsList))
             .perform(
@@ -396,15 +404,7 @@ class AssignmentsListInstrumentedTest {
             .check(matches(not(withSubstring("<p"))))
 
     }
-
-
-
-
-
     // TODO test that custom assignments are not overwritten/removed by the sync
-
-
-
 }
 
 
