@@ -73,7 +73,7 @@ class AssignmentsTabFragment : Fragment() {
             }
         }
         if (completedAssignmentsList.isEmpty()) {
-            for (i in 51..55) {
+            for (i in 51..52) {
                 addAssignmentCustomToAssignmentList(
                     "Dummy Assignment $i",
                     "Dummy Description $i",
