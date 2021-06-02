@@ -312,7 +312,7 @@ class AssignmentsListInstrumentedTest {
         onView(withId(R.id.assignmentsList))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
-                    0,
+                    1,
                     click()
                 )
             )
@@ -373,7 +373,38 @@ class AssignmentsListInstrumentedTest {
         assert(itemsInListAfterFirstSync == itemsInListAfterSecondSync)
         // Note: for our dummy Moodle, the amount of assignments will never really change.
     }
+
+
+    @Test
+    fun checkAssignmentDescriptionIsNotHTMLCode() {
+        launchActivity<MainTabbedActivity>()
+        onView(withText("Assign.")).perform(click())
+        onView(withId(R.id.assignment_sync_assignments)).perform(click())
+        Thread.sleep(5000) /// Sleeping to wait for request through moddle API to
+        // be recieved and the list updated
+        onView(withId(R.id.assignmentsList))
+            .perform(
+                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
+                    1,
+                    click()
+                )
+            )
+        onView(withId(R.id.fragment_assignment_details_linearlayout))
+            .inRoot(isDialog())
+            .check(matches(isDisplayed()))
+        onView(withId(R.id.assignmentsListDetailsDescription))
+            .check(matches(not(withSubstring("<p"))))
+
+    }
+
+
+
+
+
     // TODO test that custom assignments are not overwritten/removed by the sync
+
+
+
 }
 
 
