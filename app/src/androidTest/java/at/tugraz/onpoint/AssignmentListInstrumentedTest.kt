@@ -2,11 +2,14 @@ package at.tugraz.onpoint
 
 import android.content.Context
 import android.content.Intent
+import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.NoMatchingViewException
+import androidx.test.espresso.ViewAssertion
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
@@ -23,8 +26,9 @@ import at.tugraz.onpoint.moodle.API
 import at.tugraz.onpoint.moodle.AssignmentResponse
 import at.tugraz.onpoint.moodle.LoginSuccessData
 import at.tugraz.onpoint.ui.main.Assignment
-import at.tugraz.onpoint.ui.main.AssignmentsTabFragment
-import org.hamcrest.CoreMatchers.startsWith
+import org.hamcrest.CoreMatchers.*
+import org.hamcrest.Matcher
+import org.hamcrest.TypeSafeMatcher
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -305,8 +309,6 @@ class AssignmentsListInstrumentedTest {
         onView(withId(R.id.assignment_sync_assignments)).perform(click())
         Thread.sleep(5000) /// Sleeping to wait for request through moddle API to
         // be recieved and the list updated
-
-
         onView(withId(R.id.assignmentsList))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
@@ -352,5 +354,37 @@ class AssignmentsListInstrumentedTest {
         }
     }
 
+    @Test
+    fun syncAssignmentsDoesNotDoubleInsertIntoList() {
+        launchActivity<MainTabbedActivity>()
+        onView(withText("Assign.")).perform(click())
+        onView(withId(R.id.assignment_sync_assignments)).perform(click())
+        Thread.sleep(5000) /// Sleeping to wait for request through Moodle API to
+        // be received and the list updated
+        onView(withId(R.id.assignmentsList)).check(RecyclerViewItemCounter())
+        val itemsInListAfterFirstSync = RecyclerViewItemCounter.lastCount
+        // Sync again: the recyclerview length should not change: previously-contained
+        // assignments should still be there
+        onView(withId(R.id.assignment_sync_assignments)).perform(click())
+        Thread.sleep(5000) /// Sleeping to wait for request through Moodle API to
+        // be recieved and the list updated
+        onView(withId(R.id.assignmentsList)).check(RecyclerViewItemCounter())
+        val itemsInListAfterSecondSync = RecyclerViewItemCounter.lastCount
+        assert(itemsInListAfterFirstSync == itemsInListAfterSecondSync)
+        // Note: for our dummy Moodle, the amount of assignments will never really change.
+    }
+    // TODO test that custom assignments are not overwritten/removed by the sync
+}
 
+
+class RecyclerViewItemCounter : ViewAssertion {
+    override fun check(view: View, noViewFoundException: NoMatchingViewException?) {
+        val recyclerView = view as RecyclerView
+        lastCount = recyclerView.adapter!!.itemCount
+        assert(true)
+    }
+
+    companion object{
+        var lastCount: Int = 0
+    }
 }
