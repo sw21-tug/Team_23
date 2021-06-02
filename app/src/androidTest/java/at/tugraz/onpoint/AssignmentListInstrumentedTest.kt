@@ -354,7 +354,70 @@ class AssignmentsListInstrumentedTest {
         onView(withId(R.id.assignmentListDone))
             .check(matches(isDisplayed()))
     }
+    @Test
+    fun checkIfCustomAddButtonExists() {
+        launchActivity<MainTabbedActivity>()
+        onView(withText("Assign.")).perform(click())
+        onView(withId(R.id.custom_assignment_add_button)).check(matches(isClickable()))
+    }
 
+    @Test
+    fun checkIfCustomDetailsDialogIsShown() {
+        launchActivity<MainTabbedActivity>()
+        onView(withText("Assign.")).perform(click())
+        onView(withId(R.id.custom_assignment_add_button)).perform(click())
+        onView(withId(R.id.fragment_assignment_custom_details))
+            .inRoot(isDialog())
+            .check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun checkIfCustomDetailsDialogShowsButton() {
+        launchActivity<MainTabbedActivity>()
+        onView(withText("Assign.")).perform(click())
+        onView(withId(R.id.custom_assignment_add_button)).perform(click())
+        onView(withId(R.id.fragment_assignment_custom_details))
+            .inRoot(isDialog())
+            .check(matches(isDisplayed()))
+
+        onView(withId(R.id.custom_assignment_deadline_button)).inRoot(isDialog()).check(matches(isClickable()))
+    }
+
+    @Test
+    fun checkIfCustomDetailsDialogShowsInputFields() {
+        launchActivity<MainTabbedActivity>()
+        onView(withText("Assign.")).perform(click())
+        onView(withId(R.id.custom_assignment_add_button)).perform(click())
+        onView(withId(R.id.fragment_assignment_custom_details))
+            .inRoot(isDialog())
+            .check(matches(isDisplayed()))
+
+        onView(withId(R.id.custom_assignment_title_input))
+            .inRoot(isDialog())
+            .check(matches(isDisplayed()))
+
+        onView(withId(R.id.custom_assignment_description_input))
+            .inRoot(isDialog())
+            .check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun checkIfCustomDetailsDialogShowsCancelSave() {
+        launchActivity<MainTabbedActivity>()
+        onView(withText("Assign.")).perform(click())
+        onView(withId(R.id.custom_assignment_add_button)).perform(click())
+        onView(withId(R.id.fragment_assignment_custom_details))
+            .inRoot(isDialog())
+            .check(matches(isDisplayed()))
+
+        onView(withText( R.string.cancel_button))
+            .inRoot(isDialog())
+            .check(matches(isClickable()))
+
+        onView(withText(R.string.save_button))
+            .inRoot(isDialog())
+            .check(matches(isClickable()))
+    }
     @Test
     fun clickDoneButtonDoneListContainsAssignment(){
         launchActivity<MainTabbedActivity>()

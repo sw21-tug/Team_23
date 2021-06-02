@@ -27,6 +27,7 @@ import at.tugraz.onpoint.database.MoodleDao
 import at.tugraz.onpoint.database.OnPointAppDatabase
 import at.tugraz.onpoint.database.getDbInstance
 import at.tugraz.onpoint.moodle.*
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.net.URL
 import java.util.*
 import kotlin.collections.ArrayList
@@ -50,7 +51,8 @@ class AssignmentsTabFragment : Fragment() {
             setIndex(arguments?.getInt(ARG_SECTION_NUMBER) ?: 1)
         }
         // Fill the assignment list retrieved from the persistent database
-        assignmentsList.addAll(assignmentDao.selectAll())
+        assignmentsList.addAll(assignmentDao.selectAllActive())
+        completeState.addAll(assignmentDao.selectAllActive())
     }
 
     override fun onCreateView(
@@ -60,6 +62,8 @@ class AssignmentsTabFragment : Fragment() {
         val root = inflater.inflate(R.layout.fragment_assignments, container, false)
         root.findViewById<Button>(R.id.assignment_sync_assignments)
             .setOnClickListener { syncAssignments() }
+        root.findViewById<FloatingActionButton>(R.id.custom_assignment_add_button)
+            .setOnClickListener { addCustomAssignment() }
         // TODO replace with assignments obtained from the Moodle API on startup
         // List of dummy assignments, inserted only the first time
         if (assignmentsList.isEmpty()) {
@@ -103,7 +107,7 @@ class AssignmentsTabFragment : Fragment() {
         val searchView: SearchView = root.findViewById(R.id.assignment_searchview)
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextChange(newText: String?): Boolean {
-                if (newText != null) {
+                if (newText != null){
                     val temp = completeState.toMutableList()
                     assignmentsList.clear()
                     assignmentsList.addAll(filter(temp, newText) as ArrayList<Assignment>)
@@ -126,6 +130,11 @@ class AssignmentsTabFragment : Fragment() {
         })
 
         return root
+    }
+
+    private fun addCustomAssignment() {
+        val fragment = CustomAssignmentDialog(this)
+        fragment.show(parentFragmentManager, null)
     }
 
     private fun syncAssignments() {
@@ -201,7 +210,7 @@ class AssignmentsTabFragment : Fragment() {
      * Appends an assignment written by the user, refreshing the recycler view and the notifications
      * for the deadlines.
      */
-    private fun addAssignmentCustomToAssignmentList(
+     fun addAssignmentCustomToAssignmentList(
         title: String, description: String, deadline: Date, links: List<URL>? = null, done: Int? = 0
     ) {
         val uid: Long = assignmentDao.insertOneCustom(title, description, deadline, links, done)
@@ -304,6 +313,9 @@ data class Assignment(
     }
 
     fun getLinksAsUrls(): List<URL> {
+        if(links.isEmpty()) {
+            return emptyList()
+        }
         return links.split(";").map {
             URL(it)
         }

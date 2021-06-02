@@ -44,6 +44,12 @@
     <string name="assignment_sync_now">Sync Now</string>
     <string name="university_login_successful">Login successful</string>
     <string name="university_login_failed">Login failed</string>
+    <string name="custom_assignment_set_deadline">Set deadline</string>
+    <string name="custom_assignment_title">Add custom assignment</string>
+    <string name="save_button">Save</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="custom_assignment_title_input">Title</string>
+    <string name="custom_assignmnet_description_input">Description</string>
     <string name="assignment_dialog_done_button">Done</string>
     <string name="text_assignment_done">Done Assignments</string>
     <string name="text_assignment_active">Active Assignments</string>
