@@ -397,7 +397,22 @@ class AssignmentsListInstrumentedTest {
 
     }
 
-
+    private fun waitForViewToBeVisible(
+        id: Int,
+        maxTries: Int = 100,
+        waitBetweenTriesMillis: Int = 100,
+    ) {
+        for (i in 0..maxTries) {
+            try {
+                onView(withId(id)).check(matches(isDisplayed()))
+                return // View is displayed
+            } catch (e: Exception) {
+                // View is NOT displayed. Wait instead
+                Thread.sleep(waitBetweenTriesMillis.toLong())
+            }
+        }
+        throw Exception("View with $id not found after wait")
+    }
 
 
 
@@ -419,3 +434,5 @@ class RecyclerViewItemCounter : ViewAssertion {
         var lastCount: Int = 0
     }
 }
+
+
