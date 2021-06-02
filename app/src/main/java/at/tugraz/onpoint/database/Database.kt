@@ -15,10 +15,15 @@ val MIGRATION_1_2: Migration = object : Migration(1, 2) {
         database.execSQL("CREATE TABLE IF NOT EXISTS `moodle` (`universityName` TEXT NOT NULL, `userName` TEXT NOT NULL, `password` TEXT NOT NULL, `apiLink` TEXT NOT NULL, `uid` INTEGER PRIMARY KEY AUTOINCREMENT)")
     }
 }
+val MIGRATION_2_3: Migration = object : Migration(2, 3) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("ALTER TABLE `assignment` ADD done INTEGER");
+    }
+}
 
 @Database(
     entities = [Todo::class, Assignment::class, Moodle::class],
-    version = 2,
+    version = 3,
     exportSchema = true
 )
 abstract class OnPointAppDatabase : RoomDatabase() {
@@ -97,16 +102,23 @@ interface AssignmentDao {
     @Query("SELECT * FROM assignment ORDER BY deadline ASC")
     fun selectAll(): List<Assignment>
 
+    @Query("SELECT * FROM assignment WHERE done = 0 ORDER BY deadline ASC")
+    fun selectAllActive(): List<Assignment>
+
+    @Query("SELECT * FROM assignment WHERE done = 1 ORDER BY deadline ASC")
+    fun selectAllDone(): List<Assignment>
+
     @Query("SELECT * FROM assignment WHERE uid = (:uid)")
     fun selectOne(uid: Long): Assignment
 
-    @Query("INSERT INTO assignment (title, description, deadline, links, moodle_id) VALUES (:title, :description, :deadline, :links, :moodleId)")
+    @Query("INSERT INTO assignment (title, description, deadline, links, moodle_id, done) VALUES (:title, :description, :deadline, :links, :moodleId, :done)")
     fun insertOneRaw(
         title: String,
         description: String,
         deadline: Long,
         links: String,
-        moodleId: Int?
+        moodleId: Int?,
+        done: Int? = 0
     ): Long
 
     fun insertOneFromMoodle(
@@ -114,7 +126,8 @@ interface AssignmentDao {
         description: String,
         deadline: Date,
         links: List<URL>? = null,
-        moodleId: Int
+        moodleId: Int,
+        done: Int? = 0
     ): Long {
         // TODO consider stripping the HTML from the description here, to get unformatted text
         return insertOneRaw(
@@ -122,7 +135,8 @@ interface AssignmentDao {
             description,
             Assignment.convertDeadlineDate(deadline),
             Assignment.encodeLinks(links ?: arrayListOf()),
-            moodleId
+            moodleId,
+            done
         )
     }
 
@@ -130,14 +144,16 @@ interface AssignmentDao {
         title: String,
         description: String,
         deadline: Date,
-        links: List<URL>? = null
+        links: List<URL>? = null,
+        done: Int? = 0
     ): Long {
         return insertOneRaw(
             title,
             description,
             Assignment.convertDeadlineDate(deadline),
             Assignment.encodeLinks(links ?: arrayListOf()),
-            null
+            null,
+            done
         )
     }
 
@@ -191,6 +207,7 @@ fun getDbInstance(context: Context?): OnPointAppDatabase {
         // and async queries is a pain for what we need to achieve.
         builder.allowMainThreadQueries()
         builder.addMigrations(MIGRATION_1_2)
+        builder.addMigrations(MIGRATION_2_3)
         INSTANCE = builder.build()
     }
     return INSTANCE as OnPointAppDatabase
