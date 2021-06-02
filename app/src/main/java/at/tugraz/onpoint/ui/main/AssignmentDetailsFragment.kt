@@ -12,6 +12,7 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
 import android.provider.CalendarContract
+import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,6 +20,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.text.HtmlCompat
 import androidx.fragment.app.DialogFragment
 import at.tugraz.onpoint.R
 import java.util.*
@@ -39,7 +41,7 @@ class AssignmentDetailsFragment(val assignment: Assignment) :
             val inflater = requireActivity().layoutInflater
             val view: View = inflater.inflate(R.layout.fragment_assignment_details, null)
             view.findViewById<TextView>(R.id.assignmentsListDetailsDescription).text =
-                assignment.description
+                HtmlCompat.fromHtml(assignment.description, HtmlCompat.FROM_HTML_MODE_COMPACT)
             view.findViewById<TextView>(R.id.assignmentsListDetailsDeadline).text =
                 getString(R.string.assignment_dialog_deadline).plus(
                     assignment.getDeadlineDate().toString()

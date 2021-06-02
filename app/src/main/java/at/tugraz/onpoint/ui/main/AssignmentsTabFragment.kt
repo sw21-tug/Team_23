@@ -161,11 +161,9 @@ class AssignmentsTabFragment : Fragment() {
                 val listOfUrls: List<URL> = listOfUrlsStrings.map { URL("$it?token=$token") }
                 addAssignmentToAssignmentList(
                     title = moodleAssignment.name,
-                    // TODO consider stripping the HTML from the description here
                     description = moodleAssignment.intro,
                     deadline = Date(moodleAssignment.duedate),
                     links = listOfUrls,
-
                 )
             }
         }
