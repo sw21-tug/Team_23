@@ -9,8 +9,10 @@ import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.scrollTo
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
+import androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition
 import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -21,6 +23,7 @@ import at.tugraz.onpoint.database.AssignmentDao
 import at.tugraz.onpoint.database.OnPointAppDatabase
 import at.tugraz.onpoint.database.getDbInstance
 import at.tugraz.onpoint.ui.main.Assignment
+import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.startsWith
 import org.junit.After
 import org.junit.Before
@@ -89,7 +92,7 @@ class AssignmentsListInstrumentedTest {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
         onView(withId(R.id.assignmentsList))
-            .check(matches(hasDescendant(withText("Dummy Assignment 5"))))
+            .check(matches(hasDescendant(withText("Dummy Assignment 1"))))
     }
 
     @Test
@@ -301,6 +304,57 @@ class AssignmentsListInstrumentedTest {
     }
 
     @Test
+    fun checkForDoneButtonInAssignmentListEntry() {
+        launchActivity<MainTabbedActivity>()
+        onView(withText("Assign.")).perform(click())
+        // Click item at position 3
+        onView(withId(R.id.assignmentsList))
+            .perform(
+                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
+                    3,
+                    click()
+                )
+            )
+        onView(withId(R.id.fragment_assignment_details_linearlayout))
+            .inRoot(isDialog())
+            .check(matches(isDisplayed()))
+        onView(withId(R.id.assignmentsListDetailsDoneButton))
+            .check(matches(isDisplayed()))
+            .check(matches(withText("Done")))
+    }
+
+    @Test
+    fun checkForAssignmentLabels() {
+        launchActivity<MainTabbedActivity>()
+        onView(withText("Assign.")).perform(click())
+        onView(withId(R.id.text_assignment_active)).check(matches(withText("Active Assignments")));
+        onView(withId(R.id.text_assignment_done)).check(matches(withText("Done Assignments")));
+    }
+
+    @Test
+    fun checkForDoneListview() {
+        launchActivity<MainTabbedActivity>()
+        onView(withText("Assign.")).perform(click())
+        onView(withId(R.id.assignmentListDone)).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun clickDoneButtonDialogCloses(){
+        launchActivity<MainTabbedActivity>()
+        onView(withText("Assign.")).perform(click())
+        onView(withId(R.id.assignmentsList))
+            .perform(
+                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
+                    3,
+                    click()
+                )
+            )
+        onView(withId(R.id.assignmentsListDetailsDoneButton))
+            .perform(click())
+        onView(withId(R.id.assignmentListDone))
+            .check(matches(isDisplayed()))
+    }
+    @Test
     fun checkIfCustomAddButtonExists() {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
@@ -364,9 +418,51 @@ class AssignmentsListInstrumentedTest {
             .inRoot(isDialog())
             .check(matches(isClickable()))
     }
+    @Test
+    fun clickDoneButtonDoneListContainsAssignment(){
+        launchActivity<MainTabbedActivity>()
+        onView(withText("Assign.")).perform(click())
+        onView(withId(R.id.assignmentsList))
+            .perform(
+                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
+                    3,
+                    click()
+                )
+            )
+        onView(withId(R.id.assignmentsListDetailsDoneButton))
+            .perform(click())
 
+        onView(withId(R.id.assignmentListDone))
+            .check(matches(hasDescendant(withText("Dummy Assignment 3"))))
+    }
 
+    @Test
+    fun databaseSelectAllSpecific() {
+        assignmentDao.insertOneRaw("Test", "Test", 0, "https://example.com", 0, 0);
+        assignmentDao.insertOneRaw("Test2", "Test2", 0, "https://example.com", 0, 0);
+        assignmentDao.insertOneRaw("Test3", "Test3", 0, "https://example.com", 0, 0);
+        assignmentDao.insertOneRaw("Test4", "Test4", 0, "https://example.com", 0, 1);
+        assignmentDao.insertOneRaw("Test5", "Test5", 0, "https://example.com", 0, 1);
 
+        val assignmentActive: List<Assignment> = assignmentDao.selectAllActive()
+        val assignmentDone: List<Assignment> = assignmentDao.selectAllDone()
+        assert(assignmentActive.size == 3)
+        assert(assignmentDone.size == 2)
+    }
 
+    @Test
+    fun checkDisabledDoneButtonForCompletedAssignment(){
+        launchActivity<MainTabbedActivity>()
+        onView(withText("Assign.")).perform(click())
+        onView(withId(R.id.assignmentListDone))
+            .perform(
+                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
+                    1,
+                    click()
+                )
+            )
+        onView(withId(R.id.assignmentsListDetailsDoneButton))
+            .check(matches(not(isDisplayed())))
+    }
 }
 
