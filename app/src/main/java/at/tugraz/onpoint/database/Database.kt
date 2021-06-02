@@ -16,9 +16,16 @@ val MIGRATION_1_2: Migration = object : Migration(1, 2) {
     }
 }
 
+val MIGRATION_2_3: Migration = object : Migration(2, 3) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL( "CREATE TABLE IF NOT EXISTS `assignment` (`title` TEXT NOT NULL, `description` TEXT NOT NULL, `deadline` INTEGER NOT NULL, `links` TEXT NOT NULL, `uid` INTEGER PRIMARY KEY AUTOINCREMENT, `moodle_id` INTEGER, `is_custom` INTEGER NOT NULL)")
+
+    }
+}
+
 @Database(
     entities = [Todo::class, Assignment::class, Moodle::class],
-    version = 2,
+    version = 3,
     exportSchema = true
 )
 abstract class OnPointAppDatabase : RoomDatabase() {
@@ -100,32 +107,38 @@ interface AssignmentDao {
     @Query("SELECT * FROM assignment WHERE uid = (:uid)")
     fun selectOne(uid: Long): Assignment
 
-    @Query("INSERT INTO assignment (title, description, deadline, links, moodle_id) VALUES (:title, :description, :deadline, :links, :moodleId)")
+    @Query("INSERT INTO assignment (title, description, deadline, links, is_custom, moodle_id) VALUES (:title, :description, :deadline, :links, :isCustom, :moodleId)")
     fun insertOneRaw(
         title: String,
         description: String,
         deadline: Long,
         links: String,
-        moodleId: Int?
+        isCustom : Boolean,
+        moodleId: Int? //TODO check if moodle id is required
     ): Long
 
     fun insertOne(
         title: String,
         description: String,
         deadline: Date,
-        links: List<URL>? = null
+        links: List<URL>? = null,
+        isCustom : Boolean = false
     ): Long {
         return insertOneRaw(
             title,
             description,
             Assignment.convertDeadlineDate(deadline),
             Assignment.encodeLinks(links ?: arrayListOf()),
+            isCustom,
             null
         )
     }
 
     @Query("DELETE FROM assignment")
     fun deleteAll()
+
+    @Query("DELETE FROM assignment WHERE NOT is_custom")
+    fun deleteMoodleAssignments()
 }
 
 @Entity
@@ -167,7 +180,7 @@ fun getDbInstance(context: Context?): OnPointAppDatabase {
         val builder = Room.databaseBuilder(
             context!!,
             OnPointAppDatabase::class.java,
-            "OnPointDb_v2"
+            "OnPointDb_v3"
         )
         // DB queries in the main thread need to be allowed explicitly to avoid a compilation error.
         // By default IO operations should be delegated to a background thread to avoid the UI
@@ -176,6 +189,7 @@ fun getDbInstance(context: Context?): OnPointAppDatabase {
         // and async queries is a pain for what we need to achieve.
         builder.allowMainThreadQueries()
         builder.addMigrations(MIGRATION_1_2)
+        builder.addMigrations(MIGRATION_2_3)
         INSTANCE = builder.build()
     }
     return INSTANCE as OnPointAppDatabase

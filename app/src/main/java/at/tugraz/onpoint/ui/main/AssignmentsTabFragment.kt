@@ -105,7 +105,14 @@ class AssignmentsTabFragment : Fragment() {
     }
 
     fun syncAssignments() {
+
+
+
         val moodleApi = API()
+        assignmentDao.deleteMoodleAssignments()
+        assignmentsList.clear()
+        //debugging
+        notifyUser("starting to sanch assignments")
         val accounts = moodleDao.selectAll()
         if (accounts.isEmpty()) {
             notifyUser("No Moodle accounts saved")
@@ -156,6 +163,7 @@ class AssignmentsTabFragment : Fragment() {
                     description = moodleAssignment.intro,
                     deadline = Date(moodleAssignment.duedate),
                     links = listOfUrls,
+
                 )
             }
         }
@@ -166,9 +174,9 @@ class AssignmentsTabFragment : Fragment() {
      * for the deadlines.
      */
     private fun addAssignmentToAssignmentList(
-        title: String, description: String, deadline: Date, links: List<URL>? = null
+        title: String, description: String, deadline: Date, links: List<URL>? = null, isCustom : Boolean = false
     ) {
-        val uid: Long = assignmentDao.insertOne(title, description, deadline, links)
+        val uid: Long = assignmentDao.insertOne(title, description, deadline, links, isCustom)
         val assignment = assignmentDao.selectOne(uid)
         assignmentsList.add(assignment)
         completeState.add(assignment)
@@ -228,7 +236,11 @@ data class Assignment(
     var uid: Int? = null,
 
     @ColumnInfo(name = "moodle_id")
-    var moodleId: Int? = null
+    var moodleId: Int? = null,
+
+    @ColumnInfo(name = "is_custom")
+    var isCustom: Boolean = false
+
 ) {
 
     companion object {
