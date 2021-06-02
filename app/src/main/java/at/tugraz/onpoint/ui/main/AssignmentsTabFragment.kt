@@ -148,6 +148,8 @@ class AssignmentsTabFragment : Fragment() {
                 }
             }
         }
+        assignmentsList.addAll(assignmentDao.selectAll())
+        adapter!!.notifyDataSetChanged()
     }
 
     private fun addAssignmentsFromMoodle(courses: List<Course>, token: String) {

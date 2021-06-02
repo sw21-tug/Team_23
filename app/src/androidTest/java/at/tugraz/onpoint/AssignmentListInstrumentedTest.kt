@@ -359,14 +359,14 @@ class AssignmentsListInstrumentedTest {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
         onView(withId(R.id.assignment_sync_assignments)).perform(click())
-        Thread.sleep(5000) /// Sleeping to wait for request through Moodle API to
+        Thread.sleep(2000) /// Sleeping to wait for request through Moodle API to
         // be received and the list updated
         onView(withId(R.id.assignmentsList)).check(RecyclerViewItemCounter())
         val itemsInListAfterFirstSync = RecyclerViewItemCounter.lastCount
         // Sync again: the recyclerview length should not change: previously-contained
         // assignments should still be there
         onView(withId(R.id.assignment_sync_assignments)).perform(click())
-        Thread.sleep(5000) /// Sleeping to wait for request through Moodle API to
+        Thread.sleep(2000) /// Sleeping to wait for request through Moodle API to
         // be recieved and the list updated
         onView(withId(R.id.assignmentsList)).check(RecyclerViewItemCounter())
         val itemsInListAfterSecondSync = RecyclerViewItemCounter.lastCount
