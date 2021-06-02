@@ -20,7 +20,8 @@ class MainTabFragment : Fragment() {
     private val todoDao: TodoDao = db.getTodoDao()
     private val assignmentList =  arrayListOf<Assignment>()
     private val todoList =  arrayListOf<Todo>()
-
+    private lateinit var todoLayout: ViewGroup
+    private lateinit var recentLayout: ViewGroup
 
     private lateinit var pageViewModel: PageViewModel
 
@@ -32,7 +33,15 @@ class MainTabFragment : Fragment() {
 
     }
 
-
+    override fun setUserVisibleHint(isVisibleToUser: Boolean) {
+        super.setUserVisibleHint(isVisibleToUser)
+        // only update data in the lists when the activity itself is already created
+        // method itself is always called when we switch to this tab (also for the ToDoFragments)
+        if(activity == null) {
+            return
+        }
+        updateLists()
+    }
 
     override fun onCreateView(
 
@@ -40,17 +49,23 @@ class MainTabFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_main, container, false)
+        //get todos and assignments from db
+        todoLayout = root.findViewById(R.id.homescreen_todo_list_id) as ViewGroup
+        recentLayout = root.findViewById(R.id.recent_linear_layout) as ViewGroup
 
-        println("InMainTabbedActivity")
+        updateLists()
+
+        return root
+    }
+
+    /**
+     * updates the content of the lists displayed to the user
+     */
+    private fun updateLists() {
         todoList.clear()
         assignmentList.clear()
         todoList.addAll(todoDao.selectAllNotCompleted())
         assignmentList.addAll(assignmentDao.selectAll())
-
-
-        //get todos and assignments from db
-        val todoLayout = root.findViewById(R.id.homescreen_todo_list_id) as ViewGroup
-        val recentLayout = root.findViewById(R.id.recent_linear_layout) as ViewGroup
 
         for (todoItem in todoList) {
             val lptv = LinearLayout.LayoutParams(
@@ -108,8 +123,6 @@ class MainTabFragment : Fragment() {
 
 
         }
-
-        return root
     }
 
     companion object {
