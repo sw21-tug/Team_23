@@ -26,10 +26,9 @@ import java.util.*
 
 class AssignmentsTabFragment : Fragment() {
     private lateinit var pageViewModel: PageViewModel
-    var assignmentsList = arrayListOf<Assignment>()
-    private var completeState = arrayListOf<Assignment>()
+    var notCompletedAssignmentsList = arrayListOf<Assignment>()
     private var completedAssignmentsList = arrayListOf<Assignment>()
-    private var adapter: AssignmentsAdapter? = null
+    private var notCompletedAdapter: AssignmentsAdapter? = null
     private var completedAdapter: AssignmentsAdapter? = null
     val db: OnPointAppDatabase = getDbInstance(null)
     private val moodleDao: MoodleDao = db.getMoodleDao()
@@ -41,8 +40,8 @@ class AssignmentsTabFragment : Fragment() {
             setIndex(arguments?.getInt(ARG_SECTION_NUMBER) ?: 1)
         }
         // Fill the assignment list retrieved from the persistent database
-        assignmentsList.addAll(assignmentDao.selectAllNotCompleted())
-        completeState.addAll(assignmentDao.selectAllNotCompleted())
+        notCompletedAssignmentsList.addAll(assignmentDao.selectAllNotCompleted())
+        completedAssignmentsList.addAll(assignmentDao.selectAllCompleted())
     }
 
     override fun onCreateView(
@@ -61,20 +60,21 @@ class AssignmentsTabFragment : Fragment() {
         // items to it and provide and adapter constructing each element of the list as a TextView
         val assignmentsRecView: RecyclerView = root.findViewById(R.id.assignmentsList)
         assignmentsRecView.layoutManager = LinearLayoutManager(this.context)
-        adapter =
+        notCompletedAdapter =
             this.context?.let {
                 AssignmentsAdapter(
-                    assignmentsList,
+                    notCompletedAssignmentsList,
                     it,
                     parentFragmentManager,
                     this
                 )
             }
-        assignmentsRecView.adapter = this.adapter
+        assignmentsRecView.adapter = this.notCompletedAdapter
 
         // Create the Recyclerview for completed assignments, make it a linear list (not a grid), assign the list of
         // items to it and provide and adapter constructing each element of the list as a TextView
-        val completedAssignmentsRecView: RecyclerView = root.findViewById(R.id.assignmentListCompleted)
+        val completedAssignmentsRecView: RecyclerView =
+            root.findViewById(R.id.assignmentListCompleted)
         completedAssignmentsRecView.layoutManager = LinearLayoutManager(this.context)
         completedAdapter =
             this.context?.let {
@@ -91,10 +91,19 @@ class AssignmentsTabFragment : Fragment() {
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextChange(newText: String?): Boolean {
                 if (newText != null) {
-                    val temp = completeState.toMutableList()
-                    assignmentsList.clear()
-                    assignmentsList.addAll(filter(temp, newText) as ArrayList<Assignment>)
-                    adapter!!.notifyDataSetChanged()
+                    var temp = notCompletedAssignmentsList.toMutableList()
+                    notCompletedAssignmentsList.clear()
+                    notCompletedAssignmentsList.addAll(
+                        filter(
+                            temp,
+                            newText
+                        ) as ArrayList<Assignment>
+                    )
+                    notCompletedAdapter!!.notifyDataSetChanged()
+                    temp = completedAssignmentsList.toMutableList()
+                    completedAssignmentsList.clear()
+                    completedAssignmentsList.addAll(filter(temp, newText) as ArrayList<Assignment>)
+                    completedAdapter!!.notifyDataSetChanged()
                     return true
                 }
                 return false
@@ -102,15 +111,29 @@ class AssignmentsTabFragment : Fragment() {
 
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (query != null) {
-                    val temp = completeState.toMutableList()
-                    assignmentsList.clear()
-                    assignmentsList.addAll(filter(temp, query) as ArrayList<Assignment>)
-                    adapter!!.notifyDataSetChanged()
+                    var temp = notCompletedAssignmentsList.toMutableList()
+                    notCompletedAssignmentsList.clear()
+                    notCompletedAssignmentsList.addAll(filter(temp, query) as ArrayList<Assignment>)
+                    notCompletedAdapter!!.notifyDataSetChanged()
+                    temp = completedAssignmentsList.toMutableList()
+                    completedAssignmentsList.clear()
+                    completedAssignmentsList.addAll(filter(temp, query) as ArrayList<Assignment>)
+                    completedAdapter!!.notifyDataSetChanged()
                     return true
                 }
                 return false
             }
+
         })
+        searchView.setOnCloseListener {
+            notCompletedAssignmentsList.clear()
+            notCompletedAssignmentsList.addAll(assignmentDao.selectAllNotCompleted())
+            notCompletedAdapter!!.notifyDataSetChanged()
+            completedAssignmentsList.clear()
+            completedAssignmentsList.addAll(assignmentDao.selectAllCompleted())
+            completedAdapter!!.notifyDataSetChanged()
+            false
+        }
 
         return root
     }
@@ -129,8 +152,11 @@ class AssignmentsTabFragment : Fragment() {
     private fun syncAssignments() {
         val moodleApi = API()
         assignmentDao.deleteMoodleAssignments()
-        assignmentsList.clear()
-        adapter!!.notifyDataSetChanged()
+        notCompletedAssignmentsList.clear()
+        notCompletedAdapter!!.notifyDataSetChanged()
+        completedAssignmentsList.clear()
+        completedAdapter!!.notifyDataSetChanged()
+        // TODO syncing ignores the assignment being already checked: overwrites it completely
         val accounts = moodleDao.selectAll()
         if (accounts.isEmpty()) {
             notifyUser("No Moodle accounts saved")
@@ -164,8 +190,10 @@ class AssignmentsTabFragment : Fragment() {
                 }
             }
         }
-        assignmentsList.addAll(assignmentDao.selectAll())
-        adapter!!.notifyDataSetChanged()
+        notCompletedAssignmentsList.addAll(assignmentDao.selectAllNotCompleted())
+        notCompletedAdapter!!.notifyDataSetChanged()
+        completedAssignmentsList.addAll(assignmentDao.selectAllCompleted())
+        completedAdapter!!.notifyDataSetChanged()
     }
 
     private fun addAssignmentsFromMoodle(courses: List<Course>, token: String) {
@@ -200,9 +228,8 @@ class AssignmentsTabFragment : Fragment() {
         val uid: Long =
             assignmentDao.insertOneFromMoodle(title, description, deadline, links, moodleId)
         val assignment = assignmentDao.selectOne(uid)
-        assignmentsList.add(assignment)
-        completeState.add(assignment)
-        adapter?.notifyDataSetChanged()
+        notCompletedAssignmentsList.add(assignment)
+        notCompletedAdapter?.notifyDataSetChanged()
     }
 
     /**
@@ -215,22 +242,21 @@ class AssignmentsTabFragment : Fragment() {
         val uid: Long = assignmentDao.insertOneCustom(title, description, deadline, links)
         val assignment = assignmentDao.selectOne(uid)
         if (!assignment.isCompleted) {
-            assignmentsList.add(assignment)
-            completeState.add(assignment)
-            adapter?.notifyDataSetChanged()
+            notCompletedAssignmentsList.add(assignment)
+            notCompletedAdapter?.notifyDataSetChanged()
         } else {
             completedAssignmentsList.add(assignment)
             completedAdapter?.notifyDataSetChanged()
         }
     }
 
-
-    fun markAssignmentAsDone(assignment: Assignment) {
+    fun markAssignmentAsCompleted(assignment: Assignment) {
+        notCompletedAssignmentsList.remove(assignment)
         completedAssignmentsList.add(assignment)
-        assignmentsList.remove(assignment)
-        completeState.remove(assignment)
-        adapter?.notifyDataSetChanged()
-        completedAdapter?.notifyDataSetChanged()
+        assignment.isCompleted = true
+        assignmentDao.updateOne(assignment)
+        notCompletedAdapter!!.notifyDataSetChanged()
+        completedAdapter!!.notifyDataSetChanged()
     }
 
     companion object {
@@ -297,7 +323,7 @@ private class AssignmentsAdapter(
 private class ViewHolder(
     view: View,
     val fragmentManager: FragmentManager,
-    val assignment_fragment: AssignmentsTabFragment
+    val assignmentFragment: AssignmentsTabFragment
 ) :
     RecyclerView.ViewHolder(view) {
     lateinit var assignment: Assignment
@@ -316,10 +342,9 @@ private class ViewHolder(
         val fragment = AssignmentDetailsFragment(assignment)
         fragment.show(fragmentManager, null)
         fragment.onAssignmentCompletedButtonClicked = {
-            val isAssignmentDone: Boolean = fragment.isAssignmentCompleted
-            if (isAssignmentDone) {
+            if (fragment.isAssignmentCompleted) {
                 val assignment = fragment.assignment
-                assignment_fragment.markAssignmentAsDone(assignment)
+                assignmentFragment.markAssignmentAsCompleted(assignment)
             }
         }
     }
