@@ -12,7 +12,6 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
 import android.provider.CalendarContract
-import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,6 +22,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.DialogFragment
 import at.tugraz.onpoint.R
+import at.tugraz.onpoint.database.Assignment
 import java.util.*
 
 class AssignmentDetailsFragment(val assignment: Assignment) :
@@ -36,8 +36,8 @@ class AssignmentDetailsFragment(val assignment: Assignment) :
     }
 
     lateinit var alertDialog: AlertDialog;
-    var isAssignmentDone: Boolean = false;
-    var onDoneButtonClicked: () -> Unit = {};
+    var isAssignmentCompleted: Boolean = false;
+    var onAssignmentCompletedButtonClicked: () -> Unit = {};
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
@@ -55,11 +55,11 @@ class AssignmentDetailsFragment(val assignment: Assignment) :
             // Add-to-calendar button
             val button: Button = view.findViewById(R.id.addMeToCalendar)
             button.setOnClickListener { addDeadlineToCalendar(assignment) }
-            val done_button: Button = view.findViewById(R.id.assignmentsListDetailsDoneButton)
-            if(assignment.done == 0) {
-                done_button.setOnClickListener { onAssignmentDone() }
+            val completedButton: Button = view.findViewById(R.id.assignmentsListDetailsCompletedButton)
+            if(!assignment.isCompleted) {
+                completedButton.setOnClickListener { onAssignmentCompleted() }
             } else {
-                done_button.visibility = View.INVISIBLE
+                completedButton.visibility = View.INVISIBLE
             }
             dialogBuilder.setView(view)
             dialogBuilder.setTitle(assignment.title)
@@ -82,10 +82,10 @@ class AssignmentDetailsFragment(val assignment: Assignment) :
         } ?: throw IllegalStateException("Activity cannot be null")
     }
 
-    fun onAssignmentDone() {
-        if(assignment.done == 0) {
-            isAssignmentDone = true;
-            onDoneButtonClicked();
+    fun onAssignmentCompleted() {
+        if(!assignment.isCompleted) {
+            isAssignmentCompleted = true;
+            onAssignmentCompletedButtonClicked();
             alertDialog.dismiss()
         }
     }

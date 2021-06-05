@@ -2,10 +2,7 @@
 
 package at.tugraz.onpoint.ui.main
 
-import android.app.AlarmManager
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -19,16 +16,13 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import at.tugraz.onpoint.R
+import at.tugraz.onpoint.database.Assignment
 import at.tugraz.onpoint.database.AssignmentDao
 import at.tugraz.onpoint.database.MoodleDao
 import at.tugraz.onpoint.database.OnPointAppDatabase
 import at.tugraz.onpoint.database.getDbInstance
 import at.tugraz.onpoint.moodle.*
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.net.URL
 import java.util.*
 import kotlin.collections.ArrayList
@@ -51,8 +45,8 @@ class AssignmentsTabFragment : Fragment() {
             setIndex(arguments?.getInt(ARG_SECTION_NUMBER) ?: 1)
         }
         // Fill the assignment list retrieved from the persistent database
-        assignmentsList.addAll(assignmentDao.selectAllActive())
-        completeState.addAll(assignmentDao.selectAllActive())
+        assignmentsList.addAll(assignmentDao.selectAllNotCompleted())
+        completeState.addAll(assignmentDao.selectAllNotCompleted())
     }
 
     override fun onCreateView(
@@ -171,7 +165,7 @@ class AssignmentsTabFragment : Fragment() {
                     it.fileurl
                 }
                 val listOfUrls: List<URL> = listOfUrlsStrings.map { URL("$it?token=$token") }
-                addAssignmentToAssignmentList(
+                addAssignmentFromMoodleToAssignmentList(
                     title = moodleAssignment.name,
                     description = moodleAssignment.intro,
                     deadline = Date(moodleAssignment.duedate),
@@ -187,10 +181,10 @@ class AssignmentsTabFragment : Fragment() {
      * notifications for the deadlines.
      */
     private fun addAssignmentFromMoodleToAssignmentList(
-        title: String, description: String, deadline: Date, links: List<URL>? = null, moodleId: Int? = null, isCustom : Boolean = false, isCompleted: Boolean = false
+        title: String, description: String, deadline: Date, links: List<URL>? = null, moodleId: Int? = null
     ) {
         val uid: Long =
-            assignmentDao.insertOneFromMoodle(title, description, deadline, links, moodleId, isCustom, isCompleted)
+            assignmentDao.insertOneFromMoodle(title, description, deadline, links, moodleId)
         val assignment = assignmentDao.selectOne(uid)
         assignmentsList.add(assignment)
         completeState.add(assignment)
@@ -201,20 +195,19 @@ class AssignmentsTabFragment : Fragment() {
      * Appends an assignment written by the user, refreshing the recycler view and the notifications
      * for the deadlines.
      */
-    private fun addAssignmentCustomToAssignmentList(
-        title: String, description: String, deadline: Date, links: List<URL>? = null, isCustom : Boolean = false, isCompleted: Boolean = false,
+    fun addAssignmentCustomToAssignmentList(
+        title: String, description: String, deadline: Date, links: List<URL>? = null
     ) {
         val uid: Long = assignmentDao.insertOneCustom(title, description, deadline, links)
         val assignment = assignmentDao.selectOne(uid)
-        if(done == 0){
+        if(!assignment.isCompleted){
             assignmentsList.add(assignment)
             completeState.add(assignment)
             adapter?.notifyDataSetChanged()
-        }else{
+        } else {
             completedAssignmentsList.add(assignment)
             completedAdapter?.notifyDataSetChanged()
         }
-
     }
 
 
@@ -258,90 +251,6 @@ class AssignmentsTabFragment : Fragment() {
                 }
             }
         }
-    }
-}
-
-@Entity
-data class Assignment(
-    @ColumnInfo(name = "title")
-    val title: String,
-
-    @ColumnInfo(name = "description")
-    val description: String,
-
-    @ColumnInfo(name = "deadline")
-    var deadlineUnixTime: Long,
-
-    @ColumnInfo(name = "links")
-    var links: String = "",
-
-    @PrimaryKey(autoGenerate = true)
-    var uid: Int? = null,
-
-    @ColumnInfo(name = "moodle_id")
-    var moodleId: Int? = null,
-
-    @ColumnInfo(name = "done")
-    var done: Int? = 0
-) {
-
-    companion object {
-        fun convertDeadlineDate(deadline: Date): Long {
-            return deadline.time / 1000
-        }
-
-        fun encodeLinks(linksList: List<URL>): String {
-            var encoded = ""
-            linksList.forEach {
-                encoded += "$it;"
-            }
-            return encoded.trimEnd(';')
-        }
-    }
-
-    fun getDeadlineDate(): Date {
-        return Date(deadlineUnixTime * 1000)
-    }
-
-    fun getLinksAsUrls(): List<URL> {
-        if(links.isEmpty()) {
-            return emptyList()
-        }
-        return links.split(";").map {
-            URL(it)
-        }
-    }
-
-    fun linksToMultiLineString(): String {
-        val text: StringBuilder = StringBuilder()
-        getLinksAsUrls().forEach {
-            text.append(it)
-            text.append('\n')
-        }
-        return text.toString()
-    }
-
-    // Call this function ONLY after the ID is set.
-    fun buildAndScheduleNotification(context: Context, reminder_date: Calendar) {
-        val intentToLaunchNotification = Intent(context, ScheduledNotificationReceiver::class.java)
-        intentToLaunchNotification.putExtra(
-            "title",
-            context.getString(R.string.assignment_notification_title)
-        )
-        intentToLaunchNotification.putExtra(
-            "text",
-            this.title + ": " + this.getDeadlineDate().toString()
-        )
-        intentToLaunchNotification.putExtra("notificationId", uid)
-        // Schedule notification
-        val pending = PendingIntent.getBroadcast(
-            context,
-            uid!!,
-            intentToLaunchNotification,
-            PendingIntent.FLAG_UPDATE_CURRENT
-        )
-        val manager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        manager.set(AlarmManager.RTC_WAKEUP, reminder_date.timeInMillis, pending)
     }
 }
 
@@ -389,8 +298,8 @@ private class ViewHolder(view: View, val fragmentManager: FragmentManager, val a
         // which was never displayed?
         val fragment = AssignmentDetailsFragment(assignment)
         fragment.show(fragmentManager, null)
-        fragment.onDoneButtonClicked = {
-            val isAssignmentDone: Boolean = fragment.isAssignmentDone;
+        fragment.onAssignmentCompletedButtonClicked = {
+            val isAssignmentDone: Boolean = fragment.isAssignmentCompleted;
             if(isAssignmentDone) {
                 val assignment = fragment.assignment;
                 assignment_fragment.markAssignmentAsDone(assignment);

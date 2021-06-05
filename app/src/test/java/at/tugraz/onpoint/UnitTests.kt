@@ -1,10 +1,9 @@
 package at.tugraz.onpoint
 
-import at.tugraz.onpoint.ui.main.Assignment
+import at.tugraz.onpoint.database.Assignment
 import org.junit.Test
 
 import org.junit.Assert.*
-import java.net.URL
 import java.util.*
 import at.tugraz.onpoint.ui.main.AssignmentsTabFragment
 

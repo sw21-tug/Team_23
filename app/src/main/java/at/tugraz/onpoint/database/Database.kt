@@ -1,10 +1,14 @@
 package at.tugraz.onpoint.database
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import androidx.room.*
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import at.tugraz.onpoint.ui.main.Assignment
+import at.tugraz.onpoint.R
+import at.tugraz.onpoint.ui.main.ScheduledNotificationReceiver
 import java.net.URL
 import java.util.*
 
@@ -110,54 +114,69 @@ interface AssignmentDao {
     @Query("SELECT * FROM assignment ORDER BY deadline ASC")
     fun selectAll(): List<Assignment>
 
-    @Query("SELECT * FROM assignment WHERE done = 0 ORDER BY deadline ASC")
-    fun selectAllActive(): List<Assignment>
+    @Query("SELECT * FROM assignment WHERE NOT is_completed ORDER BY deadline ASC")
+    fun selectAllNotCompleted(): List<Assignment>
 
-    @Query("SELECT * FROM assignment WHERE done = 1 ORDER BY deadline ASC")
-    fun selectAllDone(): List<Assignment>
+    @Query("SELECT * FROM assignment WHERE is_completed ORDER BY deadline DESC")
+    fun selectAllCompleted(): List<Assignment>
 
     @Query("SELECT * FROM assignment WHERE uid = (:uid)")
     fun selectOne(uid: Long): Assignment
 
-    @Query("INSERT INTO assignment (title, description, deadline, links, moodle_id) VALUES (:title, :description, :deadline, :links, :moodleId)")
+    @Update
+    fun updateOne(assignment: Assignment)
+
+    @Query("INSERT INTO assignment (title, description, deadline, links, moodle_id, is_custom, is_completed) VALUES (:title, :description, :deadline, :links, :moodleId, :isCustom, :isCompleted)")
     fun insertOneRaw(
         title: String,
         description: String,
         deadline: Long,
         links: String,
-        isCustom : Boolean,
         moodleId: Int?,
-        isCompleted: Boolean
+        isCustom : Boolean,
+        isCompleted: Boolean,
     ): Long
 
-    fun insertOne(
+    fun insertOneFromMoodle(
         title: String,
         description: String,
         deadline: Date,
         links: List<URL>? = null,
-        moodleId: Int,
-        done: Int? = 0
-        isCustom : Boolean = false
+        moodleId: Int? = null,
     ): Long {
         return insertOneRaw(
             title,
             description,
             Assignment.convertDeadlineDate(deadline),
             Assignment.encodeLinks(links ?: arrayListOf()),
-            isCustom,
-            null
+            moodleId,
+            isCustom = false,
+            isCompleted = false,
         )
     }
 
-    // TODO insertOneCustom
+    fun insertOneCustom(
+        title: String,
+        description: String,
+        deadline: Date,
+        links: List<URL>? = null,
+    ): Long {
+        return insertOneRaw(
+            title,
+            description,
+            Assignment.convertDeadlineDate(deadline),
+            Assignment.encodeLinks(links ?: arrayListOf()),
+            moodleId = null,
+            isCustom = true,
+            isCompleted = false,
+        )
+    }
 
     @Query("DELETE FROM assignment")
     fun deleteAll()
 
     @Query("DELETE FROM assignment WHERE NOT is_custom")
     fun deleteMoodleAssignments()
-
-
 }
 
 @Entity
@@ -213,4 +232,90 @@ fun getDbInstance(context: Context?): OnPointAppDatabase {
         INSTANCE = builder.build()
     }
     return INSTANCE as OnPointAppDatabase
+}
+
+@Entity
+data class Assignment(
+    @ColumnInfo(name = "title")
+    val title: String,
+
+    @ColumnInfo(name = "description")
+    val description: String,
+
+    @ColumnInfo(name = "deadline")
+    var deadlineUnixTime: Long,
+
+    @ColumnInfo(name = "links")
+    var links: String = "",
+
+    @PrimaryKey(autoGenerate = true)
+    var uid: Int? = null,
+
+    @ColumnInfo(name = "moodle_id")
+    var moodleId: Int? = null,
+
+    @ColumnInfo(name = "is_custom")
+    var isCustom:Boolean = false,
+
+    @ColumnInfo(name = "is_completed")
+    var isCompleted: Boolean = false
+) {
+    companion object {
+        fun convertDeadlineDate(deadline: Date): Long {
+            return deadline.time / 1000
+        }
+
+        fun encodeLinks(linksList: List<URL>): String {
+            var encoded = ""
+            linksList.forEach {
+                encoded += "$it;"
+            }
+            return encoded.trimEnd(';')
+        }
+    }
+
+    fun getDeadlineDate(): Date {
+        return Date(deadlineUnixTime * 1000)
+    }
+
+    fun getLinksAsUrls(): List<URL> {
+        if(links.isEmpty()) {
+            return emptyList()
+        }
+        return links.split(";").map {
+            URL(it)
+        }
+    }
+
+    fun linksToMultiLineString(): String {
+        val text: StringBuilder = StringBuilder()
+        getLinksAsUrls().forEach {
+            text.append(it)
+            text.append('\n')
+        }
+        return text.toString()
+    }
+
+    // Call this function ONLY after the ID is set.
+    fun buildAndScheduleNotification(context: Context, reminder_date: Calendar) {
+        val intentToLaunchNotification = Intent(context, ScheduledNotificationReceiver::class.java)
+        intentToLaunchNotification.putExtra(
+            "title",
+            context.getString(R.string.assignment_notification_title)
+        )
+        intentToLaunchNotification.putExtra(
+            "text",
+            this.title + ": " + this.getDeadlineDate().toString()
+        )
+        intentToLaunchNotification.putExtra("notificationId", uid)
+        // Schedule notification
+        val pending = PendingIntent.getBroadcast(
+            context,
+            uid!!,
+            intentToLaunchNotification,
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
+        val manager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        manager.set(AlarmManager.RTC_WAKEUP, reminder_date.timeInMillis, pending)
+    }
 }

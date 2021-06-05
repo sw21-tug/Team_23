@@ -9,8 +9,6 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import androidx.core.view.iterator
-import androidx.core.view.size
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import at.tugraz.onpoint.R
@@ -67,7 +65,7 @@ class MainTabFragment : Fragment() {
         todoList.clear()
         assignmentList.clear()
         todoList.addAll(todoDao.selectAllNotCompleted())
-        assignmentList.addAll(assignmentDao.selectAllActive())
+        assignmentList.addAll(assignmentDao.selectAllNotCompleted())
         while(todoLayout.childCount !=1)
             todoLayout.removeViewAt(1)
         while(recentLayout.childCount !=1)
