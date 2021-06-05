@@ -30,5 +30,14 @@
     <string name="university_login_successful">登陆成功</string>
     <string name="university_login_failed">登录失败</string>
     <string name="assignment_search">作业搜索</string>
+    <string name="custom_assignment_set_deadline">设定最后期限</string>
+    <string name="custom_assignment_title">添加自定义分配</string>
+    <string name="save_button">保存</string>
+    <string name="cancel_button">取消</string>
+    <string name="custom_assignment_title_input">标题</string>
+    <string name="custom_assignmnet_description_input">描述</string>
+    <string name="assignment_dialog_done_button">完毕</string>
+    <string name="text_assignment_done">已完成的作业</string>
+    <string name="text_assignment_active">活跃的任务</string>
 
 </resources>

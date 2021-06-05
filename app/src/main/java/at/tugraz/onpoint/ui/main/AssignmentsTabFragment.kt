@@ -28,6 +28,7 @@ import at.tugraz.onpoint.database.MoodleDao
 import at.tugraz.onpoint.database.OnPointAppDatabase
 import at.tugraz.onpoint.database.getDbInstance
 import at.tugraz.onpoint.moodle.*
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.net.URL
 import java.util.*
 import kotlin.collections.ArrayList
@@ -37,7 +38,9 @@ class AssignmentsTabFragment : Fragment() {
     private lateinit var pageViewModel: PageViewModel
     var assignmentsList = arrayListOf<Assignment>()
     private var completeState = arrayListOf<Assignment>()
+    private var completedAssignmentsList = arrayListOf<Assignment>()
     private var adapter: AssignmentsAdapter? = null
+    private var completedAdapter: AssignmentsAdapter? = null
     val db: OnPointAppDatabase = getDbInstance(null)
     private val moodleDao: MoodleDao = db.getMoodleDao()
     private val assignmentDao: AssignmentDao = db.getAssignmentDao()
@@ -48,7 +51,8 @@ class AssignmentsTabFragment : Fragment() {
             setIndex(arguments?.getInt(ARG_SECTION_NUMBER) ?: 1)
         }
         // Fill the assignment list retrieved from the persistent database
-        assignmentsList.addAll(assignmentDao.selectAll())
+        assignmentsList.addAll(assignmentDao.selectAllActive())
+        completeState.addAll(assignmentDao.selectAllActive())
     }
 
     override fun onCreateView(
@@ -58,7 +62,6 @@ class AssignmentsTabFragment : Fragment() {
         val root = inflater.inflate(R.layout.fragment_assignments, container, false)
         root.findViewById<Button>(R.id.assignment_sync_assignments)
             .setOnClickListener { syncAssignments() }
-
         if (moodleDao.selectAll().isEmpty()) {
             notifyUser("Automatically added login info to di Vora's Moodle")
             moodleDao.insertOne("diVoraTestMoodle", "test", "onpoint!T23", "moodle.divora.at")
@@ -69,13 +72,21 @@ class AssignmentsTabFragment : Fragment() {
         val assignmentsRecView: RecyclerView = root.findViewById(R.id.assignmentsList)
         assignmentsRecView.layoutManager = LinearLayoutManager(this.context)
         adapter =
-            this.context?.let { AssignmentsAdapter(assignmentsList, it, parentFragmentManager) }
+            this.context?.let { AssignmentsAdapter(assignmentsList, it, parentFragmentManager, this) }
         assignmentsRecView.adapter = this.adapter
+
+        // Create the Recyclerview for completed assignments, make it a linear list (not a grid), assign the list of
+        // items to it and provide and adapter constructing each element of the list as a TextView
+        val completedAssignmentsRecView: RecyclerView = root.findViewById(R.id.assignmentListDone)
+        completedAssignmentsRecView.layoutManager = LinearLayoutManager(this.context)
+        completedAdapter =
+            this.context?.let { AssignmentsAdapter(completedAssignmentsList, it, parentFragmentManager, this) }
+        completedAssignmentsRecView.adapter = this.completedAdapter
 
         val searchView: SearchView = root.findViewById(R.id.assignment_searchview)
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextChange(newText: String?): Boolean {
-                if (newText != null) {
+                if (newText != null){
                     val temp = completeState.toMutableList()
                     assignmentsList.clear()
                     assignmentsList.addAll(filter(temp, newText) as ArrayList<Assignment>)
@@ -104,6 +115,11 @@ class AssignmentsTabFragment : Fragment() {
         if (context != null) {
             Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun addCustomAssignment() {
+        val fragment = CustomAssignmentDialog(this)
+        fragment.show(parentFragmentManager, null)
     }
 
     fun syncAssignments() {
@@ -165,18 +181,49 @@ class AssignmentsTabFragment : Fragment() {
         }
     }
 
+
     /**
-     * Appends an assignment written by the user, refreshing the recycler view and the notifications
-     * for the deadlines.
+     * Appends an assignment as received from Moodle, refreshing the recycler view and the
+     * notifications for the deadlines.
      */
-    private fun addAssignmentToAssignmentList(
-        title: String, description: String, deadline: Date, links: List<URL>? = null, isCustom : Boolean = false
+    private fun addAssignmentFromMoodleToAssignmentList(
+        title: String, description: String, deadline: Date, links: List<URL>? = null, moodleId: Int? = null, isCustom : Boolean = false, isCompleted: Boolean = false
     ) {
-        val uid: Long = assignmentDao.insertOne(title, description, deadline, links, isCustom)
+        val uid: Long =
+            assignmentDao.insertOneFromMoodle(title, description, deadline, links, moodleId, isCustom, isCompleted)
         val assignment = assignmentDao.selectOne(uid)
         assignmentsList.add(assignment)
         completeState.add(assignment)
         adapter?.notifyDataSetChanged()
+    }
+
+    /**
+     * Appends an assignment written by the user, refreshing the recycler view and the notifications
+     * for the deadlines.
+     */
+    private fun addAssignmentCustomToAssignmentList(
+        title: String, description: String, deadline: Date, links: List<URL>? = null, isCustom : Boolean = false, isCompleted: Boolean = false,
+    ) {
+        val uid: Long = assignmentDao.insertOneCustom(title, description, deadline, links)
+        val assignment = assignmentDao.selectOne(uid)
+        if(done == 0){
+            assignmentsList.add(assignment)
+            completeState.add(assignment)
+            adapter?.notifyDataSetChanged()
+        }else{
+            completedAssignmentsList.add(assignment)
+            completedAdapter?.notifyDataSetChanged()
+        }
+
+    }
+
+
+    fun markAssignmentAsDone(assignment: Assignment) {
+        completedAssignmentsList.add(assignment);
+        assignmentsList.remove(assignment);
+        completeState.remove(assignment);
+        adapter?.notifyDataSetChanged();
+        completedAdapter?.notifyDataSetChanged();
     }
 
     companion object {
@@ -234,9 +281,8 @@ data class Assignment(
     @ColumnInfo(name = "moodle_id")
     var moodleId: Int? = null,
 
-    @ColumnInfo(name = "is_custom")
-    var isCustom: Boolean = false
-
+    @ColumnInfo(name = "done")
+    var done: Int? = 0
 ) {
 
     companion object {
@@ -258,6 +304,9 @@ data class Assignment(
     }
 
     fun getLinksAsUrls(): List<URL> {
+        if(links.isEmpty()) {
+            return emptyList()
+        }
         return links.split(";").map {
             URL(it)
         }
@@ -299,7 +348,8 @@ data class Assignment(
 private class AssignmentsAdapter(
     val items: ArrayList<Assignment>,
     val context: Context,
-    val fragmentManager: FragmentManager
+    val fragmentManager: FragmentManager,
+    val fragment: AssignmentsTabFragment
 ) :
     RecyclerView.Adapter<ViewHolder>() {
     override fun getItemCount(): Int {
@@ -310,7 +360,8 @@ private class AssignmentsAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
             LayoutInflater.from(context).inflate(R.layout.assignment_list_entry, parent, false),
-            fragmentManager
+            fragmentManager,
+            fragment
         )
     }
 
@@ -321,7 +372,7 @@ private class AssignmentsAdapter(
     }
 }
 
-private class ViewHolder(view: View, val fragmentManager: FragmentManager) :
+private class ViewHolder(view: View, val fragmentManager: FragmentManager, val assignment_fragment: AssignmentsTabFragment) :
     RecyclerView.ViewHolder(view) {
     lateinit var assignment: Assignment
     val assignmentListEntryTextView: TextView = view.findViewById(R.id.assignmentsListEntry)
@@ -338,5 +389,12 @@ private class ViewHolder(view: View, val fragmentManager: FragmentManager) :
         // which was never displayed?
         val fragment = AssignmentDetailsFragment(assignment)
         fragment.show(fragmentManager, null)
+        fragment.onDoneButtonClicked = {
+            val isAssignmentDone: Boolean = fragment.isAssignmentDone;
+            if(isAssignmentDone) {
+                val assignment = fragment.assignment;
+                assignment_fragment.markAssignmentAsDone(assignment);
+            }
+        }
     }
 }

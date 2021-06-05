@@ -42,4 +42,12 @@
         android:paddingEnd="10dp"
         android:text="@string/add_to_calendar" />
 
+    <Button
+        android:id="@+id/assignmentsListDetailsDoneButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:text="@string/assignment_dialog_done_button" />
+
 </LinearLayout>
