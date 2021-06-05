@@ -74,7 +74,7 @@ class AssignmentsTabFragment : Fragment() {
 
         // Create the Recyclerview for completed assignments, make it a linear list (not a grid), assign the list of
         // items to it and provide and adapter constructing each element of the list as a TextView
-        val completedAssignmentsRecView: RecyclerView = root.findViewById(R.id.assignmentListDone)
+        val completedAssignmentsRecView: RecyclerView = root.findViewById(R.id.assignmentListCompleted)
         completedAssignmentsRecView.layoutManager = LinearLayoutManager(this.context)
         completedAdapter =
             this.context?.let {

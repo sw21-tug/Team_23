@@ -402,7 +402,7 @@ class AssignmentsListInstrumentedTest {
     // TODO test that custom assignments are not overwritten/removed by the sync
 
     @Test
-    fun checkForDoneButtonInAssignmentListEntry() {
+    fun checkForCompletedButtonInAssignmentListEntry() {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
         // Click item at position 3
@@ -418,7 +418,7 @@ class AssignmentsListInstrumentedTest {
             .check(matches(isDisplayed()))
         onView(withId(R.id.assignmentsListDetailsCompletedButton))
             .check(matches(isDisplayed()))
-            .check(matches(withText("Done")))
+            .check(matches(withText("Completed")))
     }
 
     @Test
@@ -426,18 +426,18 @@ class AssignmentsListInstrumentedTest {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
         onView(withId(R.id.text_assignment_active)).check(matches(withText("Active Assignments")))
-        onView(withId(R.id.text_assignment_done)).check(matches(withText("Done Assignments")))
+        onView(withId(R.id.text_assignment_completed)).check(matches(withText("Completed Assignments")))
     }
 
     @Test
-    fun checkForDoneListview() {
+    fun checkForCompletedListview() {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
-        onView(withId(R.id.assignmentListDone)).check(matches(isDisplayed()))
+        onView(withId(R.id.assignmentListCompleted)).check(matches(isDisplayed()))
     }
 
     @Test
-    fun clickDoneButtonDialogCloses() {
+    fun clickCompletedButtonDialogCloses() {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
         onView(withId(R.id.assignmentsList))
@@ -449,7 +449,7 @@ class AssignmentsListInstrumentedTest {
             )
         onView(withId(R.id.assignmentsListDetailsCompletedButton))
             .perform(click())
-        onView(withId(R.id.assignmentListDone))
+        onView(withId(R.id.assignmentListCompleted))
             .check(matches(isDisplayed()))
     }
 
@@ -518,7 +518,7 @@ class AssignmentsListInstrumentedTest {
     }
 
     @Test
-    fun clickDoneButtonDoneListContainsAssignment() {
+    fun clickCompletedButtonCompletedListContainsAssignment() {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
         onView(withId(R.id.assignmentsList))
@@ -531,7 +531,7 @@ class AssignmentsListInstrumentedTest {
         onView(withId(R.id.assignmentsListDetailsCompletedButton))
             .perform(click())
 
-        onView(withId(R.id.assignmentListDone))
+        onView(withId(R.id.assignmentListCompleted))
             .check(matches(hasDescendant(withText("Dummy Assignment 3"))))
     }
 
@@ -545,22 +545,22 @@ class AssignmentsListInstrumentedTest {
         assignmentDao.insertOneCustom("Test5", "Test5", Date(1))
 
         val assignmentActive: List<Assignment> = assignmentDao.selectAllNotCompleted()
-        val assignmentDone: List<Assignment> = assignmentDao.selectAllCompleted()
+        val assignmentCompleted: List<Assignment> = assignmentDao.selectAllCompleted()
         assert(assignmentActive.size == 3)
-        assert(assignmentDone.size == 2)
+        assert(assignmentCompleted.size == 2)
         // Sorted by deadline
         assert(assignmentActive[0].getDeadlineDate() == Date(0))
         assert(assignmentActive[1].getDeadlineDate() == Date(1))
         assert(assignmentActive[2].getDeadlineDate() == Date(2))
-        assert(assignmentDone[0].getDeadlineDate() == Date(2))
-        assert(assignmentDone[1].getDeadlineDate() == Date(1))
+        assert(assignmentCompleted[0].getDeadlineDate() == Date(2))
+        assert(assignmentCompleted[1].getDeadlineDate() == Date(1))
     }
 
     @Test
-    fun checkDisabledDoneButtonForCompletedAssignment() {
+    fun checkDisabledCompletedButtonForCompletedAssignment() {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
-        onView(withId(R.id.assignmentListDone))
+        onView(withId(R.id.assignmentListCompleted))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
                     1,
