@@ -423,7 +423,7 @@ class AssignmentsListInstrumentedTest {
             .check(matches(isDisplayed()))
         onView(withId(R.id.assignmentsListDetailsCompletedButton))
             .check(matches(isDisplayed()))
-            .check(matches(withText("Completed")))
+            .check(matches(withText("DONE")))
     }
 
     @Test
@@ -540,17 +540,17 @@ class AssignmentsListInstrumentedTest {
         onView(withId(R.id.assignmentsListDetailsCompletedButton))
             .perform(click())
         onView(withId(R.id.assignmentListCompleted))
-            .check(matches(hasDescendant(withText("Dummy Assignment 3"))))
+            .check(matches(hasDescendant(withText("Assignment 1"))))
     }
 
     @Test
     fun databaseSelectAllSpecific() {
         val assignmentDao = db.getAssignmentDao()
         assignmentDao.insertOneFromMoodle("Test", "Test", Date(0))
-        assignmentDao.insertOneFromMoodle("Test2", "Test2", Date(2))
-        assignmentDao.insertOneFromMoodle("Test3", "Test3", Date(1))
-        assignmentDao.insertOneCustom("Test4", "Test4", Date(2))
-        val uid = assignmentDao.insertOneCustom("Test5", "Test5", Date(1))
+        assignmentDao.insertOneFromMoodle("Test2", "Test2", Date(2000))
+        assignmentDao.insertOneFromMoodle("Test3", "Test3", Date(1000))
+        assignmentDao.insertOneCustom("Test4", "Test4", Date(2000))
+        val uid = assignmentDao.insertOneCustom("Test5", "Test5", Date(1000))
         val assignment = assignmentDao.selectOne(uid)
         assignment.isCompleted = true
         assignmentDao.updateOne(assignment)
@@ -561,10 +561,10 @@ class AssignmentsListInstrumentedTest {
         assert(assignmentCompleted.size == 1)
         // Sorted by deadline
         assert(assignmentActive[0].getDeadlineDate() == Date(0))
-        assert(assignmentActive[1].getDeadlineDate() == Date(1))
-        assert(assignmentActive[2].getDeadlineDate() == Date(2))
-        assert(assignmentActive[3].getDeadlineDate() == Date(2))
-        assert(assignmentCompleted[0].getDeadlineDate() == Date(1))
+        assert(assignmentActive[1].getDeadlineDate() == Date(1000))
+        assert(assignmentActive[2].getDeadlineDate() == Date(2000))
+        assert(assignmentActive[3].getDeadlineDate() == Date(2000))
+        assert(assignmentCompleted[0].getDeadlineDate() == Date(1000))
     }
 
     @Test
@@ -573,10 +573,19 @@ class AssignmentsListInstrumentedTest {
         onView(withText("Assign.")).perform(click())
         onView(withId(R.id.assignment_sync_assignments)).perform(click())
         waitForRecyclerViewToBeFilled(R.id.assignmentsListNotCompleted)
-        onView(withId(R.id.assignmentListCompleted))
+        onView(withId(R.id.assignmentsListNotCompleted))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
                     1,
+                    click()
+                )
+            )
+        onView(withId(R.id.assignmentsListDetailsCompletedButton))
+            .perform(click())
+        onView(withId(R.id.assignmentListCompleted))
+            .perform(
+                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
+                    0,
                     click()
                 )
             )
