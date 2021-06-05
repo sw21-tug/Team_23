@@ -116,7 +116,7 @@ class AssignmentsTabFragment : Fragment() {
         fragment.show(parentFragmentManager, null)
     }
 
-    fun syncAssignments() {
+    private fun syncAssignments() {
         val moodleApi = API()
         assignmentDao.deleteMoodleAssignments()
         assignmentsList.clear()
@@ -212,11 +212,11 @@ class AssignmentsTabFragment : Fragment() {
 
 
     fun markAssignmentAsDone(assignment: Assignment) {
-        completedAssignmentsList.add(assignment);
-        assignmentsList.remove(assignment);
-        completeState.remove(assignment);
-        adapter?.notifyDataSetChanged();
-        completedAdapter?.notifyDataSetChanged();
+        completedAssignmentsList.add(assignment)
+        assignmentsList.remove(assignment)
+        completeState.remove(assignment)
+        adapter?.notifyDataSetChanged()
+        completedAdapter?.notifyDataSetChanged()
     }
 
     companion object {
@@ -226,10 +226,9 @@ class AssignmentsTabFragment : Fragment() {
          */
         private const val ARG_SECTION_NUMBER = "section_number"
 
-
         fun filter(assignments: List<Assignment>, search: String): List<Assignment> {
             val lowerCaseQuery = search.toLowerCase(Locale.ROOT)
-            val found: MutableList<Assignment> = ArrayList()
+            val found = arrayListOf<Assignment>()
             for (assi in assignments) {
                 val text = assi.title.toLowerCase(Locale.ROOT)
                 if (text.contains(lowerCaseQuery)) {
@@ -299,10 +298,10 @@ private class ViewHolder(view: View, val fragmentManager: FragmentManager, val a
         val fragment = AssignmentDetailsFragment(assignment)
         fragment.show(fragmentManager, null)
         fragment.onAssignmentCompletedButtonClicked = {
-            val isAssignmentDone: Boolean = fragment.isAssignmentCompleted;
+            val isAssignmentDone: Boolean = fragment.isAssignmentCompleted
             if(isAssignmentDone) {
-                val assignment = fragment.assignment;
-                assignment_fragment.markAssignmentAsDone(assignment);
+                val assignment = fragment.assignment
+                assignment_fragment.markAssignmentAsDone(assignment)
             }
         }
     }

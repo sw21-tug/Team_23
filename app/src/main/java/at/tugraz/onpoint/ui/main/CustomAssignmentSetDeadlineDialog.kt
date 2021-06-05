@@ -7,7 +7,7 @@ import android.widget.DatePicker
 import androidx.fragment.app.DialogFragment
 import java.util.*
 
-class CustomAssignmentSetDeadlineDialog(val customAssignmentDialog: CustomAssignmentDialog) : DialogFragment(),
+class CustomAssignmentSetDeadlineDialog(private val customAssignmentDialog: CustomAssignmentDialog) : DialogFragment(),
     DatePickerDialog.OnDateSetListener {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

@@ -35,9 +35,9 @@ class AssignmentDetailsFragment(val assignment: Assignment) :
         return inflater.inflate(R.layout.fragment_assignment_details, container, false)
     }
 
-    lateinit var alertDialog: AlertDialog;
-    var isAssignmentCompleted: Boolean = false;
-    var onAssignmentCompletedButtonClicked: () -> Unit = {};
+    private lateinit var alertDialog: AlertDialog
+    var isAssignmentCompleted: Boolean = false
+    var onAssignmentCompletedButtonClicked: () -> Unit = {}
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
@@ -82,10 +82,10 @@ class AssignmentDetailsFragment(val assignment: Assignment) :
         } ?: throw IllegalStateException("Activity cannot be null")
     }
 
-    fun onAssignmentCompleted() {
+    private fun onAssignmentCompleted() {
         if(!assignment.isCompleted) {
-            isAssignmentCompleted = true;
-            onAssignmentCompletedButtonClicked();
+            isAssignmentCompleted = true
+            onAssignmentCompletedButtonClicked()
             alertDialog.dismiss()
         }
     }

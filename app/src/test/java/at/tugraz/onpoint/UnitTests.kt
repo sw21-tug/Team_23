@@ -1,11 +1,9 @@
 package at.tugraz.onpoint
 
 import at.tugraz.onpoint.database.Assignment
-import org.junit.Test
-
-import org.junit.Assert.*
-import java.util.*
 import at.tugraz.onpoint.ui.main.AssignmentsTabFragment
+import org.junit.Assert.assertEquals
+import org.junit.Test
 
 
 /**
@@ -15,18 +13,27 @@ import at.tugraz.onpoint.ui.main.AssignmentsTabFragment
  */
 
 class UnitTests {
-   // val atf: AssignmentsTabFragment = AssignmentsTabFragment()
     @Test
     fun checkFilter() {
-
-        val test_input: MutableList<Assignment> = ArrayList()
-        val a1 : Assignment = Assignment("Title 1", "description",1000000000000,                    "https://www.tugraz.at https://tc.tugraz.at", 1)
-
-        val a2 : Assignment = Assignment("Title 2", "description", 1000000000000,     "https://www.tugraz.at https://tc.tugraz.at", 2)
-        test_input.add(a1)
-        test_input.add(a2)
-        assertEquals(1, AssignmentsTabFragment.filter(test_input, "Title 1")?.size)
-
-
+        val testInput = arrayListOf<Assignment>()
+        val a1: Assignment = Assignment(
+            "Title 1",
+            "description",
+            1000000000000,
+            "https://www.tugraz.at;https://tc.tugraz.at",
+            1
+        )
+        val a2: Assignment = Assignment(
+            "Title 2",
+            "description",
+            1000000000000,
+            "https://www.tugraz.at;https://tc.tugraz.at",
+            2
+        )
+        testInput.add(a1)
+        testInput.add(a2)
+        val filteredList = AssignmentsTabFragment.filter(testInput, "Title 1")
+        assertEquals(1, filteredList.size)
+        assertEquals(filteredList[0], a1)
     }
 }

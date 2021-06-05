@@ -7,14 +7,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.TextView
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.Fragment
 import at.tugraz.onpoint.R
 import com.google.android.material.textfield.TextInputEditText
 import java.util.*
 
-class CustomAssignmentDialog(val assignments_tab_fragment: AssignmentsTabFragment) :
+class CustomAssignmentDialog(private val assignments_tab_fragment: AssignmentsTabFragment) :
     DialogFragment(R.layout.custom_assignment) {
 
     var cal: Calendar = Calendar.getInstance()
