@@ -409,7 +409,8 @@ class AssignmentsListInstrumentedTest {
     fun checkForCompletedButtonInAssignmentListEntry() {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
-        // Click item at position 3
+        onView(withId(R.id.assignment_sync_assignments)).perform(click())
+        waitForRecyclerViewToBeFilled(R.id.assignmentsListNotCompleted)
         onView(withId(R.id.assignmentsListNotCompleted))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
@@ -430,7 +431,7 @@ class AssignmentsListInstrumentedTest {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
         onView(withId(R.id.text_assignment_active)).check(matches(withText("Active Assignments")))
-        onView(withId(R.id.text_assignment_completed)).check(matches(withText("Completed Assignments")))
+        onView(withId(R.id.text_assignment_completed)).check(matches(withText("Done Assignments")))
     }
 
     @Test
@@ -444,6 +445,8 @@ class AssignmentsListInstrumentedTest {
     fun clickCompletedButtonDialogCloses() {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
+        onView(withId(R.id.assignment_sync_assignments)).perform(click())
+        waitForRecyclerViewToBeFilled(R.id.assignmentsListNotCompleted)
         onView(withId(R.id.assignmentsListNotCompleted))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
@@ -525,6 +528,8 @@ class AssignmentsListInstrumentedTest {
     fun clickCompletedButtonCompletedListContainsAssignment() {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
+        onView(withId(R.id.assignment_sync_assignments)).perform(click())
+        waitForRecyclerViewToBeFilled(R.id.assignmentsListNotCompleted)
         onView(withId(R.id.assignmentsListNotCompleted))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
@@ -534,7 +539,6 @@ class AssignmentsListInstrumentedTest {
             )
         onView(withId(R.id.assignmentsListDetailsCompletedButton))
             .perform(click())
-
         onView(withId(R.id.assignmentListCompleted))
             .check(matches(hasDescendant(withText("Dummy Assignment 3"))))
     }
@@ -546,24 +550,29 @@ class AssignmentsListInstrumentedTest {
         assignmentDao.insertOneFromMoodle("Test2", "Test2", Date(2))
         assignmentDao.insertOneFromMoodle("Test3", "Test3", Date(1))
         assignmentDao.insertOneCustom("Test4", "Test4", Date(2))
-        assignmentDao.insertOneCustom("Test5", "Test5", Date(1))
+        val uid = assignmentDao.insertOneCustom("Test5", "Test5", Date(1))
+        val assignment = assignmentDao.selectOne(uid)
+        assignment.isCompleted = true
+        assignmentDao.updateOne(assignment)
 
         val assignmentActive: List<Assignment> = assignmentDao.selectAllNotCompleted()
         val assignmentCompleted: List<Assignment> = assignmentDao.selectAllCompleted()
-        assert(assignmentActive.size == 3)
-        assert(assignmentCompleted.size == 2)
+        assert(assignmentActive.size == 4)
+        assert(assignmentCompleted.size == 1)
         // Sorted by deadline
         assert(assignmentActive[0].getDeadlineDate() == Date(0))
         assert(assignmentActive[1].getDeadlineDate() == Date(1))
         assert(assignmentActive[2].getDeadlineDate() == Date(2))
-        assert(assignmentCompleted[0].getDeadlineDate() == Date(2))
-        assert(assignmentCompleted[1].getDeadlineDate() == Date(1))
+        assert(assignmentActive[3].getDeadlineDate() == Date(2))
+        assert(assignmentCompleted[0].getDeadlineDate() == Date(1))
     }
 
     @Test
     fun checkDisabledCompletedButtonForCompletedAssignment() {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
+        onView(withId(R.id.assignment_sync_assignments)).perform(click())
+        waitForRecyclerViewToBeFilled(R.id.assignmentsListNotCompleted)
         onView(withId(R.id.assignmentListCompleted))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(

@@ -20,6 +20,7 @@ import at.tugraz.onpoint.R
 import at.tugraz.onpoint.database.*
 import at.tugraz.onpoint.database.Assignment
 import at.tugraz.onpoint.moodle.*
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.net.URL
 import java.util.*
 
@@ -51,6 +52,8 @@ class AssignmentsTabFragment : Fragment() {
         val root = inflater.inflate(R.layout.fragment_assignments, container, false)
         root.findViewById<Button>(R.id.assignment_sync_assignments)
             .setOnClickListener { syncAssignments() }
+        root.findViewById<FloatingActionButton>(R.id.custom_assignment_add_button)
+            .setOnClickListener { addCustomAssignment() }
         if (moodleDao.selectAll().isEmpty()) {
             notifyUser("Automatically added login info to di Vora's Moodle")
             moodleDao.insertOne("diVoraTestMoodle", "test", "onpoint!T23", "moodle.divora.at")
