@@ -29,7 +29,10 @@ import at.tugraz.onpoint.ui.main.AssignmentsTabFragment
 import junit.framework.AssertionFailedError
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.startsWith
-import org.junit.*
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
 import java.net.URL
@@ -60,6 +63,7 @@ class AssignmentsListInstrumentedTest {
         db.close()
     }
 
+    @Before
     @After
     @Throws(IOException::class)
     fun emptyPersistentDb() {
@@ -67,21 +71,21 @@ class AssignmentsListInstrumentedTest {
         persistentDb.clearAllTables()
     }
 
-    private fun waitForViewToBeVisible(
+    private fun waitForRecyclerViewToBeFilled(
         id: Int,
         maxTries: Int = 100,
         waitBetweenTriesMillis: Int = 100,
     ) {
         for (i in 0..maxTries) {
             try {
-                onView(withId(id)).check(matches(isDisplayed()))
+                onView(withId(id)).check(matches(hasDescendant(withSubstring("Assignment"))))
                 return // View is displayed
             } catch (e: AssertionFailedError) {
                 // View is NOT displayed. Wait instead
                 Thread.sleep(waitBetweenTriesMillis.toLong())
             }
         }
-        throw AssertionFailedError("View with $id not found after wait")
+        throw AssertionFailedError("Recycler view with $id still empty after wait")
     }
 
     @Test
@@ -103,7 +107,7 @@ class AssignmentsListInstrumentedTest {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
         onView(withId(R.id.assignment_sync_assignments)).perform(click())
-        waitForViewToBeVisible(R.id.assignmentsList)
+        waitForRecyclerViewToBeFilled(R.id.assignmentsListNotCompleted)
     }
 
     @Test
@@ -111,8 +115,8 @@ class AssignmentsListInstrumentedTest {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
         onView(withId(R.id.assignment_sync_assignments)).perform(click())
-        waitForViewToBeVisible(R.id.assignmentsList)
-        onView(withId(R.id.assignmentsList))
+        waitForRecyclerViewToBeFilled(R.id.assignmentsListNotCompleted)
+        onView(withId(R.id.assignmentsListNotCompleted))
             .check(matches(hasDescendant(withText("Assignment 1"))))
     }
 
@@ -121,8 +125,8 @@ class AssignmentsListInstrumentedTest {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
         onView(withId(R.id.assignment_sync_assignments)).perform(click())
-        waitForViewToBeVisible(R.id.assignmentsList)
-        onView(withId(R.id.assignmentsList))
+        waitForRecyclerViewToBeFilled(R.id.assignmentsListNotCompleted)
+        onView(withId(R.id.assignmentsListNotCompleted))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
                     1,
@@ -181,8 +185,8 @@ class AssignmentsListInstrumentedTest {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
         onView(withId(R.id.assignment_sync_assignments)).perform(click())
-        waitForViewToBeVisible(R.id.assignmentsList)
-        onView(withId(R.id.assignmentsList))
+        waitForRecyclerViewToBeFilled(R.id.assignmentsListNotCompleted)
+        onView(withId(R.id.assignmentsListNotCompleted))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
                     1,
@@ -258,8 +262,8 @@ class AssignmentsListInstrumentedTest {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
         onView(withId(R.id.assignment_sync_assignments)).perform(click())
-        waitForViewToBeVisible(R.id.assignmentsList)
-        onView(withId(R.id.assignmentsList))
+        waitForRecyclerViewToBeFilled(R.id.assignmentsListNotCompleted)
+        onView(withId(R.id.assignmentsListNotCompleted))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
                     1,
@@ -278,8 +282,8 @@ class AssignmentsListInstrumentedTest {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
         onView(withId(R.id.assignment_sync_assignments)).perform(click())
-        waitForViewToBeVisible(R.id.assignmentsList)
-        onView(withId(R.id.assignmentsList))
+        waitForRecyclerViewToBeFilled(R.id.assignmentsListNotCompleted)
+        onView(withId(R.id.assignmentsListNotCompleted))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
                     1,
@@ -305,8 +309,8 @@ class AssignmentsListInstrumentedTest {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
         onView(withId(R.id.assignment_sync_assignments)).perform(click())
-        waitForViewToBeVisible(R.id.assignmentsList)
-        onView(withId(R.id.assignmentsList))
+        waitForRecyclerViewToBeFilled(R.id.assignmentsListNotCompleted)
+        onView(withId(R.id.assignmentsListNotCompleted))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
                     1,
@@ -327,8 +331,8 @@ class AssignmentsListInstrumentedTest {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
         onView(withId(R.id.assignment_sync_assignments)).perform(click())
-        waitForViewToBeVisible(R.id.assignmentsList)
-        onView(withId(R.id.assignmentsList))
+        waitForRecyclerViewToBeFilled(R.id.assignmentsListNotCompleted)
+        onView(withId(R.id.assignmentsListNotCompleted))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
                     1,
@@ -365,14 +369,14 @@ class AssignmentsListInstrumentedTest {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
         onView(withId(R.id.assignment_sync_assignments)).perform(click())
-        waitForViewToBeVisible(R.id.assignmentsList)
-        onView(withId(R.id.assignmentsList)).check(RecyclerViewItemCounter())
+        waitForRecyclerViewToBeFilled(R.id.assignmentsListNotCompleted)
+        onView(withId(R.id.assignmentsListNotCompleted)).check(RecyclerViewItemCounter())
         val itemsInListAfterFirstSync = RecyclerViewItemCounter.lastCount
         // Sync again: the recyclerview length should not change: previously-contained
         // assignments should still be there
         onView(withId(R.id.assignment_sync_assignments)).perform(click())
-        waitForViewToBeVisible(R.id.assignmentsList)
-        onView(withId(R.id.assignmentsList)).check(RecyclerViewItemCounter())
+        waitForRecyclerViewToBeFilled(R.id.assignmentsListNotCompleted)
+        onView(withId(R.id.assignmentsListNotCompleted)).check(RecyclerViewItemCounter())
         val itemsInListAfterSecondSync = RecyclerViewItemCounter.lastCount
         assert(itemsInListAfterFirstSync == itemsInListAfterSecondSync)
         // Note: for our dummy Moodle, the amount of assignments will never really change.
@@ -384,8 +388,8 @@ class AssignmentsListInstrumentedTest {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
         onView(withId(R.id.assignment_sync_assignments)).perform(click())
-        waitForViewToBeVisible(R.id.assignmentsList)
-        onView(withId(R.id.assignmentsList))
+        waitForRecyclerViewToBeFilled(R.id.assignmentsListNotCompleted)
+        onView(withId(R.id.assignmentsListNotCompleted))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
                     1,
@@ -406,10 +410,10 @@ class AssignmentsListInstrumentedTest {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
         // Click item at position 3
-        onView(withId(R.id.assignmentsList))
+        onView(withId(R.id.assignmentsListNotCompleted))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
-                    3,
+                    1,
                     click()
                 )
             )
@@ -440,10 +444,10 @@ class AssignmentsListInstrumentedTest {
     fun clickCompletedButtonDialogCloses() {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
-        onView(withId(R.id.assignmentsList))
+        onView(withId(R.id.assignmentsListNotCompleted))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
-                    3,
+                    1,
                     click()
                 )
             )
@@ -521,10 +525,10 @@ class AssignmentsListInstrumentedTest {
     fun clickCompletedButtonCompletedListContainsAssignment() {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
-        onView(withId(R.id.assignmentsList))
+        onView(withId(R.id.assignmentsListNotCompleted))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
-                    3,
+                    1,
                     click()
                 )
             )
