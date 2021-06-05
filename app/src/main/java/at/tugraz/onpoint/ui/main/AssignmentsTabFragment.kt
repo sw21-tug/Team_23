@@ -110,6 +110,7 @@ class AssignmentsTabFragment : Fragment() {
         val moodleApi = API()
         assignmentDao.deleteMoodleAssignments()
         assignmentsList.clear()
+        adapter!!.notifyDataSetChanged()
         val accounts = moodleDao.selectAll()
         if (accounts.isEmpty()) {
             notifyUser("No Moodle accounts saved")

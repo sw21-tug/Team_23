@@ -26,9 +26,9 @@ import at.tugraz.onpoint.moodle.API
 import at.tugraz.onpoint.moodle.AssignmentResponse
 import at.tugraz.onpoint.moodle.LoginSuccessData
 import at.tugraz.onpoint.ui.main.Assignment
-import org.hamcrest.CoreMatchers.*
-import org.hamcrest.Matcher
-import org.hamcrest.TypeSafeMatcher
+import junit.framework.AssertionFailedError
+import org.hamcrest.CoreMatchers.not
+import org.hamcrest.CoreMatchers.startsWith
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -70,6 +70,23 @@ class AssignmentsListInstrumentedTest {
         persistentDb.clearAllTables()
     }
 
+    private fun waitForViewToBeVisible(
+        id: Int,
+        maxTries: Int = 100,
+        waitBetweenTriesMillis: Int = 100,
+    ) {
+        for (i in 0..maxTries) {
+            try {
+                onView(withId(id)).check(matches(isDisplayed()))
+                return // View is displayed
+            } catch (e: AssertionFailedError) {
+                // View is NOT displayed. Wait instead
+                Thread.sleep(waitBetweenTriesMillis.toLong())
+            }
+        }
+        throw AssertionFailedError("View with $id not found after wait")
+    }
+
     @Test
     fun activityHasTabList() {
         launchActivity<MainTabbedActivity>()
@@ -88,26 +105,30 @@ class AssignmentsListInstrumentedTest {
     fun checkForAssignmentListExistence() {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
-        onView(withId(R.id.assignmentsList)).check(matches(isDisplayed()))
+        onView(withId(R.id.assignment_sync_assignments)).perform(click())
+        waitForViewToBeVisible(R.id.assignmentsList)
     }
 
     @Test
     fun checkForContentInAssignmentList() {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
+        onView(withId(R.id.assignment_sync_assignments)).perform(click())
+        waitForViewToBeVisible(R.id.assignmentsList)
         onView(withId(R.id.assignmentsList))
-            .check(matches(hasDescendant(withText("Dummy Assignment 5"))))
+            .check(matches(hasDescendant(withText("Assignment 1"))))
     }
 
     @Test
     fun checkForDetailsInAssignmentListEntry() {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
-        // Click item at position 3
+        onView(withId(R.id.assignment_sync_assignments)).perform(click())
+        waitForViewToBeVisible(R.id.assignmentsList)
         onView(withId(R.id.assignmentsList))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
-                    3,
+                    1,
                     click()
                 )
             )
@@ -115,7 +136,7 @@ class AssignmentsListInstrumentedTest {
             .inRoot(isDialog())
             .check(matches(isDisplayed()))
         onView(withId(R.id.assignmentsListDetailsDescription))
-            .check(matches(withText("Dummy Description 3")))
+            .check(matches(withText("Assignment 1 - Description")))
             .check(matches(isDisplayed()))
         onView(withId(R.id.assignmentsListDetailsDeadline))
             .check(matches(withText(startsWith("Deadline"))))
@@ -141,7 +162,7 @@ class AssignmentsListInstrumentedTest {
     }
 
     @Test
-    fun mockNotificationTappingOpensAppInAssignemntTab() {
+    fun mockNotificationTappingOpensAppInAssignmentTab() {
         // Mock intent that is fired when tapping on the notification
         // Does exactly the same stuff as the one implemented inside the app.
         // Testing the notification behaviour is out of scope: we assume Android works properly.
@@ -155,18 +176,19 @@ class AssignmentsListInstrumentedTest {
         onView(withText("Main")).check(matches(isDisplayed()))
         onView(withText("Todo")).check(matches(isDisplayed()))
         onView(withText("Assign.")).check(matches(isDisplayed()))
-        onView(withId(R.id.assignmentsList)).check(matches(isDisplayed()))
+        onView(withId(R.id.assignment_sync_assignments)).check(matches(isDisplayed()))
     }
 
     @Test
     fun checkDeadlinePickerAppearsWhenClickingOnSetReminder() {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
-        // Click item at position 3
+        onView(withId(R.id.assignment_sync_assignments)).perform(click())
+        waitForViewToBeVisible(R.id.assignmentsList)
         onView(withId(R.id.assignmentsList))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
-                    3,
+                    1,
                     click()
                 )
             )
@@ -180,7 +202,7 @@ class AssignmentsListInstrumentedTest {
             .perform(click())
         onView(withId(android.R.id.button1)) // OK button, with default Android ID
             .check(matches(isDisplayed()))
-            .perform(click())
+            .check(matches(isClickable()))
     }
 
     @Test
@@ -239,11 +261,12 @@ class AssignmentsListInstrumentedTest {
     fun checkForAddToCalendarButton() {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
-        // Click item at position 3
+        onView(withId(R.id.assignment_sync_assignments)).perform(click())
+        waitForViewToBeVisible(R.id.assignmentsList)
         onView(withId(R.id.assignmentsList))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
-                    3,
+                    1,
                     click()
                 )
             )
@@ -258,11 +281,12 @@ class AssignmentsListInstrumentedTest {
     fun checkClickForAddToCalendarButton() {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
-        // Click item at position 3
+        onView(withId(R.id.assignment_sync_assignments)).perform(click())
+        waitForViewToBeVisible(R.id.assignmentsList)
         onView(withId(R.id.assignmentsList))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
-                    3,
+                    1,
                     click()
                 )
             )
@@ -284,11 +308,12 @@ class AssignmentsListInstrumentedTest {
     fun assignmentListDetailsHaveClickableLinks() {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
-        // Click item at position 3
+        onView(withId(R.id.assignment_sync_assignments)).perform(click())
+        waitForViewToBeVisible(R.id.assignmentsList)
         onView(withId(R.id.assignmentsList))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
-                    3,
+                    1,
                     click()
                 )
             )
@@ -299,7 +324,6 @@ class AssignmentsListInstrumentedTest {
             .check(matches(withText(startsWith("http"))))
             .check(matches(isDisplayed()))
             .check(matches(isClickable()))
-            .perform(click())
     }
 
     @Test
@@ -307,8 +331,7 @@ class AssignmentsListInstrumentedTest {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
         onView(withId(R.id.assignment_sync_assignments)).perform(click())
-        Thread.sleep(5000) /// Sleeping to wait for request through moddle API to
-        // be recieved and the list updated
+        waitForViewToBeVisible(R.id.assignmentsList)
         onView(withId(R.id.assignmentsList))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
@@ -330,7 +353,6 @@ class AssignmentsListInstrumentedTest {
             .check(matches(withSubstring(".pdf?")))
             .check(matches(isDisplayed()))
             .check(matches(isClickable()))
-            .perform(click())
     }
 
     @Test
@@ -359,15 +381,13 @@ class AssignmentsListInstrumentedTest {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
         onView(withId(R.id.assignment_sync_assignments)).perform(click())
-        Thread.sleep(2000) /// Sleeping to wait for request through Moodle API to
-        // be received and the list updated
+        waitForViewToBeVisible(R.id.assignmentsList)
         onView(withId(R.id.assignmentsList)).check(RecyclerViewItemCounter())
         val itemsInListAfterFirstSync = RecyclerViewItemCounter.lastCount
         // Sync again: the recyclerview length should not change: previously-contained
         // assignments should still be there
         onView(withId(R.id.assignment_sync_assignments)).perform(click())
-        Thread.sleep(2000) /// Sleeping to wait for request through Moodle API to
-        // be recieved and the list updated
+        waitForViewToBeVisible(R.id.assignmentsList)
         onView(withId(R.id.assignmentsList)).check(RecyclerViewItemCounter())
         val itemsInListAfterSecondSync = RecyclerViewItemCounter.lastCount
         assert(itemsInListAfterFirstSync == itemsInListAfterSecondSync)
@@ -380,8 +400,7 @@ class AssignmentsListInstrumentedTest {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
         onView(withId(R.id.assignment_sync_assignments)).perform(click())
-        Thread.sleep(5000) /// Sleeping to wait for request through moddle API to
-        // be recieved and the list updated
+        waitForViewToBeVisible(R.id.assignmentsList)
         onView(withId(R.id.assignmentsList))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
@@ -396,30 +415,7 @@ class AssignmentsListInstrumentedTest {
             .check(matches(not(withSubstring("<p"))))
 
     }
-
-    private fun waitForViewToBeVisible(
-        id: Int,
-        maxTries: Int = 100,
-        waitBetweenTriesMillis: Int = 100,
-    ) {
-        for (i in 0..maxTries) {
-            try {
-                onView(withId(id)).check(matches(isDisplayed()))
-                return // View is displayed
-            } catch (e: Exception) {
-                // View is NOT displayed. Wait instead
-                Thread.sleep(waitBetweenTriesMillis.toLong())
-            }
-        }
-        throw Exception("View with $id not found after wait")
-    }
-
-
-
     // TODO test that custom assignments are not overwritten/removed by the sync
-
-
-
 }
 
 
@@ -434,5 +430,3 @@ class RecyclerViewItemCounter : ViewAssertion {
         var lastCount: Int = 0
     }
 }
-
-
