@@ -136,7 +136,7 @@ class AssignmentsListInstrumentedTest {
             .inRoot(isDialog())
             .check(matches(isDisplayed()))
         onView(withId(R.id.assignmentsListDetailsDescription))
-            .check(matches(withText("Assignment 1 - Description")))
+            .check(matches(withSubstring("Assignment 1 - Description")))
             .check(matches(isDisplayed()))
         onView(withId(R.id.assignmentsListDetailsDeadline))
             .check(matches(withText(startsWith("Deadline"))))
@@ -365,18 +365,6 @@ class AssignmentsListInstrumentedTest {
     }
 
     @Test
-    fun getAssignmentsFromOnlineMoodle() {
-        val moodleApi = API()
-        moodleApi.setAuthority("moodle.divora.at")
-        moodleApi.login("test", "onpoint!T23") { response: Any ->
-            assert(response is LoginSuccessData)
-        }
-        moodleApi.getAssignments { response: Any ->
-            assert(response is AssignmentResponse)
-        }
-    }
-
-    @Test
     fun syncAssignmentsDoesNotDoubleInsertIntoList() {
         launchActivity<MainTabbedActivity>()
         onView(withText("Assign.")).perform(click())
@@ -426,7 +414,7 @@ class RecyclerViewItemCounter : ViewAssertion {
         assert(true)
     }
 
-    companion object{
+    companion object {
         var lastCount: Int = 0
     }
 }
