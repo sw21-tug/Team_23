@@ -25,13 +25,11 @@ import at.tugraz.onpoint.database.OnPointAppDatabase
 import at.tugraz.onpoint.database.getDbInstance
 import at.tugraz.onpoint.moodle.API
 import at.tugraz.onpoint.moodle.LoginSuccessData
+import at.tugraz.onpoint.ui.main.AssignmentsTabFragment
 import junit.framework.AssertionFailedError
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.startsWith
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.*
 import org.junit.runner.RunWith
 import java.io.IOException
 import java.net.URL
@@ -571,6 +569,30 @@ class AssignmentsListInstrumentedTest {
             )
         onView(withId(R.id.assignmentsListDetailsCompletedButton))
             .check(matches(not(isDisplayed())))
+    }
+
+    @Test
+    fun checkFilter() {
+        val testInput = arrayListOf<Assignment>()
+        val a1 = Assignment(
+            "Title 1",
+            "description",
+            0,
+            "https://www.tugraz.at;https://tc.tugraz.at",
+            1
+        )
+        val a2 = Assignment(
+            "Title 2",
+            "description",
+            0,
+            "https://www.tugraz.at;https://tc.tugraz.at",
+            2
+        )
+        testInput.add(a1)
+        testInput.add(a2)
+        val filteredList = AssignmentsTabFragment.filter(testInput, "Title 1")
+        assert(filteredList.size == 1)
+        assert(filteredList[0] == a1)
     }
 }
 
