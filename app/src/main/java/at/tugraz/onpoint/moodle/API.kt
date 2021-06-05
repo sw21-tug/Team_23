@@ -14,15 +14,18 @@ data class AssignmentError(val exception: String, val errorcode: String, val mes
 data class AssignmentResponse(
     val courses: List<Course>
 )
+
 data class Course(
     val assignments: List<Assignment>
 )
+
 data class Assignment(
     val name: String,
     val intro: String,
     val duedate: Long,
     val introattachments: List<Attachment>,
 )
+
 data class Attachment(
     val filename: String,
     val fileurl: String,

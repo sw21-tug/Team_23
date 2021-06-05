@@ -543,8 +543,8 @@ class AssignmentsListInstrumentedTest {
         assignmentDao.insertOneFromMoodle("Test", "Test", Date(0))
         assignmentDao.insertOneFromMoodle("Test2", "Test2", Date(2))
         assignmentDao.insertOneFromMoodle("Test3", "Test3", Date(1))
-        assignmentDao.insertOneCustom("Test4", "Test4", Date(2 ))
-        assignmentDao.insertOneCustom("Test5", "Test5", Date(1 ))
+        assignmentDao.insertOneCustom("Test4", "Test4", Date(2))
+        assignmentDao.insertOneCustom("Test5", "Test5", Date(1))
 
         val assignmentActive: List<Assignment> = assignmentDao.selectAllNotCompleted()
         val assignmentDone: List<Assignment> = assignmentDao.selectAllCompleted()

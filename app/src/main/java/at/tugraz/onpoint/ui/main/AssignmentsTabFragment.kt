@@ -17,15 +17,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import at.tugraz.onpoint.R
+import at.tugraz.onpoint.database.*
 import at.tugraz.onpoint.database.Assignment
-import at.tugraz.onpoint.database.AssignmentDao
-import at.tugraz.onpoint.database.MoodleDao
-import at.tugraz.onpoint.database.OnPointAppDatabase
-import at.tugraz.onpoint.database.getDbInstance
 import at.tugraz.onpoint.moodle.*
 import java.net.URL
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 class AssignmentsTabFragment : Fragment() {
@@ -66,7 +62,14 @@ class AssignmentsTabFragment : Fragment() {
         val assignmentsRecView: RecyclerView = root.findViewById(R.id.assignmentsList)
         assignmentsRecView.layoutManager = LinearLayoutManager(this.context)
         adapter =
-            this.context?.let { AssignmentsAdapter(assignmentsList, it, parentFragmentManager, this) }
+            this.context?.let {
+                AssignmentsAdapter(
+                    assignmentsList,
+                    it,
+                    parentFragmentManager,
+                    this
+                )
+            }
         assignmentsRecView.adapter = this.adapter
 
         // Create the Recyclerview for completed assignments, make it a linear list (not a grid), assign the list of
@@ -74,13 +77,20 @@ class AssignmentsTabFragment : Fragment() {
         val completedAssignmentsRecView: RecyclerView = root.findViewById(R.id.assignmentListDone)
         completedAssignmentsRecView.layoutManager = LinearLayoutManager(this.context)
         completedAdapter =
-            this.context?.let { AssignmentsAdapter(completedAssignmentsList, it, parentFragmentManager, this) }
+            this.context?.let {
+                AssignmentsAdapter(
+                    completedAssignmentsList,
+                    it,
+                    parentFragmentManager,
+                    this
+                )
+            }
         completedAssignmentsRecView.adapter = this.completedAdapter
 
         val searchView: SearchView = root.findViewById(R.id.assignment_searchview)
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextChange(newText: String?): Boolean {
-                if (newText != null){
+                if (newText != null) {
                     val temp = completeState.toMutableList()
                     assignmentsList.clear()
                     assignmentsList.addAll(filter(temp, newText) as ArrayList<Assignment>)
@@ -181,7 +191,11 @@ class AssignmentsTabFragment : Fragment() {
      * notifications for the deadlines.
      */
     private fun addAssignmentFromMoodleToAssignmentList(
-        title: String, description: String, deadline: Date, links: List<URL>? = null, moodleId: Int? = null
+        title: String,
+        description: String,
+        deadline: Date,
+        links: List<URL>? = null,
+        moodleId: Int? = null
     ) {
         val uid: Long =
             assignmentDao.insertOneFromMoodle(title, description, deadline, links, moodleId)
@@ -200,7 +214,7 @@ class AssignmentsTabFragment : Fragment() {
     ) {
         val uid: Long = assignmentDao.insertOneCustom(title, description, deadline, links)
         val assignment = assignmentDao.selectOne(uid)
-        if(!assignment.isCompleted){
+        if (!assignment.isCompleted) {
             assignmentsList.add(assignment)
             completeState.add(assignment)
             adapter?.notifyDataSetChanged()
@@ -280,7 +294,11 @@ private class AssignmentsAdapter(
     }
 }
 
-private class ViewHolder(view: View, val fragmentManager: FragmentManager, val assignment_fragment: AssignmentsTabFragment) :
+private class ViewHolder(
+    view: View,
+    val fragmentManager: FragmentManager,
+    val assignment_fragment: AssignmentsTabFragment
+) :
     RecyclerView.ViewHolder(view) {
     lateinit var assignment: Assignment
     val assignmentListEntryTextView: TextView = view.findViewById(R.id.assignmentsListEntry)
@@ -299,7 +317,7 @@ private class ViewHolder(view: View, val fragmentManager: FragmentManager, val a
         fragment.show(fragmentManager, null)
         fragment.onAssignmentCompletedButtonClicked = {
             val isAssignmentDone: Boolean = fragment.isAssignmentCompleted
-            if(isAssignmentDone) {
+            if (isAssignmentDone) {
                 val assignment = fragment.assignment
                 assignment_fragment.markAssignmentAsDone(assignment)
             }

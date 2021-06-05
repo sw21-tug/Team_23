@@ -28,7 +28,7 @@ val MIGRATION_2_3: Migration = object : Migration(2, 3) {
 
 val MIGRATION_3_4: Migration = object : Migration(2, 3) {
     override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL( "CREATE TABLE IF NOT EXISTS `assignment` (`title` TEXT NOT NULL, `description` TEXT NOT NULL, `deadline` INTEGER NOT NULL, `links` TEXT NOT NULL, `uid` INTEGER PRIMARY KEY AUTOINCREMENT, `moodle_id` INTEGER, `is_custom` INTEGER NOT NULL)")
+        database.execSQL("CREATE TABLE IF NOT EXISTS `assignment` (`title` TEXT NOT NULL, `description` TEXT NOT NULL, `deadline` INTEGER NOT NULL, `links` TEXT NOT NULL, `uid` INTEGER PRIMARY KEY AUTOINCREMENT, `moodle_id` INTEGER, `is_custom` INTEGER NOT NULL)")
 
     }
 }
@@ -133,7 +133,7 @@ interface AssignmentDao {
         deadline: Long,
         links: String,
         moodleId: Int?,
-        isCustom : Boolean,
+        isCustom: Boolean,
         isCompleted: Boolean,
     ): Long
 
@@ -255,7 +255,7 @@ data class Assignment(
     var moodleId: Int? = null,
 
     @ColumnInfo(name = "is_custom")
-    var isCustom:Boolean = false,
+    var isCustom: Boolean = false,
 
     @ColumnInfo(name = "is_completed")
     var isCompleted: Boolean = false
@@ -279,7 +279,7 @@ data class Assignment(
     }
 
     fun getLinksAsUrls(): List<URL> {
-        if(links.isEmpty()) {
+        if (links.isEmpty()) {
             return emptyList()
         }
         return links.split(";").map {

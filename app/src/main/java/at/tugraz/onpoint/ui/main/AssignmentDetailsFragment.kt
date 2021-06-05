@@ -55,8 +55,9 @@ class AssignmentDetailsFragment(val assignment: Assignment) :
             // Add-to-calendar button
             val button: Button = view.findViewById(R.id.addMeToCalendar)
             button.setOnClickListener { addDeadlineToCalendar(assignment) }
-            val completedButton: Button = view.findViewById(R.id.assignmentsListDetailsCompletedButton)
-            if(!assignment.isCompleted) {
+            val completedButton: Button =
+                view.findViewById(R.id.assignmentsListDetailsCompletedButton)
+            if (!assignment.isCompleted) {
                 completedButton.setOnClickListener { onAssignmentCompleted() }
             } else {
                 completedButton.visibility = View.INVISIBLE
@@ -83,7 +84,7 @@ class AssignmentDetailsFragment(val assignment: Assignment) :
     }
 
     private fun onAssignmentCompleted() {
-        if(!assignment.isCompleted) {
+        if (!assignment.isCompleted) {
             isAssignmentCompleted = true
             onAssignmentCompletedButtonClicked()
             alertDialog.dismiss()

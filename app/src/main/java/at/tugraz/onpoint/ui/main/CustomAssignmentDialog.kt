@@ -34,8 +34,10 @@ class CustomAssignmentDialog(private val assignments_tab_fragment: AssignmentsTa
             val button: Button = view.findViewById(R.id.custom_assignment_deadline_button)
             button.setOnClickListener { getDeadline() }
 
-            val titleInput: TextInputEditText = view.findViewById(R.id.custom_assignment_title_input)
-            val descriptionInput: TextInputEditText = view.findViewById(R.id.custom_assignment_description_input)
+            val titleInput: TextInputEditText =
+                view.findViewById(R.id.custom_assignment_title_input)
+            val descriptionInput: TextInputEditText =
+                view.findViewById(R.id.custom_assignment_description_input)
 
             dialogBuilder.setView(view)
             // Create the AlertDialog object and return it
@@ -49,9 +51,11 @@ class CustomAssignmentDialog(private val assignments_tab_fragment: AssignmentsTa
             dialogBuilder.setPositiveButton(
                 R.string.save_button
             ) { _, _ ->
-                assignments_tab_fragment.addAssignmentCustomToAssignmentList(titleInput.text.toString(),
+                assignments_tab_fragment.addAssignmentCustomToAssignmentList(
+                    titleInput.text.toString(),
                     descriptionInput.text.toString(),
-                    Date(cal.timeInMillis))
+                    Date(cal.timeInMillis)
+                )
             }
             dialogBuilder.create()
         } ?: throw IllegalStateException("Activity cannot be null")
