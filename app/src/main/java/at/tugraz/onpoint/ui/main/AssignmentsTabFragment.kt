@@ -110,8 +110,6 @@ class AssignmentsTabFragment : Fragment() {
         val moodleApi = API()
         assignmentDao.deleteMoodleAssignments()
         assignmentsList.clear()
-        //debugging
-        notifyUser("starting to sanch assignments")
         val accounts = moodleDao.selectAll()
         if (accounts.isEmpty()) {
             notifyUser("No Moodle accounts saved")
@@ -123,7 +121,6 @@ class AssignmentsTabFragment : Fragment() {
             moodleApi.login(account.userName, account.password) { response: Any ->
                 run {
                     if (response is LoginSuccessData) {
-                        notifyUser("Moodle: successful login")
                         moodleApi.getAssignments { response: Any ->
                             run {
                                 if (response is AssignmentError) {
@@ -131,7 +128,6 @@ class AssignmentsTabFragment : Fragment() {
                                     notifyUser("Moodle: failed to get assignments")
                                 }
                                 if (response is AssignmentResponse) {
-                                    notifyUser("Moodle: successfully obtained assignments")
                                     addAssignmentsFromMoodle(
                                         response.courses,
                                         moodleApi.token,
