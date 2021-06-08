@@ -9,8 +9,6 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import androidx.core.view.iterator
-import androidx.core.view.size
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import at.tugraz.onpoint.R
@@ -20,8 +18,8 @@ class MainTabFragment : Fragment() {
     val db: OnPointAppDatabase = getDbInstance(null)
     private val assignmentDao: AssignmentDao = db.getAssignmentDao()
     private val todoDao: TodoDao = db.getTodoDao()
-    private val assignmentList =  arrayListOf<Assignment>()
-    private val todoList =  arrayListOf<Todo>()
+    private val assignmentList = arrayListOf<Assignment>()
+    private val todoList = arrayListOf<Todo>()
     private lateinit var todoLayout: ViewGroup
     private lateinit var recentLayout: ViewGroup
 
@@ -39,7 +37,7 @@ class MainTabFragment : Fragment() {
         super.setUserVisibleHint(isVisibleToUser)
         // only update data in the lists when the activity itself is already created
         // method itself is always called when we switch to this tab (also for the ToDoFragments)
-        if(activity == null) {
+        if (activity == null) {
             return
         }
         updateLists()
@@ -67,10 +65,10 @@ class MainTabFragment : Fragment() {
         todoList.clear()
         assignmentList.clear()
         todoList.addAll(todoDao.selectAllNotCompleted())
-        assignmentList.addAll(assignmentDao.selectAllActive())
-        while(todoLayout.childCount !=1)
+        assignmentList.addAll(assignmentDao.selectAllNotCompleted())
+        while (todoLayout.childCount != 1)
             todoLayout.removeViewAt(1)
-        while(recentLayout.childCount !=1)
+        while (recentLayout.childCount != 1)
             recentLayout.removeViewAt(1)
 
         for (todoItem in todoList) {

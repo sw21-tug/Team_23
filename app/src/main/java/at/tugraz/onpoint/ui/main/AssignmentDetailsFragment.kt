@@ -19,8 +19,10 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.text.HtmlCompat
 import androidx.fragment.app.DialogFragment
 import at.tugraz.onpoint.R
+import at.tugraz.onpoint.database.Assignment
 import java.util.*
 
 class AssignmentDetailsFragment(val assignment: Assignment) :
@@ -33,9 +35,9 @@ class AssignmentDetailsFragment(val assignment: Assignment) :
         return inflater.inflate(R.layout.fragment_assignment_details, container, false)
     }
 
-    lateinit var alertDialog: AlertDialog;
-    var isAssignmentDone: Boolean = false;
-    var onDoneButtonClicked: () -> Unit = {};
+    private lateinit var alertDialog: AlertDialog
+    var isAssignmentCompleted: Boolean = false
+    var onAssignmentCompletedButtonClicked: () -> Unit = {}
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
@@ -43,7 +45,7 @@ class AssignmentDetailsFragment(val assignment: Assignment) :
             val inflater = requireActivity().layoutInflater
             val view: View = inflater.inflate(R.layout.fragment_assignment_details, null)
             view.findViewById<TextView>(R.id.assignmentsListDetailsDescription).text =
-                assignment.description
+                HtmlCompat.fromHtml(assignment.description, HtmlCompat.FROM_HTML_MODE_COMPACT)
             view.findViewById<TextView>(R.id.assignmentsListDetailsDeadline).text =
                 getString(R.string.assignment_dialog_deadline).plus(
                     assignment.getDeadlineDate().toString()
@@ -53,11 +55,12 @@ class AssignmentDetailsFragment(val assignment: Assignment) :
             // Add-to-calendar button
             val button: Button = view.findViewById(R.id.addMeToCalendar)
             button.setOnClickListener { addDeadlineToCalendar(assignment) }
-            val done_button: Button = view.findViewById(R.id.assignmentsListDetailsDoneButton)
-            if(assignment.done == 0) {
-                done_button.setOnClickListener { onAssignmentDone() }
+            val completedButton: Button =
+                view.findViewById(R.id.assignmentsListDetailsCompletedButton)
+            if (!assignment.isCompleted) {
+                completedButton.setOnClickListener { onAssignmentCompleted() }
             } else {
-                done_button.visibility = View.INVISIBLE
+                completedButton.visibility = View.INVISIBLE
             }
             dialogBuilder.setView(view)
             dialogBuilder.setTitle(assignment.title)
@@ -80,10 +83,10 @@ class AssignmentDetailsFragment(val assignment: Assignment) :
         } ?: throw IllegalStateException("Activity cannot be null")
     }
 
-    fun onAssignmentDone() {
-        if(assignment.done == 0) {
-            isAssignmentDone = true;
-            onDoneButtonClicked();
+    private fun onAssignmentCompleted() {
+        if (!assignment.isCompleted) {
+            isAssignmentCompleted = true
+            onAssignmentCompletedButtonClicked()
             alertDialog.dismiss()
         }
     }

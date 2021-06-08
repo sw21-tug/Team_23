@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 2,
-    "identityHash": "6a48d89e35c5c49aa855531c65fe4fac",
+    "version": 4,
+    "identityHash": "ade893728e03c5ed0ad00b6f0a86e673",
     "entities": [
       {
         "tableName": "Todo",
@@ -52,7 +52,7 @@
       },
       {
         "tableName": "Assignment",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`title` TEXT NOT NULL, `description` TEXT NOT NULL, `deadline` INTEGER NOT NULL, `links` TEXT NOT NULL, `uid` INTEGER PRIMARY KEY AUTOINCREMENT, `moodle_id` INTEGER, `is_custom` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`title` TEXT NOT NULL, `description` TEXT NOT NULL, `deadline` INTEGER NOT NULL, `links` TEXT NOT NULL, `uid` INTEGER PRIMARY KEY AUTOINCREMENT, `moodle_id` INTEGER, `is_custom` INTEGER NOT NULL, `is_completed` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "title",
@@ -93,6 +93,12 @@
           {
             "fieldPath": "isCustom",
             "columnName": "is_custom",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isCompleted",
+            "columnName": "is_completed",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -154,7 +160,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6a48d89e35c5c49aa855531c65fe4fac')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ade893728e03c5ed0ad00b6f0a86e673')"
     ]
   }
 }

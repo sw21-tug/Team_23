@@ -7,14 +7,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.TextView
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.Fragment
 import at.tugraz.onpoint.R
 import com.google.android.material.textfield.TextInputEditText
 import java.util.*
 
-class CustomAssignmentDialog(val assignments_tab_fragment: AssignmentsTabFragment) :
+class CustomAssignmentDialog(private val assignments_tab_fragment: AssignmentsTabFragment) :
     DialogFragment(R.layout.custom_assignment) {
 
     var cal: Calendar = Calendar.getInstance()
@@ -36,8 +34,10 @@ class CustomAssignmentDialog(val assignments_tab_fragment: AssignmentsTabFragmen
             val button: Button = view.findViewById(R.id.custom_assignment_deadline_button)
             button.setOnClickListener { getDeadline() }
 
-            val titleInput: TextInputEditText = view.findViewById(R.id.custom_assignment_title_input)
-            val descriptionInput: TextInputEditText = view.findViewById(R.id.custom_assignment_description_input)
+            val titleInput: TextInputEditText =
+                view.findViewById(R.id.custom_assignment_title_input)
+            val descriptionInput: TextInputEditText =
+                view.findViewById(R.id.custom_assignment_description_input)
 
             dialogBuilder.setView(view)
             // Create the AlertDialog object and return it
@@ -51,9 +51,11 @@ class CustomAssignmentDialog(val assignments_tab_fragment: AssignmentsTabFragmen
             dialogBuilder.setPositiveButton(
                 R.string.save_button
             ) { _, _ ->
-                assignments_tab_fragment.addAssignmentCustomToAssignmentList(titleInput.text.toString(),
+                assignments_tab_fragment.addAssignmentCustomToAssignmentList(
+                    titleInput.text.toString(),
                     descriptionInput.text.toString(),
-                    Date(cal.timeInMillis))
+                    Date(cal.timeInMillis)
+                )
             }
             dialogBuilder.create()
         } ?: throw IllegalStateException("Activity cannot be null")

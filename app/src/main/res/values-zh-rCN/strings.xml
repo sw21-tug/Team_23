@@ -36,8 +36,8 @@
     <string name="cancel_button">取消</string>
     <string name="custom_assignment_title_input">标题</string>
     <string name="custom_assignmnet_description_input">描述</string>
-    <string name="assignment_dialog_done_button">完毕</string>
-    <string name="text_assignment_done">已完成的作业</string>
+    <string name="assignment_dialog_completed_button">完毕</string>
+    <string name="text_assignment_completed">已完成的作业</string>
     <string name="text_assignment_active">活跃的任务</string>
 
 </resources>

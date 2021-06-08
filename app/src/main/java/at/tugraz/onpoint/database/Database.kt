@@ -1,10 +1,14 @@
 package at.tugraz.onpoint.database
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import androidx.room.*
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import at.tugraz.onpoint.ui.main.Assignment
+import at.tugraz.onpoint.R
+import at.tugraz.onpoint.ui.main.ScheduledNotificationReceiver
 import java.net.URL
 import java.util.*
 
@@ -15,15 +19,23 @@ val MIGRATION_1_2: Migration = object : Migration(1, 2) {
         database.execSQL("CREATE TABLE IF NOT EXISTS `moodle` (`universityName` TEXT NOT NULL, `userName` TEXT NOT NULL, `password` TEXT NOT NULL, `apiLink` TEXT NOT NULL, `uid` INTEGER PRIMARY KEY AUTOINCREMENT)")
     }
 }
+
 val MIGRATION_2_3: Migration = object : Migration(2, 3) {
     override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL("ALTER TABLE `assignment` ADD done INTEGER");
+        database.execSQL("ALTER TABLE `assignment` ADD done INTEGER")
+    }
+}
+
+val MIGRATION_3_4: Migration = object : Migration(2, 3) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("CREATE TABLE IF NOT EXISTS `assignment` (`title` TEXT NOT NULL, `description` TEXT NOT NULL, `deadline` INTEGER NOT NULL, `links` TEXT NOT NULL, `uid` INTEGER PRIMARY KEY AUTOINCREMENT, `moodle_id` INTEGER, `is_custom` INTEGER NOT NULL)")
+
     }
 }
 
 @Database(
     entities = [Todo::class, Assignment::class, Moodle::class],
-    version = 3,
+    version = 4,
     exportSchema = true
 )
 abstract class OnPointAppDatabase : RoomDatabase() {
@@ -102,23 +114,27 @@ interface AssignmentDao {
     @Query("SELECT * FROM assignment ORDER BY deadline ASC")
     fun selectAll(): List<Assignment>
 
-    @Query("SELECT * FROM assignment WHERE done = 0 ORDER BY deadline ASC")
-    fun selectAllActive(): List<Assignment>
+    @Query("SELECT * FROM assignment WHERE NOT is_completed ORDER BY deadline ASC")
+    fun selectAllNotCompleted(): List<Assignment>
 
-    @Query("SELECT * FROM assignment WHERE done = 1 ORDER BY deadline ASC")
-    fun selectAllDone(): List<Assignment>
+    @Query("SELECT * FROM assignment WHERE is_completed ORDER BY deadline DESC")
+    fun selectAllCompleted(): List<Assignment>
 
     @Query("SELECT * FROM assignment WHERE uid = (:uid)")
     fun selectOne(uid: Long): Assignment
 
-    @Query("INSERT INTO assignment (title, description, deadline, links, moodle_id, done) VALUES (:title, :description, :deadline, :links, :moodleId, :done)")
+    @Update
+    fun updateOne(assignment: Assignment)
+
+    @Query("INSERT INTO assignment (title, description, deadline, links, moodle_id, is_custom, is_completed) VALUES (:title, :description, :deadline, :links, :moodleId, :isCustom, :isCompleted)")
     fun insertOneRaw(
         title: String,
         description: String,
         deadline: Long,
         links: String,
         moodleId: Int?,
-        done: Int? = 0
+        isCustom: Boolean,
+        isCompleted: Boolean,
     ): Long
 
     fun insertOneFromMoodle(
@@ -126,17 +142,16 @@ interface AssignmentDao {
         description: String,
         deadline: Date,
         links: List<URL>? = null,
-        moodleId: Int,
-        done: Int? = 0
+        moodleId: Int? = null,
     ): Long {
-        // TODO consider stripping the HTML from the description here, to get unformatted text
         return insertOneRaw(
             title,
             description,
             Assignment.convertDeadlineDate(deadline),
             Assignment.encodeLinks(links ?: arrayListOf()),
             moodleId,
-            done
+            isCustom = false,
+            isCompleted = false,
         )
     }
 
@@ -145,20 +160,23 @@ interface AssignmentDao {
         description: String,
         deadline: Date,
         links: List<URL>? = null,
-        done: Int? = 0
     ): Long {
         return insertOneRaw(
             title,
             description,
             Assignment.convertDeadlineDate(deadline),
             Assignment.encodeLinks(links ?: arrayListOf()),
-            null,
-            done
+            moodleId = null,
+            isCustom = true,
+            isCompleted = false,
         )
     }
 
     @Query("DELETE FROM assignment")
     fun deleteAll()
+
+    @Query("DELETE FROM assignment WHERE NOT is_custom")
+    fun deleteMoodleAssignments()
 }
 
 @Entity
@@ -177,6 +195,7 @@ data class Moodle(
 
     @ColumnInfo(name = "apiLink")
     var apiLink: String,
+    // TODO unique combo of apilink and username
 )
 
 @Dao
@@ -189,6 +208,7 @@ interface MoodleDao {
 
     @Query("INSERT INTO moodle (universityName, userName, password, apiLink) VALUES (:universityName, :userName, :password, :apiLink)")
     fun insertOne(universityName: String, userName: String, password: String, apiLink: String): Long
+    // TODO on insert conflict, do nothing
 }
 
 var INSTANCE: OnPointAppDatabase? = null
@@ -198,7 +218,7 @@ fun getDbInstance(context: Context?): OnPointAppDatabase {
         val builder = Room.databaseBuilder(
             context!!,
             OnPointAppDatabase::class.java,
-            "OnPointDb_v2"
+            "OnPointDb_v4"
         )
         // DB queries in the main thread need to be allowed explicitly to avoid a compilation error.
         // By default IO operations should be delegated to a background thread to avoid the UI
@@ -208,7 +228,94 @@ fun getDbInstance(context: Context?): OnPointAppDatabase {
         builder.allowMainThreadQueries()
         builder.addMigrations(MIGRATION_1_2)
         builder.addMigrations(MIGRATION_2_3)
+        builder.addMigrations(MIGRATION_3_4)
         INSTANCE = builder.build()
     }
     return INSTANCE as OnPointAppDatabase
+}
+
+@Entity
+data class Assignment(
+    @ColumnInfo(name = "title")
+    val title: String,
+
+    @ColumnInfo(name = "description")
+    val description: String,
+
+    @ColumnInfo(name = "deadline")
+    var deadlineUnixTime: Long,
+
+    @ColumnInfo(name = "links")
+    var links: String = "",
+
+    @PrimaryKey(autoGenerate = true)
+    var uid: Int? = null,
+
+    @ColumnInfo(name = "moodle_id")
+    var moodleId: Int? = null,
+
+    @ColumnInfo(name = "is_custom")
+    var isCustom: Boolean = false,
+
+    @ColumnInfo(name = "is_completed")
+    var isCompleted: Boolean = false
+) {
+    companion object {
+        fun convertDeadlineDate(deadline: Date): Long {
+            return deadline.time / 1000
+        }
+
+        fun encodeLinks(linksList: List<URL>): String {
+            var encoded = ""
+            linksList.forEach {
+                encoded += "$it;"
+            }
+            return encoded.trimEnd(';')
+        }
+    }
+
+    fun getDeadlineDate(): Date {
+        return Date(deadlineUnixTime * 1000)
+    }
+
+    fun getLinksAsUrls(): List<URL> {
+        if (links.isEmpty()) {
+            return emptyList()
+        }
+        return links.split(";").map {
+            URL(it)
+        }
+    }
+
+    fun linksToMultiLineString(): String {
+        val text: StringBuilder = StringBuilder()
+        getLinksAsUrls().forEach {
+            text.append(it)
+            text.append('\n')
+        }
+        return text.toString()
+    }
+
+    // Call this function ONLY after the ID is set.
+    fun buildAndScheduleNotification(context: Context, reminder_date: Calendar) {
+        val intentToLaunchNotification = Intent(context, ScheduledNotificationReceiver::class.java)
+        intentToLaunchNotification.putExtra(
+            "title",
+            context.getString(R.string.assignment_notification_title)
+        )
+        intentToLaunchNotification.putExtra(
+            "text",
+            this.title + ": " + this.getDeadlineDate().toString()
+        )
+        intentToLaunchNotification.putExtra("notificationId", uid)
+        // Schedule notification
+        val pending = PendingIntent.getBroadcast(
+            context,
+            uid!!,
+            intentToLaunchNotification,
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
+        val manager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        manager.set(AlarmManager.RTC_WAKEUP, reminder_date.timeInMillis, pending)
+    }
 }

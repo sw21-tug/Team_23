@@ -5,6 +5,7 @@ import android.app.Dialog
 import android.os.Bundle
 import android.widget.DatePicker
 import androidx.fragment.app.DialogFragment
+import at.tugraz.onpoint.database.Assignment
 import java.util.*
 
 class AssignmentSetDateDialog(val assignment: Assignment) : DialogFragment(),

@@ -31,11 +31,10 @@
         app:showAsAction="always" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/assignmentsList"
+        android:id="@+id/assignmentsListNotCompleted"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:visibility="visible"
-        app:layout_constraintBottom_toTopOf="@+id/text_assignment_done"
+        app:layout_constraintBottom_toTopOf="@+id/text_assignment_completed"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/text_assignment_active">
@@ -43,26 +42,26 @@
     </androidx.recyclerview.widget.RecyclerView>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/assignmentListDone"
+        android:id="@+id/assignmentListCompleted"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_assignment_done" />
+        app:layout_constraintTop_toBottomOf="@+id/text_assignment_completed" />
 
     <TextView
-        android:id="@+id/text_assignment_done"
+        android:id="@+id/text_assignment_completed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="8dp"
-        android:text="@string/text_assignment_done"
+        android:text="@string/text_assignment_completed"
         android:textSize="24sp"
-        app:layout_constraintBottom_toTopOf="@+id/assignmentListDone"
+        app:layout_constraintBottom_toTopOf="@+id/assignmentListCompleted"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/assignmentsList" />
+        app:layout_constraintTop_toBottomOf="@+id/assignmentsListNotCompleted" />
 
     <TextView
         android:id="@+id/text_assignment_active"
@@ -72,7 +71,7 @@
         android:layout_marginBottom="8dp"
         android:text="@string/text_assignment_active"
         android:textSize="24sp"
-        app:layout_constraintBottom_toTopOf="@+id/assignmentsList"
+        app:layout_constraintBottom_toTopOf="@+id/assignmentsListNotCompleted"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/assignment_searchview" />
