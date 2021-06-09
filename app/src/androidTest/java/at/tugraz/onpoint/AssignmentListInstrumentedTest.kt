@@ -87,7 +87,7 @@ class AssignmentsListInstrumentedTest {
                 Thread.sleep(waitBetweenTriesMillis.toLong())
             }
         }
-        throw AssertionFailedError("Recycler view with $id still empty after wait")
+        throw AssertionFailedError("Recycler view with $id still empty after waiting for the network. It's probably just due to a slow network. Please try running this test again.")
     }
 
     @Test
