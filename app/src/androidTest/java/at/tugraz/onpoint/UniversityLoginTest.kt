@@ -12,6 +12,7 @@ import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
+import at.tugraz.onpoint.database.Moodle
 import at.tugraz.onpoint.database.MoodleDao
 import at.tugraz.onpoint.database.OnPointAppDatabase
 import at.tugraz.onpoint.database.getDbInstance
@@ -62,7 +63,8 @@ class UniversityLoginTest {
     @Test
     fun addNewMoodleAndCheckValues() {
         assert(moodleDao.selectAll().isEmpty())
-        moodleDao.insertOne("TuGraz", "user", "pw", "https://moodle.api.tugraz.at")
+        val moodle : Moodle = Moodle(4, "TuGraz", "user", "pw", "https://moodle.api.tugraz.at")
+        moodleDao.insertOne(moodle)
         assert(moodleDao.selectAll().isNotEmpty())
     }
 
@@ -75,6 +77,16 @@ class UniversityLoginTest {
         assert(fragment.moodleDao.selectAll().isEmpty())
         fragment.addUniversity("TuGraz", "User", "Password", "https://moodle.api.tugraz.at")
         assert(fragment.moodleDao.selectAll().isNotEmpty())
+    }
+
+    @Test
+    fun insertTwiceNotPossible() {
+        val fragment = UniversityLoginFragment()
+        assert(fragment.moodleDao.selectAll().isEmpty())
+        fragment.addUniversity("TuGraz", "User", "Password", "https://moodle.api.tugraz.at")
+        val size_old = fragment.moodleDao.selectAll().size
+        fragment.addUniversity("TuGraz2", "User", "Password", "https://moodle.api.tugraz.at")
+        assert(fragment.moodleDao.selectAll().size == size_old)
     }
 
     @Test

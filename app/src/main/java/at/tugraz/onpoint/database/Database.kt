@@ -225,9 +225,6 @@ interface MoodleDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertOne(obj: Moodle?): Long
 
-    @Query("INSERT INTO moodle (universityName, userName, password, apiLink) VALUES (:universityName, :userName, :password, :apiLink)")
-    fun insertOne(universityName: String, userName: String, password: String, apiLink: String): Long
-    // TODO on insert conflict, do nothing
 
 }
 
