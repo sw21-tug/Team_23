@@ -56,7 +56,8 @@ class AssignmentsTabFragment : Fragment() {
             .setOnClickListener { addCustomAssignment() }
         if (moodleDao.selectAll().isEmpty()) {
             notifyUser("Automatically added login info to di Vora's Moodle")
-           // moodleDao.insertOne("diVoraTestMoodle", "test", "onpoint!T23", "moodle.divora.at")
+            val moodle : Moodle = Moodle(1, "diVoraTestMoodle", "test", "onpoint!T23", "moodle.divora.at")
+            moodleDao.insertOne(moodle)
         }
 
         // Create the the Recyclerview, make it a linear list (not a grid), assign the list of

@@ -100,6 +100,6 @@ class UniversityLoginFragment : DialogFragment(R.layout.fragment_university_logi
     }
 
     companion object{
-        var moodle_counter = 0
+        var moodle_counter = 2
     }
 }
