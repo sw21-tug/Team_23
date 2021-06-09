@@ -16,10 +16,12 @@ data class AssignmentResponse(
 )
 
 data class Course(
+    val id: Int,
     val assignments: List<Assignment>
 )
 
 data class Assignment(
+    val id: Int,
     val name: String,
     val intro: String,
     val duedate: Long,

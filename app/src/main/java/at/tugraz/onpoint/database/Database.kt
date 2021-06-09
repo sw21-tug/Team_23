@@ -4,6 +4,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.database.sqlite.SQLiteException
 import androidx.room.*
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -12,7 +13,6 @@ import at.tugraz.onpoint.ui.main.ScheduledNotificationReceiver
 import java.net.URL
 import java.util.*
 
-// https://developer.android.com/reference/android/arch/persistence/room/ColumnInfo
 val MIGRATION_1_2: Migration = object : Migration(1, 2) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.execSQL("CREATE TABLE IF NOT EXISTS `assignment` (`title` TEXT NOT NULL, `description` TEXT NOT NULL, `deadline` INTEGER NOT NULL, `links` TEXT NOT NULL, `uid` INTEGER PRIMARY KEY AUTOINCREMENT, `moodle_id` INTEGER)")
@@ -26,32 +26,35 @@ val MIGRATION_2_3: Migration = object : Migration(2, 3) {
     }
 }
 
-val MIGRATION_3_4: Migration = object : Migration(2, 3) {
+val MIGRATION_3_4: Migration = object : Migration(3, 4) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.execSQL("CREATE TABLE IF NOT EXISTS `assignment` (`title` TEXT NOT NULL, `description` TEXT NOT NULL, `deadline` INTEGER NOT NULL, `links` TEXT NOT NULL, `uid` INTEGER PRIMARY KEY AUTOINCREMENT, `moodle_id` INTEGER, `is_custom` INTEGER NOT NULL)")
-
     }
-
-
-
 }
 
 val MIGRATION_4_5: Migration = object : Migration(4, 5) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.execSQL("CREATE TABLE IF NOT EXISTS `moodle` (`uid` INTEGER NOT NULL, `universityName` TEXT NOT NULL, `userName` TEXT NOT NULL, `password` TEXT NOT NULL, `apiLink` TEXT NOT NULL, PRIMARY KEY(`apiLink`, `userName`))")
-
     }
-
-
-
 }
 
-//"createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER NOT NULL, `universityName` TEXT NOT NULL, `userName` TEXT NOT NULL, `password` TEXT NOT NULL, `apiLink` TEXT NOT NULL, PRIMARY KEY(`universityName`, `userName`))",
+val MIGRATION_5_6: Migration = object : Migration(5, 6) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("CREATE TABLE IF NOT EXISTS `Assignment` (`title` TEXT NOT NULL, `description` TEXT NOT NULL, `deadline` INTEGER NOT NULL, `links` TEXT NOT NULL, `uid` INTEGER PRIMARY KEY AUTOINCREMENT, `moodle_id` INTEGER, `is_custom` INTEGER NOT NULL, `is_completed` INTEGER NOT NULL, `course_id_from_moodle` INTEGER, `assignment_id_from_moodle` INTEGER, FOREIGN KEY(`moodle_id`) REFERENCES `Moodle`(`uid`) ON UPDATE CASCADE ON DELETE CASCADE )")
+        database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_Assignment_moodle_id_course_id_from_moodle_assignment_id_from_moodle` ON `Assignment` (`moodle_id`, `course_id_from_moodle`, `assignment_id_from_moodle`)")
+    }
+}
 
+val MIGRATION_6_7: Migration = object : Migration(6, 7) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("CREATE TABLE IF NOT EXISTS `moodle` (`uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `universityName` TEXT NOT NULL, `userName` TEXT NOT NULL, `password` TEXT NOT NULL, `apiLink` TEXT NOT NULL)")
+        database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_Moodle_apiLink_userName` ON `moodle` (`apiLink`, `userName`)")
+    }
+}
 
 @Database(
     entities = [Todo::class, Assignment::class, Moodle::class],
-    version = 5,
+    version = 7,
     exportSchema = true
 )
 abstract class OnPointAppDatabase : RoomDatabase() {
@@ -139,18 +142,24 @@ interface AssignmentDao {
     @Query("SELECT * FROM assignment WHERE uid = (:uid)")
     fun selectOne(uid: Long): Assignment
 
+    @Query("SELECT uid FROM assignment where moodle_id = :moodleId AND course_id_from_moodle = :courseIdFromMoodle AND assignment_id_from_moodle = :assignmentIdFromMoodle AND NOT is_custom")
+    fun selectUidForMoodleIds(moodleId: Int, courseIdFromMoodle: Int, assignmentIdFromMoodle: Int): Long
+
     @Update
     fun updateOne(assignment: Assignment)
 
-    @Query("INSERT INTO assignment (title, description, deadline, links, moodle_id, is_custom, is_completed) VALUES (:title, :description, :deadline, :links, :moodleId, :isCustom, :isCompleted)")
+    @Query("INSERT INTO assignment (title, description, deadline, links, moodle_id, is_custom, is_completed, course_id_from_moodle, assignment_id_from_moodle) " +
+        "VALUES (:title, :description, :deadline, :links, :moodleId, :isCustom, :isCompleted, :courseIdFromMoodle, :assignmentIdFromMoodle)")
     fun insertOneRaw(
         title: String,
         description: String,
         deadline: Long,
         links: String,
-        moodleId: Int?,
+        moodleId: Long?,
         isCustom: Boolean,
         isCompleted: Boolean,
+        courseIdFromMoodle: Int?,
+        assignmentIdFromMoodle: Int?
     ): Long
 
     fun insertOneFromMoodle(
@@ -158,9 +167,12 @@ interface AssignmentDao {
         description: String,
         deadline: Date,
         links: List<URL>? = null,
-        moodleId: Int? = null,
+        moodleId: Long,
+        courseIdFromMoodle: Int,
+        assignmentIdFromMoodle: Int,
     ): Long {
-        return insertOneRaw(
+        try {
+            return insertOneRaw(
             title,
             description,
             Assignment.convertDeadlineDate(deadline),
@@ -168,7 +180,13 @@ interface AssignmentDao {
             moodleId,
             isCustom = false,
             isCompleted = false,
-        )
+            courseIdFromMoodle,
+            assignmentIdFromMoodle)
+        }
+        catch (e : SQLiteException) {
+            // Manual UPSERT: on conflict do nothing.
+            return -1
+        }
     }
 
     fun insertOneCustom(
@@ -185,6 +203,8 @@ interface AssignmentDao {
             moodleId = null,
             isCustom = true,
             isCompleted = false,
+            courseIdFromMoodle = null,
+            assignmentIdFromMoodle = null
         )
     }
 
@@ -195,9 +215,14 @@ interface AssignmentDao {
     fun deleteMoodleAssignments()
 }
 
-@Entity(primaryKeys = ["apiLink","userName"])
+@Entity(
+    indices = [Index(
+        value = ["apiLink", "userName"],
+        unique = true
+    )]
+)
 data class Moodle(
-    @ColumnInfo(name = "uid")
+    @PrimaryKey(autoGenerate = true)
     val uid: Int,
 
     @ColumnInfo(name = "universityName")
@@ -211,7 +236,6 @@ data class Moodle(
 
     @ColumnInfo(name = "apiLink")
     var apiLink: String,
-    // TODO unique combo of apilink and username
 )
 
 @Dao
@@ -223,9 +247,7 @@ interface MoodleDao {
     fun selectOne(uid: Long): Moodle
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertOne(obj: Moodle?): Long
-
-
+    fun insertOne(obj: Moodle): Long
 }
 
 var INSTANCE: OnPointAppDatabase? = null
@@ -235,7 +257,7 @@ fun getDbInstance(context: Context?): OnPointAppDatabase {
         val builder = Room.databaseBuilder(
             context!!,
             OnPointAppDatabase::class.java,
-            "OnPointDb_v4"
+            "OnPointDb_v7"
         )
         // DB queries in the main thread need to be allowed explicitly to avoid a compilation error.
         // By default IO operations should be delegated to a background thread to avoid the UI
@@ -247,13 +269,26 @@ fun getDbInstance(context: Context?): OnPointAppDatabase {
         builder.addMigrations(MIGRATION_2_3)
         builder.addMigrations(MIGRATION_3_4)
         builder.addMigrations(MIGRATION_4_5)
-
+        builder.addMigrations(MIGRATION_5_6)
+        builder.addMigrations(MIGRATION_6_7)
         INSTANCE = builder.build()
     }
     return INSTANCE as OnPointAppDatabase
 }
 
-@Entity
+@Entity(
+    indices = [Index(
+        value = ["moodle_id", "course_id_from_moodle", "assignment_id_from_moodle"],
+        unique = true
+    )],
+    foreignKeys = [ForeignKey(
+        entity = Moodle::class,
+        parentColumns = ["uid"],
+        childColumns = ["moodle_id"],
+        onDelete = ForeignKey.CASCADE,
+        onUpdate = ForeignKey.CASCADE
+    )]
+)
 data class Assignment(
     @ColumnInfo(name = "title")
     val title: String,
@@ -277,7 +312,13 @@ data class Assignment(
     var isCustom: Boolean = false,
 
     @ColumnInfo(name = "is_completed")
-    var isCompleted: Boolean = false
+    var isCompleted: Boolean = false,
+
+    @ColumnInfo(name = "course_id_from_moodle")
+    var courseIdFromMoodle: Int? = null,
+
+    @ColumnInfo(name = "assignment_id_from_moodle")
+    var assignmentIdFromMoodle: Int? = null
 ) {
     companion object {
         fun convertDeadlineDate(deadline: Date): Long {
