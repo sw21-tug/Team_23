@@ -48,12 +48,16 @@ class AssignmentsListInstrumentedTest {
 
     private lateinit var assignmentDao: AssignmentDao
     private lateinit var db: OnPointAppDatabase
+    private var moodleUid: Long = -1
 
     @Before
     fun createDb() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(context, OnPointAppDatabase::class.java).build()
         assignmentDao = db.getAssignmentDao()
+        moodleUid = db.getMoodleDao().insertOne(
+            "diVoraTestMoodle", "test",
+            "onpoint!T23", "moodle.divora.at")
     }
 
     @After
@@ -210,7 +214,15 @@ class AssignmentsListInstrumentedTest {
     fun storeNewAssignmentAndRetrieveItFromDb() {
         val links = arrayListOf(URL("https://tc.tugraz.at"), URL("https://www.tugraz.at"))
         val deadline = Date()
-        val uid = assignmentDao.insertOneFromMoodle("my title", "my description", deadline, links, 0, 1, 1)
+        val uid = assignmentDao.insertOneFromMoodle(
+            "my title",
+            "my description",
+            deadline,
+            links,
+            moodleUid,
+            1,
+            1
+        )
         val assignment: Assignment = assignmentDao.selectOne(uid)
         assert(assignment.uid!!.toLong() == uid)
         assert(assignment.title == "my title")
@@ -219,7 +231,7 @@ class AssignmentsListInstrumentedTest {
         assert(assignment.getDeadlineDate().after(Date(deadline.time - 10000)))
         assert(assignment.getLinksAsUrls()[0] == links[0])
         assert(assignment.getLinksAsUrls()[1] == links[1])
-        assert(assignment.moodleId == null)  // No Moodle Identifier in this case
+        assert(assignment.moodleId != null && assignment.moodleId == moodleUid.toInt())
     }
 
     @Test
@@ -232,7 +244,7 @@ class AssignmentsListInstrumentedTest {
             "my description1",
             deadlineLate,
             links,
-            0,
+            moodleUid,
             1,
             1
         )
@@ -241,7 +253,7 @@ class AssignmentsListInstrumentedTest {
             "my description2",
             deadlineEarly,
             links,
-            0,
+            moodleUid,
             1,
             2
         )
@@ -559,30 +571,30 @@ class AssignmentsListInstrumentedTest {
         onView(withId(R.id.assignmentsListNotCompleted))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
-                    1,
+                    0,
                     click()
                 )
             )
         onView(withId(R.id.assignmentsListDetailsCompletedButton)).perform(click())
         onView(withId(R.id.assignmentListCompleted))
-            .check(matches(hasDescendant(withText("Assignment 1"))))
+            .check(matches(hasDescendant(withText("First app release"))))
         // Sync again
         onView(withId(R.id.assignment_sync_assignments)).perform(click())
         waitForRecyclerViewToBeFilled(R.id.assignmentsListNotCompleted)
         // The completed assignment should NOT be in the not-completed list
         onView(withId(R.id.assignmentsListNotCompleted))
-            .check(matches(not(hasDescendant(withText("Assignment 1")))))
+            .check(matches(not(hasDescendant(withText("First app release")))))
         // It's still in the completed list
         onView(withId(R.id.assignmentListCompleted))
-            .check(matches(hasDescendant(withText("Assignment 1"))))
+            .check(matches(hasDescendant(withText("First app release"))))
     }
 
     @Test
     fun databaseSelectAllSpecific() {
         val assignmentDao = db.getAssignmentDao()
-        assignmentDao.insertOneFromMoodle("Test", "Test", Date(0), null, 0, 1, 1)
-        assignmentDao.insertOneFromMoodle("Test2", "Test2", Date(2000), null, 0, 1, 2)
-        assignmentDao.insertOneFromMoodle("Test3", "Test3", Date(1000), null, 0, 1, 3)
+        assignmentDao.insertOneFromMoodle("Test", "Test", Date(0), null, moodleUid, 1, 1)
+        assignmentDao.insertOneFromMoodle("Test2", "Test2", Date(2000), null, moodleUid, 1, 2)
+        assignmentDao.insertOneFromMoodle("Test3", "Test3", Date(1000), null, moodleUid, 1, 3)
         assignmentDao.insertOneCustom("Test4", "Test4", Date(2000))
         val uid = assignmentDao.insertOneCustom("Test5", "Test5", Date(1000))
         val assignment = assignmentDao.selectOne(uid)

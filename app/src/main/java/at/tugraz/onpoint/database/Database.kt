@@ -151,7 +151,7 @@ interface AssignmentDao {
         description: String,
         deadline: Long,
         links: String,
-        moodleId: Int?,
+        moodleId: Long?,
         isCustom: Boolean,
         isCompleted: Boolean,
         courseIdFromMoodle: Int?,
@@ -163,7 +163,7 @@ interface AssignmentDao {
         description: String,
         deadline: Date,
         links: List<URL>? = null,
-        moodleId: Int,
+        moodleId: Long,
         courseIdFromMoodle: Int,
         assignmentIdFromMoodle: Int,
     ): Long {

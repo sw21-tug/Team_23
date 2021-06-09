@@ -180,7 +180,7 @@ class AssignmentsTabFragment : Fragment() {
                                     addAssignmentsFromMoodle(
                                         response.courses,
                                         moodleApi.token,
-                                        account.uid
+                                        account.uid.toLong()
                                     )
                                 }
                             }
@@ -193,13 +193,9 @@ class AssignmentsTabFragment : Fragment() {
                 }
             }
         }
-        notCompletedAssignmentsList.addAll(assignmentDao.selectAllNotCompleted())
-        notCompletedAdapter!!.notifyDataSetChanged()
-        completedAssignmentsList.addAll(assignmentDao.selectAllCompleted())
-        completedAdapter!!.notifyDataSetChanged()
     }
 
-    private fun addAssignmentsFromMoodle(courses: List<Course>, token: String, moodleUid: Int) {
+    private fun addAssignmentsFromMoodle(courses: List<Course>, token: String, moodleUid: Long) {
         var newlyAdded = 0
         for (course in courses) {
             for (moodleAssignment in course.assignments) {
@@ -221,6 +217,12 @@ class AssignmentsTabFragment : Fragment() {
                 }
             }
         }
+        notCompletedAssignmentsList.clear()
+        notCompletedAssignmentsList.addAll(assignmentDao.selectAllNotCompleted())
+        notCompletedAdapter!!.notifyDataSetChanged()
+        completedAssignmentsList.clear()
+        completedAssignmentsList.addAll(assignmentDao.selectAllCompleted())
+        completedAdapter!!.notifyDataSetChanged()
         notifyUser("Moodle: added $newlyAdded new assignments")
     }
 
