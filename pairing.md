@@ -72,10 +72,14 @@
 - Schnedlitz, Florian / Muresan, Gabriel Alexandru
 - Saiger, Kevin / Jautz, Julian
 
+Solo hours for Gabriel as Florian left early
+
 #### 2021/06/09 - 2021/06/10 (Release 2)
 
 - Dsubanko, Christina / Muresan, Gabriel Alexandru
 - Guštin, Matjaž / Schnedlitz, Florian
 - Saiger, Kevin / Jautz, Julian
+
+Solo hours for Julian as Kevin was missing
 
 *version: 2021-06-09*
