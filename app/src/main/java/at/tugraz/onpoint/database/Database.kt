@@ -180,8 +180,8 @@ interface AssignmentDao {
             assignmentIdFromMoodle)
         }
         catch (e : SQLiteException) {
-            //return uid of already existing entry, currently no updates allowed
-            return selectUidForMoodleIds(moodleId, courseIdFromMoodle, assignmentIdFromMoodle)
+            // Manual UPSERT: on conflict do nothing.
+            return -1
         }
     }
 

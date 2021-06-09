@@ -154,12 +154,10 @@ class AssignmentsTabFragment : Fragment() {
 
     private fun syncAssignments() {
         val moodleApi = API()
-        assignmentDao.deleteMoodleAssignments()
         notCompletedAssignmentsList.clear()
         notCompletedAdapter!!.notifyDataSetChanged()
         completedAssignmentsList.clear()
         completedAdapter!!.notifyDataSetChanged()
-        // TODO syncing ignores the assignment being already checked: overwrites it completely
         val accounts = moodleDao.selectAll()
         if (accounts.isEmpty()) {
             notifyUser("No Moodle accounts saved")
@@ -167,10 +165,11 @@ class AssignmentsTabFragment : Fragment() {
         }
         for (account in moodleDao.selectAll()) {
             moodleApi.setAuthority(account.apiLink)
-            notifyUser("Accessing ${account.apiLink} as ${account.userName}")
+            notifyUser("Accessing ${account.apiLink} as user '${account.userName}'")
             moodleApi.login(account.userName, account.password) { response: Any ->
                 run {
                     if (response is LoginSuccessData) {
+                        notifyUser("Moodle: logged in")
                         moodleApi.getAssignments { response: Any ->
                             run {
                                 if (response is AssignmentError) {
@@ -201,44 +200,28 @@ class AssignmentsTabFragment : Fragment() {
     }
 
     private fun addAssignmentsFromMoodle(courses: List<Course>, token: String, moodleUid: Int) {
+        var newlyAdded = 0
         for (course in courses) {
             for (moodleAssignment in course.assignments) {
                 val listOfUrlsStrings: List<String> = moodleAssignment.introattachments.map {
                     it.fileurl
                 }
                 val listOfUrls: List<URL> = listOfUrlsStrings.map { URL("$it?token=$token") }
-                addAssignmentFromMoodleToAssignmentList(
+                val uid = assignmentDao.insertOneFromMoodle(
                     title = moodleAssignment.name,
                     description = moodleAssignment.intro,
                     deadline = Date(moodleAssignment.duedate),
                     links = listOfUrls,
-                    moodleLoginId = moodleUid,
+                    moodleId = moodleUid,
                     courseIdFromMoodle = course.id,
                     assignmentIdFromMoodle = moodleAssignment.id
                 )
+                if (uid >= 0) {
+                    newlyAdded += 1
+                }
             }
         }
-    }
-
-
-    /**
-     * Appends an assignment as received from Moodle, refreshing the recycler view and the
-     * notifications for the deadlines.
-     */
-    private fun addAssignmentFromMoodleToAssignmentList(
-        title: String,
-        description: String,
-        deadline: Date,
-        links: List<URL>? = null,
-        moodleLoginId: Int,
-        courseIdFromMoodle: Int,
-        assignmentIdFromMoodle: Int
-    ) {
-        val uid: Long =
-            assignmentDao.insertOneFromMoodle(title, description, deadline, links, moodleLoginId, courseIdFromMoodle, assignmentIdFromMoodle)
-        val assignment = assignmentDao.selectOne(uid)
-        notCompletedAssignmentsList.add(assignment)
-        notCompletedAdapter?.notifyDataSetChanged()
+        notifyUser("Moodle: added $newlyAdded new assignments")
     }
 
     /**
