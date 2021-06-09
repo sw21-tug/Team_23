@@ -403,7 +403,6 @@ class AssignmentsListInstrumentedTest {
             .check(matches(not(withSubstring("<p"))))
 
     }
-    // TODO test that custom assignments are not overwritten/removed by the sync
 
     @Test
     fun checkForCompletedButtonInAssignmentListEntry() {
@@ -539,6 +538,35 @@ class AssignmentsListInstrumentedTest {
             )
         onView(withId(R.id.assignmentsListDetailsCompletedButton))
             .perform(click())
+        onView(withId(R.id.assignmentListCompleted))
+            .check(matches(hasDescendant(withText("Assignment 1"))))
+    }
+
+    @Test
+    fun completedAssignmentsAreNotOverwrittenBySync() {
+        launchActivity<MainTabbedActivity>()
+        onView(withText("Assign.")).perform(click())
+        // Sync the first time
+        onView(withId(R.id.assignment_sync_assignments)).perform(click())
+        waitForRecyclerViewToBeFilled(R.id.assignmentsListNotCompleted)
+        // Mark an assignment from Moodle as completed
+        onView(withId(R.id.assignmentsListNotCompleted))
+            .perform(
+                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
+                    1,
+                    click()
+                )
+            )
+        onView(withId(R.id.assignmentsListDetailsCompletedButton)).perform(click())
+        onView(withId(R.id.assignmentListCompleted))
+            .check(matches(hasDescendant(withText("Assignment 1"))))
+        // Sync again
+        onView(withId(R.id.assignment_sync_assignments)).perform(click())
+        waitForRecyclerViewToBeFilled(R.id.assignmentsListNotCompleted)
+        // The completed assignment should NOT be in the not-completed list
+        onView(withId(R.id.assignmentsListNotCompleted))
+            .check(matches(not(hasDescendant(withText("Assignment 1")))))
+        // It's still in the completed list
         onView(withId(R.id.assignmentListCompleted))
             .check(matches(hasDescendant(withText("Assignment 1"))))
     }
