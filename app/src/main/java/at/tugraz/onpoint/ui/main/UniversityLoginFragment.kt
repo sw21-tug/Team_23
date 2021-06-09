@@ -80,14 +80,26 @@ class UniversityLoginFragment : DialogFragment(R.layout.fragment_university_logi
         }
     }
 
+    fun getMoodleCounter() : Int{
+        return moodle_counter ++
+    }
+
     fun addUniversity(
         universityName: String,
         apiUsername: String,
         apiPassword: String,
         apiLink: String
     ) {
-        val uid = moodleDao.insertOne(universityName, apiUsername, apiPassword, apiLink)
+
+        val moodle : Moodle = Moodle (getMoodleCounter(), universityName, apiUsername, apiPassword, apiLink)
+        val uid = moodleDao.insertOne(moodle)
+
+        //val uid = moodleDao.insertOne(universityName, apiUsername, apiPassword, apiLink)
         val newUniversityFromDatabase = moodleDao.selectOne(uid)
         universityList.add(newUniversityFromDatabase)
+    }
+
+    companion object{
+        var moodle_counter = 0
     }
 }
