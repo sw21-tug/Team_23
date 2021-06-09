@@ -10,12 +10,12 @@
 
 | X           | Dev 1       | Dev 2       | Dev 3       | Dev 4   	  | Dev 5       | Dev 6       | TOTAL |
 | :---        |    :----:   |    :----:   |    :----:   |    :----:   |    :----:   |    :----:   | :---: |
-| **Dev 1**   | X           | 10:55       | 10:00       | 08:00       | 08:00       | 09:40       | 46:35 |
-| **Dev 2**   | 10:55       | X           | 10:00       | 13:30       | 10:00       | 09:05       | 53:30 |
-| **Dev 3**   | 10:00       | 10:00       | X           | 09:45       | 14:00       | 08:00       | 51:45 |
-| **Dev 4**   | 08:00       | 13:30       | 09:45       | 02:00       | 06:00       | 10:00       | 49:15 |
+| **Dev 1**   | X           | 10:55       | 10:00       | 12:00       | 08:00       | 09:40       | 50:35 |
+| **Dev 2**   | 10:55       | X           | 10:00       | 15:30       | 10:00       | 13:05       | 59:30 |
+| **Dev 3**   | 10:00       | 10:00       | 02:45       | 09:45       | 14:00       | 08:00       | 54:30 |
+| **Dev 4**   | 12:00       | 15:30       | 09:45       | 02:00       | 06:00       | 10:00       | 55:15 |
 | **Dev 5**   | 08:00       | 10:00       | 14:00       | 06:00       | X           | 08:00       | 46:00 |
-| **Dev 6**   | 09:40       | 09:05       | 08:00       | 10:00       | 08:00       | X           | 44:45 |
+| **Dev 6**   | 09:40       | 13:05       | 08:00       | 10:00       | 08:00       | X           | 48:45 |
 
 
 ### Pairs
@@ -72,4 +72,14 @@
 - Schnedlitz, Florian / Muresan, Gabriel Alexandru
 - Saiger, Kevin / Jautz, Julian
 
-*version: 2021-06-08*
+Solo hours for Gabriel as Florian left early
+
+#### 2021/06/09 - 2021/06/10 (Release 2)
+
+- Dsubanko, Christina / Muresan, Gabriel Alexandru
+- Guštin, Matjaž / Schnedlitz, Florian
+- Saiger, Kevin / Jautz, Julian
+
+Solo hours for Julian as Kevin was missing
+
+*version: 2021-06-09*
