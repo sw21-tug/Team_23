@@ -120,7 +120,7 @@ class UniversityLoginTest {
                             0
                         )
                     ),
-                    2
+                    1
                 ),
                 ViewMatchers.isDisplayed()
             )
