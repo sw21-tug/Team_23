@@ -13,7 +13,6 @@ import at.tugraz.onpoint.ui.main.ScheduledNotificationReceiver
 import java.net.URL
 import java.util.*
 
-// https://developer.android.com/reference/android/arch/persistence/room/ColumnInfo
 val MIGRATION_1_2: Migration = object : Migration(1, 2) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.execSQL("CREATE TABLE IF NOT EXISTS `assignment` (`title` TEXT NOT NULL, `description` TEXT NOT NULL, `deadline` INTEGER NOT NULL, `links` TEXT NOT NULL, `uid` INTEGER PRIMARY KEY AUTOINCREMENT, `moodle_id` INTEGER)")
@@ -30,14 +29,12 @@ val MIGRATION_2_3: Migration = object : Migration(2, 3) {
 val MIGRATION_3_4: Migration = object : Migration(3, 4) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.execSQL("CREATE TABLE IF NOT EXISTS `assignment` (`title` TEXT NOT NULL, `description` TEXT NOT NULL, `deadline` INTEGER NOT NULL, `links` TEXT NOT NULL, `uid` INTEGER PRIMARY KEY AUTOINCREMENT, `moodle_id` INTEGER, `is_custom` INTEGER NOT NULL)")
-
     }
 }
 
 val MIGRATION_4_5: Migration = object : Migration(4, 5) {
     override fun migrate(database: SupportSQLiteDatabase) {
-        //TODO: implement in merge
-        database.execSQL("")
+        database.execSQL("CREATE TABLE IF NOT EXISTS `moodle` (`uid` INTEGER NOT NULL, `universityName` TEXT NOT NULL, `userName` TEXT NOT NULL, `password` TEXT NOT NULL, `apiLink` TEXT NOT NULL, PRIMARY KEY(`apiLink`, `userName`))")
     }
 }
 
@@ -48,9 +45,16 @@ val MIGRATION_5_6: Migration = object : Migration(5, 6) {
     }
 }
 
+val MIGRATION_6_7: Migration = object : Migration(6, 7) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("CREATE TABLE IF NOT EXISTS `moodle` (`uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `universityName` TEXT NOT NULL, `userName` TEXT NOT NULL, `password` TEXT NOT NULL, `apiLink` TEXT NOT NULL)")
+        database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_Moodle_apiLink_userName` ON `moodle` (`apiLink`, `userName`)")
+    }
+}
+
 @Database(
     entities = [Todo::class, Assignment::class, Moodle::class],
-    version = 6,
+    version = 7,
     exportSchema = true
 )
 abstract class OnPointAppDatabase : RoomDatabase() {
@@ -211,10 +215,15 @@ interface AssignmentDao {
     fun deleteMoodleAssignments()
 }
 
-@Entity
+@Entity(
+    indices = [Index(
+        value = ["apiLink", "userName"],
+        unique = true
+    )]
+)
 data class Moodle(
     @PrimaryKey(autoGenerate = true)
-    val uid: Int = -1,
+    val uid: Int,
 
     @ColumnInfo(name = "universityName")
     var universityName: String,
@@ -227,7 +236,6 @@ data class Moodle(
 
     @ColumnInfo(name = "apiLink")
     var apiLink: String,
-    // TODO unique combo of apilink and username
 )
 
 @Dao
@@ -238,9 +246,8 @@ interface MoodleDao {
     @Query("SELECT * FROM moodle WHERE uid = (:uid)")
     fun selectOne(uid: Long): Moodle
 
-    @Query("INSERT INTO moodle (universityName, userName, password, apiLink) VALUES (:universityName, :userName, :password, :apiLink)")
-    fun insertOne(universityName: String, userName: String, password: String, apiLink: String): Long
-    // TODO on insert conflict, do nothing
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertOne(obj: Moodle): Long
 }
 
 var INSTANCE: OnPointAppDatabase? = null
@@ -250,7 +257,7 @@ fun getDbInstance(context: Context?): OnPointAppDatabase {
         val builder = Room.databaseBuilder(
             context!!,
             OnPointAppDatabase::class.java,
-            "OnPointDb_v6"
+            "OnPointDb_v7"
         )
         // DB queries in the main thread need to be allowed explicitly to avoid a compilation error.
         // By default IO operations should be delegated to a background thread to avoid the UI
@@ -263,6 +270,7 @@ fun getDbInstance(context: Context?): OnPointAppDatabase {
         builder.addMigrations(MIGRATION_3_4)
         builder.addMigrations(MIGRATION_4_5)
         builder.addMigrations(MIGRATION_5_6)
+        builder.addMigrations(MIGRATION_6_7)
         INSTANCE = builder.build()
     }
     return INSTANCE as OnPointAppDatabase

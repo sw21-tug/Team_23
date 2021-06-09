@@ -31,10 +31,21 @@ class SidebarTest {
     @Test
     fun checkSidebarClickable() {
         onView(ViewMatchers.withId(R.id.sidebar)).perform(ViewActions.click())
-        onView(ViewMatchers.withText(R.string.settings_drawable_txt)).check(
+        onView(ViewMatchers.withText(R.string.add_university_drawable_txt)).check(
             ViewAssertions.matches(
                 ViewMatchers.isEnabled()
             )
+        )
+    }
+
+    /**
+     * Checks if settings is not displayed anymore
+     */
+    @Test
+    fun checkSettingsNotDisplayed() {
+        onView(ViewMatchers.withId(R.id.sidebar)).perform(ViewActions.click())
+        onView(ViewMatchers.withText(R.string.settings_drawable_txt)).check(
+            ViewAssertions.doesNotExist()
         )
     }
 

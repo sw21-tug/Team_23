@@ -19,10 +19,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
-import at.tugraz.onpoint.database.Assignment
-import at.tugraz.onpoint.database.AssignmentDao
-import at.tugraz.onpoint.database.OnPointAppDatabase
-import at.tugraz.onpoint.database.getDbInstance
+import at.tugraz.onpoint.database.*
 import at.tugraz.onpoint.moodle.API
 import at.tugraz.onpoint.moodle.LoginSuccessData
 import at.tugraz.onpoint.ui.main.AssignmentsTabFragment
@@ -55,9 +52,10 @@ class AssignmentsListInstrumentedTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(context, OnPointAppDatabase::class.java).build()
         assignmentDao = db.getAssignmentDao()
-        moodleUid = db.getMoodleDao().insertOne(
-            "diVoraTestMoodle", "test",
+        val moodle = Moodle(
+            1, "diVoraTestMoodle", "test",
             "onpoint!T23", "moodle.divora.at")
+        moodleUid = db.getMoodleDao().insertOne(moodle)
     }
 
     @After
@@ -77,7 +75,7 @@ class AssignmentsListInstrumentedTest {
 
     private fun waitForRecyclerViewToBeFilled(
         id: Int,
-        maxTries: Int = 100,
+        maxTries: Int = 400,
         waitBetweenTriesMillis: Int = 100,
     ) {
         for (i in 0..maxTries) {

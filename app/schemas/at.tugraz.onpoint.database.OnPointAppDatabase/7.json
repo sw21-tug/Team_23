@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 6,
-    "identityHash": "ee49459e05b845f05625ff21d0a0eb99",
+    "version": 7,
+    "identityHash": "2f2bb53990735dcd2f2e4996f96f59e2",
     "entities": [
       {
         "tableName": "Todo",
@@ -149,7 +149,7 @@
       },
       {
         "tableName": "Moodle",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER NOT NULL, `universityName` TEXT NOT NULL, `userName` TEXT NOT NULL, `password` TEXT NOT NULL, `apiLink` TEXT NOT NULL, PRIMARY KEY(`apiLink`, `userName`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `universityName` TEXT NOT NULL, `userName` TEXT NOT NULL, `password` TEXT NOT NULL, `apiLink` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "uid",
@@ -184,19 +184,28 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "apiLink",
-            "userName"
+            "uid"
           ],
-          "autoGenerate": false
+          "autoGenerate": true
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_Moodle_apiLink_userName",
+            "unique": true,
+            "columnNames": [
+              "apiLink",
+              "userName"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Moodle_apiLink_userName` ON `${TABLE_NAME}` (`apiLink`, `userName`)"
+          }
+        ],
         "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ee49459e05b845f05625ff21d0a0eb99')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2f2bb53990735dcd2f2e4996f96f59e2')"
     ]
   }
 }
