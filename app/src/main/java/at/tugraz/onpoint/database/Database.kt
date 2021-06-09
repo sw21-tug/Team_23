@@ -26,16 +26,30 @@ val MIGRATION_2_3: Migration = object : Migration(2, 3) {
     }
 }
 
-val MIGRATION_3_4: Migration = object : Migration(2, 3) {
+val MIGRATION_3_4: Migration = object : Migration(3, 4) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.execSQL("CREATE TABLE IF NOT EXISTS `assignment` (`title` TEXT NOT NULL, `description` TEXT NOT NULL, `deadline` INTEGER NOT NULL, `links` TEXT NOT NULL, `uid` INTEGER PRIMARY KEY AUTOINCREMENT, `moodle_id` INTEGER, `is_custom` INTEGER NOT NULL)")
 
     }
 }
 
+val MIGRATION_4_5: Migration = object : Migration(4, 5) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        //TODO: implement in merge
+        database.execSQL("")
+    }
+}
+
+val MIGRATION_5_6: Migration = object : Migration(5, 6) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("CREATE TABLE IF NOT EXISTS `Assignment` (`title` TEXT NOT NULL, `description` TEXT NOT NULL, `deadline` INTEGER NOT NULL, `links` TEXT NOT NULL, `uid` INTEGER PRIMARY KEY AUTOINCREMENT, `moodle_id` INTEGER, `is_custom` INTEGER NOT NULL, `is_completed` INTEGER NOT NULL, `course_id_from_moodle` INTEGER, `assignment_id_from_moodle` INTEGER, FOREIGN KEY(`moodle_id`) REFERENCES `Moodle`(`uid`) ON UPDATE CASCADE ON DELETE CASCADE )")
+        database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_Assignment_moodle_id_course_id_from_moodle_assignment_id_from_moodle` ON `Assignment` (`moodle_id`, `course_id_from_moodle`, `assignment_id_from_moodle`)")
+    }
+}
+
 @Database(
     entities = [Todo::class, Assignment::class, Moodle::class],
-    version = 4,
+    version = 6,
     exportSchema = true
 )
 abstract class OnPointAppDatabase : RoomDatabase() {
@@ -226,7 +240,7 @@ fun getDbInstance(context: Context?): OnPointAppDatabase {
         val builder = Room.databaseBuilder(
             context!!,
             OnPointAppDatabase::class.java,
-            "OnPointDb_v4"
+            "OnPointDb_v6"
         )
         // DB queries in the main thread need to be allowed explicitly to avoid a compilation error.
         // By default IO operations should be delegated to a background thread to avoid the UI
@@ -237,12 +251,26 @@ fun getDbInstance(context: Context?): OnPointAppDatabase {
         builder.addMigrations(MIGRATION_1_2)
         builder.addMigrations(MIGRATION_2_3)
         builder.addMigrations(MIGRATION_3_4)
+        builder.addMigrations(MIGRATION_4_5)
+        builder.addMigrations(MIGRATION_5_6)
         INSTANCE = builder.build()
     }
     return INSTANCE as OnPointAppDatabase
 }
 
-@Entity
+@Entity(
+    indices = [Index(
+        value = ["moodle_id", "course_id_from_moodle", "assignment_id_from_moodle"],
+        unique = true
+    )],
+    foreignKeys = [ForeignKey(
+        entity = Moodle::class,
+        parentColumns = ["uid"],
+        childColumns = ["moodle_id"],
+        onDelete = ForeignKey.CASCADE,
+        onUpdate = ForeignKey.CASCADE
+    )]
+)
 data class Assignment(
     @ColumnInfo(name = "title")
     val title: String,
