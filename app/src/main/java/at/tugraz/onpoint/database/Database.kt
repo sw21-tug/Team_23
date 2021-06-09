@@ -4,6 +4,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.database.sqlite.SQLiteException
 import androidx.room.*
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -137,10 +138,14 @@ interface AssignmentDao {
     @Query("SELECT * FROM assignment WHERE uid = (:uid)")
     fun selectOne(uid: Long): Assignment
 
+    @Query("SELECT uid FROM assignment where moodle_id = :moodleId AND course_id_from_moodle = :courseIdFromMoodle AND assignment_id_from_moodle = :assignmentIdFromMoodle AND NOT is_custom")
+    fun selectUidForMoodleIds(moodleId: Int, courseIdFromMoodle: Int, assignmentIdFromMoodle: Int): Long
+
     @Update
     fun updateOne(assignment: Assignment)
 
-    @Query("INSERT INTO assignment (title, description, deadline, links, moodle_id, is_custom, is_completed, course_id_from_moodle, assignment_id_from_moodle) VALUES (:title, :description, :deadline, :links, :moodleId, :isCustom, :isCompleted, :courseIdFromMoodle, :assignmentIdFromMoodle)")
+    @Query("INSERT INTO assignment (title, description, deadline, links, moodle_id, is_custom, is_completed, course_id_from_moodle, assignment_id_from_moodle) " +
+        "VALUES (:title, :description, :deadline, :links, :moodleId, :isCustom, :isCompleted, :courseIdFromMoodle, :assignmentIdFromMoodle)")
     fun insertOneRaw(
         title: String,
         description: String,
@@ -158,11 +163,12 @@ interface AssignmentDao {
         description: String,
         deadline: Date,
         links: List<URL>? = null,
-        moodleId: Int? = null,
+        moodleId: Int,
         courseIdFromMoodle: Int,
         assignmentIdFromMoodle: Int,
     ): Long {
-        return insertOneRaw(
+        try {
+            return insertOneRaw(
             title,
             description,
             Assignment.convertDeadlineDate(deadline),
@@ -171,8 +177,12 @@ interface AssignmentDao {
             isCustom = false,
             isCompleted = false,
             courseIdFromMoodle,
-            assignmentIdFromMoodle
-        )
+            assignmentIdFromMoodle)
+        }
+        catch (e : SQLiteException) {
+            //return uid of already existing entry, currently no updates allowed
+            return selectUidForMoodleIds(moodleId, courseIdFromMoodle, assignmentIdFromMoodle)
+        }
     }
 
     fun insertOneCustom(
