@@ -55,7 +55,7 @@ class TranslationTest {
                             0
                         )
                     ),
-                    3
+                    2
                 ),
                 isDisplayed()
             )
@@ -73,7 +73,7 @@ class TranslationTest {
                             0
                         )
                     ),
-                    3
+                    2
                 ),
                 isDisplayed()
             )

@@ -4,7 +4,8 @@
         <item
             android:id="@+id/settings_drawable_bar"
             android:icon="@drawable/ic_baseline_settings_24"
-            android:title="@string/settings_drawable_txt" />
+            android:title="@string/settings_drawable_txt"
+            android:visible="false"/>
         <item
             android:id="@+id/add_university_drawable_bar"
             android:icon="@drawable/ic_baseline_uni_24"
