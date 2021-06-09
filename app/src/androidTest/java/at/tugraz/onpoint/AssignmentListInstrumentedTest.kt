@@ -210,7 +210,7 @@ class AssignmentsListInstrumentedTest {
     fun storeNewAssignmentAndRetrieveItFromDb() {
         val links = arrayListOf(URL("https://tc.tugraz.at"), URL("https://www.tugraz.at"))
         val deadline = Date()
-        val uid = assignmentDao.insertOneFromMoodle("my title", "my description", deadline, links)
+        val uid = assignmentDao.insertOneFromMoodle("my title", "my description", deadline, links, 0, 1, 1)
         val assignment: Assignment = assignmentDao.selectOne(uid)
         assert(assignment.uid!!.toLong() == uid)
         assert(assignment.title == "my title")
@@ -231,13 +231,19 @@ class AssignmentsListInstrumentedTest {
             "my title1",
             "my description1",
             deadlineLate,
-            links
+            links,
+            0,
+            1,
+            1
         )
         assignmentDao.insertOneFromMoodle(
             "my title2",
             "my description2",
             deadlineEarly,
-            links
+            links,
+            0,
+            1,
+            2
         )
         val assignmentsList: List<Assignment> = assignmentDao.selectAll()
         assert(assignmentsList.size == 2)
@@ -574,9 +580,9 @@ class AssignmentsListInstrumentedTest {
     @Test
     fun databaseSelectAllSpecific() {
         val assignmentDao = db.getAssignmentDao()
-        assignmentDao.insertOneFromMoodle("Test", "Test", Date(0))
-        assignmentDao.insertOneFromMoodle("Test2", "Test2", Date(2000))
-        assignmentDao.insertOneFromMoodle("Test3", "Test3", Date(1000))
+        assignmentDao.insertOneFromMoodle("Test", "Test", Date(0), null, 0, 1, 1)
+        assignmentDao.insertOneFromMoodle("Test2", "Test2", Date(2000), null, 0, 1, 2)
+        assignmentDao.insertOneFromMoodle("Test3", "Test3", Date(1000), null, 0, 1, 3)
         assignmentDao.insertOneCustom("Test4", "Test4", Date(2000))
         val uid = assignmentDao.insertOneCustom("Test5", "Test5", Date(1000))
         val assignment = assignmentDao.selectOne(uid)

@@ -181,6 +181,7 @@ class AssignmentsTabFragment : Fragment() {
                                     addAssignmentsFromMoodle(
                                         response.courses,
                                         moodleApi.token,
+                                        account.uid
                                     )
                                 }
                             }
@@ -199,7 +200,7 @@ class AssignmentsTabFragment : Fragment() {
         completedAdapter!!.notifyDataSetChanged()
     }
 
-    private fun addAssignmentsFromMoodle(courses: List<Course>, token: String) {
+    private fun addAssignmentsFromMoodle(courses: List<Course>, token: String, moodleUid: Int) {
         for (course in courses) {
             for (moodleAssignment in course.assignments) {
                 val listOfUrlsStrings: List<String> = moodleAssignment.introattachments.map {
@@ -211,6 +212,9 @@ class AssignmentsTabFragment : Fragment() {
                     description = moodleAssignment.intro,
                     deadline = Date(moodleAssignment.duedate),
                     links = listOfUrls,
+                    moodleLoginId = moodleUid,
+                    courseIdFromMoodle = course.id,
+                    assignmentIdFromMoodle = moodleAssignment.id
                 )
             }
         }
@@ -226,10 +230,12 @@ class AssignmentsTabFragment : Fragment() {
         description: String,
         deadline: Date,
         links: List<URL>? = null,
-        moodleId: Int? = null
+        moodleLoginId: Int,
+        courseIdFromMoodle: Int,
+        assignmentIdFromMoodle: Int
     ) {
         val uid: Long =
-            assignmentDao.insertOneFromMoodle(title, description, deadline, links, moodleId)
+            assignmentDao.insertOneFromMoodle(title, description, deadline, links, moodleLoginId, courseIdFromMoodle, assignmentIdFromMoodle)
         val assignment = assignmentDao.selectOne(uid)
         notCompletedAssignmentsList.add(assignment)
         notCompletedAdapter?.notifyDataSetChanged()

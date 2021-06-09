@@ -126,7 +126,7 @@ interface AssignmentDao {
     @Update
     fun updateOne(assignment: Assignment)
 
-    @Query("INSERT INTO assignment (title, description, deadline, links, moodle_id, is_custom, is_completed) VALUES (:title, :description, :deadline, :links, :moodleId, :isCustom, :isCompleted)")
+    @Query("INSERT INTO assignment (title, description, deadline, links, moodle_id, is_custom, is_completed, course_id_from_moodle, assignment_id_from_moodle) VALUES (:title, :description, :deadline, :links, :moodleId, :isCustom, :isCompleted, :courseIdFromMoodle, :assignmentIdFromMoodle)")
     fun insertOneRaw(
         title: String,
         description: String,
@@ -135,6 +135,8 @@ interface AssignmentDao {
         moodleId: Int?,
         isCustom: Boolean,
         isCompleted: Boolean,
+        courseIdFromMoodle: Int?,
+        assignmentIdFromMoodle: Int?
     ): Long
 
     fun insertOneFromMoodle(
@@ -143,6 +145,8 @@ interface AssignmentDao {
         deadline: Date,
         links: List<URL>? = null,
         moodleId: Int? = null,
+        courseIdFromMoodle: Int,
+        assignmentIdFromMoodle: Int,
     ): Long {
         return insertOneRaw(
             title,
@@ -152,6 +156,8 @@ interface AssignmentDao {
             moodleId,
             isCustom = false,
             isCompleted = false,
+            courseIdFromMoodle,
+            assignmentIdFromMoodle
         )
     }
 
@@ -169,6 +175,8 @@ interface AssignmentDao {
             moodleId = null,
             isCustom = true,
             isCompleted = false,
+            courseIdFromMoodle = null,
+            assignmentIdFromMoodle = null
         )
     }
 
@@ -258,7 +266,13 @@ data class Assignment(
     var isCustom: Boolean = false,
 
     @ColumnInfo(name = "is_completed")
-    var isCompleted: Boolean = false
+    var isCompleted: Boolean = false,
+
+    @ColumnInfo(name = "course_id_from_moodle")
+    var courseIdFromMoodle: Int? = null,
+
+    @ColumnInfo(name = "assignment_id_from_moodle")
+    var assignmentIdFromMoodle: Int? = null
 ) {
     companion object {
         fun convertDeadlineDate(deadline: Date): Long {
