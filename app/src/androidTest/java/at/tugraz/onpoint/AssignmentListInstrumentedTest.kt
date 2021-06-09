@@ -73,7 +73,7 @@ class AssignmentsListInstrumentedTest {
 
     private fun waitForRecyclerViewToBeFilled(
         id: Int,
-        maxTries: Int = 100,
+        maxTries: Int = 400,
         waitBetweenTriesMillis: Int = 100,
     ) {
         for (i in 0..maxTries) {

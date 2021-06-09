@@ -31,11 +31,27 @@ val MIGRATION_3_4: Migration = object : Migration(2, 3) {
         database.execSQL("CREATE TABLE IF NOT EXISTS `assignment` (`title` TEXT NOT NULL, `description` TEXT NOT NULL, `deadline` INTEGER NOT NULL, `links` TEXT NOT NULL, `uid` INTEGER PRIMARY KEY AUTOINCREMENT, `moodle_id` INTEGER, `is_custom` INTEGER NOT NULL)")
 
     }
+
+
+
 }
+
+val MIGRATION_4_5: Migration = object : Migration(4, 5) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("CREATE TABLE IF NOT EXISTS `moodle` (`uid` INTEGER NOT NULL, `universityName` TEXT NOT NULL, `userName` TEXT NOT NULL, `password` TEXT NOT NULL, `apiLink` TEXT NOT NULL, PRIMARY KEY(`apiLink`, `userName`))")
+
+    }
+
+
+
+}
+
+//"createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER NOT NULL, `universityName` TEXT NOT NULL, `userName` TEXT NOT NULL, `password` TEXT NOT NULL, `apiLink` TEXT NOT NULL, PRIMARY KEY(`universityName`, `userName`))",
+
 
 @Database(
     entities = [Todo::class, Assignment::class, Moodle::class],
-    version = 4,
+    version = 5,
     exportSchema = true
 )
 abstract class OnPointAppDatabase : RoomDatabase() {
@@ -179,10 +195,10 @@ interface AssignmentDao {
     fun deleteMoodleAssignments()
 }
 
-@Entity
+@Entity(primaryKeys = ["apiLink","userName"])
 data class Moodle(
-    @PrimaryKey(autoGenerate = true)
-    val uid: Int = -1,
+    @ColumnInfo(name = "uid")
+    val uid: Int,
 
     @ColumnInfo(name = "universityName")
     var universityName: String,
@@ -206,9 +222,10 @@ interface MoodleDao {
     @Query("SELECT * FROM moodle WHERE uid = (:uid)")
     fun selectOne(uid: Long): Moodle
 
-    @Query("INSERT INTO moodle (universityName, userName, password, apiLink) VALUES (:universityName, :userName, :password, :apiLink)")
-    fun insertOne(universityName: String, userName: String, password: String, apiLink: String): Long
-    // TODO on insert conflict, do nothing
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertOne(obj: Moodle?): Long
+
+
 }
 
 var INSTANCE: OnPointAppDatabase? = null
@@ -229,6 +246,8 @@ fun getDbInstance(context: Context?): OnPointAppDatabase {
         builder.addMigrations(MIGRATION_1_2)
         builder.addMigrations(MIGRATION_2_3)
         builder.addMigrations(MIGRATION_3_4)
+        builder.addMigrations(MIGRATION_4_5)
+
         INSTANCE = builder.build()
     }
     return INSTANCE as OnPointAppDatabase

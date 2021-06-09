@@ -35,8 +35,8 @@ This app is designed to keep track of deadlines at school and university. Not on
 | OnPoint-006 |  Interface between extern calender  | X  |  | 
 | OnPoint-020 |  Offline Modus | X  |  | 
 | OnPoint-016 |   Assignment Filtering | X  |  | 
-| OnPoint-017 |  Add costum Assignment |   | X | 
-|  OnPoint-015 |  check Assignments |   | X | 
-|   OnPoint-014 | Detail Assignment Files |   | X | 
+| OnPoint-017 |  Add costum Assignment |  X |  | 
+|  OnPoint-015 |  check Assignments | X  |  | 
+|   OnPoint-014 | Detail Assignment Files |  X |  | 
 
  
